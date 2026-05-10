@@ -533,7 +533,16 @@ function isValidRootForEquation(l,r,x){
 }
 
 function updateDebug(){document.getElementById('debugCalc').textContent='výpočetní zápis: '+calcA(root);document.getElementById('debugLatex').textContent='LaTeX: '+latexA(root);refreshGeneratorTargets(false)}
-function normalizeExpr(s){return s.replace(/(\d)([a-zA-Z])/g,'$1*$2').replace(/([a-zA-Z])(\d)/g,'$1*$2').replace(/(\d)\(/g,'$1*(').replace(/\)([a-zA-Z0-9])/g,')*$1').replace(/\)\(/g,')*(')}
+function normalizeExpr(s){
+  s=String(s||'');
+  s=s.replace(/−/g,'-');
+  s=s.replace(/(\d)([a-zA-Z])/g,'$1*$2')
+     .replace(/([a-zA-Z])(\d)/g,'$1*$2')
+     .replace(/(\d)\(/g,'$1*(')
+     .replace(/\)([a-zA-Z0-9])/g,')*$1')
+     .replace(/\)\(/g,')*(');
+  return s;
+}
 
 function getEquationLinesFromCalc(){
   return calcA(root)
@@ -770,6 +779,56 @@ function solveQuadraticBySampling(left,right){
  return [(-b-s)/(2*a),(-b+s)/(2*a)].filter(x=>isValidEquationRoot(left,right,x));
 }
 
+
+function findIntegerRootsExact(left,right,min=-100,max=100){
+  const roots=[];
+  for(let x=min;x<=max;x++){
+    try{
+      if(isValidEquationRoot(left,right,x)) roots.push(x);
+    }catch(e){}
+  }
+  return dedupeRoots(roots);
+}
+
+function mergeRootArrays(){
+  let all=[];
+  for(const arr of arguments){
+    if(Array.isArray(arr)) all=all.concat(arr);
+  }
+  return dedupeRoots(all.filter(n=>Number.isFinite(n) && Math.abs(n)<1e9));
+}
+
+
+function solveAllNumericRootsRobust(left,right,variable='x'){
+  const roots=[];
+  function add(x){
+    if(Number.isFinite(x) && Math.abs(x)<1e9 && isValidEquationRoot(left,right,x)) roots.push(x);
+  }
+
+  // 1) nejspolehlivější pro školní příklady: celé kořeny přes přímé dosazení
+  for(let x=-200;x<=200;x++) add(x);
+
+  // 2) jemnější numerické hledání změny znaménka
+  try{
+    const more=findNumericRoots(left,right);
+    more.forEach(add);
+  }catch(e){}
+
+  // 3) zkus i kořeny z rozkladu Nerdameru, ale jen jako doplněk
+  try{
+    if(window.nerdamer){
+      const expr=normalizeExpr('('+left+')-('+right+')');
+      const sols=parseNerdamerSolutions(nerdamer.solve(expr,variable));
+      sols.forEach(sol=>{
+        const n=numericValueFromNerdamer(sol);
+        add(n);
+      });
+    }
+  }catch(e){}
+
+  return dedupeRoots(roots);
+}
+
 async function solveEquation(){
  const box=document.getElementById('result'); 
  const raw=calcA(root);
@@ -829,6 +888,20 @@ async function solveEquation(){
 
   const [left,right]=parts;
   const expr=normalizeExpr('('+left+')-('+right+')');
+  const degree=getMaxPowerInRaw(raw,v);
+
+  // Nejdřív robustně najdi všechny reálné číselné kořeny.
+  // Důležité: u vyšších mocnin se nesmí skončit po prvních 1–2 kořenech z Nerdameru.
+  let allDirectRoots=[];
+  try{ allDirectRoots=solveAllNumericRootsRobust(left,right,v); }catch(e){ allDirectRoots=[]; }
+  if(degree>2 && allDirectRoots.length){
+    let html=formatRootList(v,allDirectRoots);
+    const fact=factorLatexOfEquation(left,right,v);
+    if(fact) html+='<div class="muted">Součinový tvar: \('+fact+'=0\)</div>';
+    box.innerHTML=html;
+    if(window.MathJax) await MathJax.typesetPromise([box]);
+    return;
+  }
 
   // 1) Nerdamer symbolic solve. Important: parse and display ALL returned solutions.
   let symbolicRoots=[];
@@ -846,13 +919,30 @@ async function solveEquation(){
   }
 
   if(symbolicRoots.length){
+    // Nerdamer někdy vrátí jen část kořenů. Proto se symbolické kořeny
+    // vždy sjednotí s numerickým i přesným celočíselným dohledáním.
+    let numericRoots=[];
+    let integerRoots=[];
+    let quadraticRoots=[];
+    try{ numericRoots=findNumericRoots(left,right); }catch(e){ numericRoots=[]; }
+    try{ integerRoots=findIntegerRootsExact(left,right,-100,100); }catch(e){ integerRoots=[]; }
+    try{ quadraticRoots=solveQuadraticBySampling(left,right); }catch(e){ quadraticRoots=[]; }
+
+    const symbolicNumericRoots=symbolicRoots
+      .map(s=>numericValueFromNerdamer(s))
+      .filter(n=>Number.isFinite(n) && isValidEquationRoot(left,right,n));
+
+    const allNumericRoots=mergeRootArrays(symbolicNumericRoots,numericRoots,integerRoots,quadraticRoots);
+
     let html='';
-    if(symbolicRoots.length===1){
+    if(allNumericRoots.length>=symbolicRoots.length){
+      html=formatRootList(v,allNumericRoots);
+    }else if(symbolicRoots.length===1){
       html='\\['+v+'='+nerdamer(symbolicRoots[0]).toTeX()+'\\]';
     }else{
       html='\\['+symbolicRoots.map((s,i)=>`${v}_{${i+1}}=${nerdamer(s).toTeX()}`).join('\\quad ')+'\\]';
     }
-    const degree=getMaxPowerInRaw(raw,v);
+
     if(degree>2){
       const fact=factorLatexOfEquation(left,right,v);
       if(fact) html+='<div class="muted">Součinový tvar: \\('+fact+'=0\\)</div>';
@@ -861,6 +951,7 @@ async function solveEquation(){
     if(window.MathJax) await MathJax.typesetPromise([box]);
     return;
   }
+
 
   // 2) Quadratic fallback: ensures two roots are shown when it is quadratic.
   let roots=solveQuadraticBySampling(left,right);
@@ -912,7 +1003,24 @@ function evalJS(s,x){
 function linearFallback(l,r){function f(x){return evalJS(l,x)-evalJS(r,x)}const b=f(0),a=f(1)-b;if(Math.abs(a)<1e-12)throw Error('not linear');return -b/a}
 function fmt(n){const r=Math.round(n*1e9)/1e9;return Math.abs(r-Math.round(r))<1e-9?String(Math.round(r)):String(r).replace('.',',')}
 function toks(raw){const out=[],re=/-?\d+(?:\.\d+)?/g;let m;while((m=re.exec(raw))){const bef=raw.slice(Math.max(0,m.index-3),m.index);if(bef.includes('^'))continue;out.push({start:m.index,end:m.index+m[0].length,value:m[0]})}return out}
-function repl(raw,rs){let o=raw;rs.sort((a,b)=>b.t.start-a.t.start).forEach(r=>o=o.slice(0,r.t.start)+r.v+o.slice(r.t.end));return o}
+function repl(raw,rs){
+  let o=raw;
+  rs.sort((a,b)=>b.t.start-a.t.start).forEach(r=>{
+    let v=String(r.v);
+
+    // Důležité: tokeny typu -4 obsahují i znaménko mínus.
+    // Když se -4 nahradí kladným číslem 5, nesmí vzniknout ...x^25...
+    // Proto binární mínus měníme na explicitní +5.
+    if(String(r.t.value).startsWith('-') && !v.startsWith('-')){
+      const before=o.slice(0,r.t.start).trimEnd();
+      const prev=before[before.length-1]||'';
+      if(/[0-9a-zA-Z)\]]/.test(prev)) v='+'+v;
+    }
+
+    o=o.slice(0,r.t.start)+v+o.slice(r.t.end);
+  });
+  return o;
+}
 function mutate(v,d){const n=Number(v);let k=0;for(let i=0;i<20;i++){k=Math.floor(Math.random()*(2*d+1))-d;if(k)break}let q=n+k;if(q===0)q=n>0?1:-1;return String(q)}
 
 function equationLines(){
