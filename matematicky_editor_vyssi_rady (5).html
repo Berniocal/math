@@ -1,0 +1,1519 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Matematický editor</title>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},svg:{fontCache:'global'}};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Solve.js"></script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#f3f3f3;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#111}
+.top{padding:18px 16px 8px;font-size:34px;font-weight:900}
+.editorWrap{padding:12px}
+.editor{background:white;border-radius:28px;min-height:230px;padding:22px;font-size:34px;line-height:1.7;display:flex;flex-wrap:wrap;align-items:center;align-content:flex-start;gap:2px;box-shadow:0 2px 12px #0001;cursor:text}
+.editor.empty:after{content:"Klikni sem a napiš rovnici";color:#999;font-size:24px}.lineBreak{flex-basis:100%;height:0}
+.cur{width:2px;height:44px;background:#111;animation:blink 1s step-end infinite;margin:0 2px;display:inline-block;vertical-align:middle}.sup .cur,.sub .cur{height:24px;min-width:2px}@keyframes blink{50%{opacity:0}}
+.tok{display:inline-flex;align-items:center;justify-content:center}.box{min-width:36px;min-height:34px;border:2px dotted #888;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;padding:2px 4px;margin:1px}.box.active{border-color:#2563eb;background:#eaf1ff}
+.frac{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;vertical-align:middle;margin:0 6px}.ft,.fb{min-width:42px;min-height:28px;display:flex;align-items:center;justify-content:center}.fl{width:100%;min-width:46px;height:2px;background:#111}
+.sqrt{display:inline-flex;align-items:center;gap:2px;margin:0 4px}.sqrtSym{font-size:46px;line-height:.8}.sqrtBody{border-top:2px solid #111;min-width:40px;padding-top:2px}.supw,.subw{display:inline-flex;align-items:center}.sup,.sub{font-size:.6em;min-width:26px;min-height:24px}.sup{transform:translateY(-14px)}.sub{transform:translateY(14px)}.par{font-size:1.3em}
+.panel{margin:12px;background:white;border-radius:24px;padding:14px;box-shadow:0 2px 12px #0001;display:grid;gap:12px}.title{font-weight:900;font-size:22px}.row{display:grid;grid-template-columns:1fr auto;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.targetGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}input,select,button{border:1px solid #ccc;background:#f9f9f9;border-radius:14px;padding:11px 12px;font-size:16px;font-weight:750}button{cursor:pointer;transition:transform .08s,background .12s}button:active{transform:scale(.94);background:#dfe8ff!important}.out{min-height:60px;background:#f7f7f7;border:1px solid #ddd;border-radius:16px;padding:12px;font-size:18px;overflow:auto}.muted{color:#777;font-size:14px}.small{font-size:13px;color:#777;word-break:break-all}
+.keyboard{position:fixed;left:0;right:0;bottom:0;background:#f7f7f7;border-top-left-radius:28px;border-top-right-radius:28px;box-shadow:0 -8px 30px #0002;transform:translateY(110%);transition:.25s;z-index:20}.keyboard.show{transform:translateY(0)}
+.kTop{display:grid;grid-template-columns:repeat(6,1fr);padding:10px;gap:8px}.kTop button{border:0;background:none;font-size:28px}.pills{display:flex;gap:10px;overflow:auto;padding:0 10px 10px}.pill{min-width:120px;border-radius:999px;border:2px solid #ccc;background:white;font-size:18px;line-height:1.15;padding:10px 18px}.pill.active{background:#000;color:#fff;border-color:#000}.keys{display:grid;grid-template-columns:repeat(6,1fr)}.key{height:68px;border:1px solid #ddd;border-radius:0;background:#f8f8f8;font-size:28px;display:flex;align-items:center;justify-content:center;position:relative}.key.dark{background:#ececec}.key.small{font-size:21px}.key.tiny{font-size:16px;line-height:1.05}.dot:after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:#d10038;bottom:10px;right:12px}
+.popover{position:fixed;display:none;background:#fff;border:1px solid #ddd;border-radius:10px;box-shadow:0 4px 16px #0002;z-index:50;overflow:hidden}
+.popover.show{display:flex}
+.popOpt{min-width:76px;height:68px;display:flex;align-items:center;justify-content:center;font-size:27px;border-right:1px solid #eee;background:#fff}
+.popOpt:last-child{border-right:0}.popOpt.active{background:#eee}
+@media(max-width:700px){.row,.row3{grid-template-columns:1fr}.editor{min-height:220px;font-size:30px}.key{height:66px;font-size:24px}.top{font-size:32px}}
+</style>
+</head>
+<body>
+<div class="top">Matematický editor</div>
+<div class="editorWrap"><div id="editor" class="editor empty" onclick="focusRoot()"></div></div>
+
+<section class="panel">
+  <div class="title">Výpočet</div>
+  <button onclick="solveEquation()">Spočítat</button>
+  <div id="result" class="out"></div>
+  <input id="vars" value="x,y,z" style="display:none">
+  <div class="small" id="debugCalc" style="display:none"></div>
+</section>
+
+<section class="panel">
+  <div class="title">Generátor podobného příkladu</div>
+  <div class="muted" id="targetHint">Generátor automaticky pozná počet výsledků podle zadání v editoru.</div>
+  <div id="targetBox" class="targetGrid"></div>
+  <div class="row"><select id="strength"><option value="2">malá změna</option><option value="5" selected>střední změna</option><option value="8">větší změna</option></select><button onclick="generateSimilar()">Vytvořit</button></div>
+  <div id="generated" class="out"><div class="muted">U soustav zadáš hodnoty x, y, z; u kvadratické rovnice kořeny x₁, x₂.</div></div>
+  <div class="row"><button onclick="useGenerated()">Použít v editoru</button></div>
+</section>
+
+<section class="panel">
+  <div class="title">Export</div>
+  <div class="row"><button onclick="copyLatex()">Kopírovat LaTeX do Wordu</button><button onclick="copyCalc()">Kopírovat výpočetní zápis</button></div>
+  <div class="small" id="debugLatex" style="display:none"></div>
+</section>
+
+<div id="keyPopover" class="popover"></div>
+<div id="keyboard" class="keyboard">
+  <div class="kTop">
+    <button onclick="hideKb()">⌄</button><button onclick="undo()">↶</button><button onclick="move(-1)">←</button><button onclick="move(1)">→</button><button onclick="smartEnter()">↵</button><button onclick="backspaceKey()">⌫</button>
+  </div>
+  <div class="pills">
+    <button class="pill active" onclick="setPanel('basic',this)">+ −<br>× ÷</button>
+    <button class="pill" onclick="setPanel('abc',this)">abc<br>xyz</button>
+    <button class="pill" onclick="setPanel('func',this)">f(x) e<br>log ln</button>
+    <button class="pill" onclick="setPanel('trig',this)">sin cos<br>tan cot</button>
+    <button class="pill" onclick="setPanel('extra',this)">lim dx<br>∫ Σ ∞</button>
+  </div>
+  <div id="keys" class="keys"></div>
+</div>
+
+<script>
+let root=[],path=[],cursor=0,history=[],panel='basic',lastGeneratedCalc='',lastGeneratedLatex='';
+const panels={
+basic:[
+["(□)",()=>insParen(),"dot",[["(□)",()=>insParen()],["[□]",()=>insBracket("square")],["{□}",()=>insBracket("curly")]]],
+[">",">","dot",[[">",">"],["≥",">="],["<","<"],["≤","<="]]],
+["7","7","dark"],["8","8","dark"],["9","9","dark"],["÷","/"],
+
+["□/□",()=>insFrac(),"tiny dot",[
+  ["□/□",()=>insFrac()],
+  ["□ □/□",()=>insMixedNumber()]
+]],
+["√□",()=>insSqrt(),"small dot",[
+  ["√□",()=>insSqrt()],
+  ["³√□",()=>insRoot("3")],
+  ["□√□",()=>insNRoot()]
+]],
+["4","4","dark"],["5","5","dark"],["6","6","dark"],["×","*"],
+
+["□²",()=>insPow("2"),"dot",[
+  ["□²",()=>insPow("2")],
+  ["□³",()=>insPow("3")],
+  ["□ⁿ",()=>insPow("")]
+]],
+["x","x","dot",[
+  ["x","x"],["y","y"],["z","z"]
+]],
+["1","1","dark"],["2","2","dark"],["3","3","dark"],["−","-"],
+
+["π","pi","dot",[
+  ["π","pi"],
+  ["π/2",()=>insFracText("pi","2")],
+  ["π/3",()=>insFracText("pi","3")]
+]],
+["%","%","dot"],["0","0","dark"],[",",".","dark"],["=","="],["+","+"]
+],
+abc:[
+["a","a"],["b","b"],["c","c"],["d","d"],["e","e"],["f","f"],["g","g"],["h","h"],["i","i"],["j","j"],["k","k"],["l","l"],["m","m"],["n","n"],["p","p"],["q","q"],["r","r"],["s","s"],["t","t"],["u","u"],["v","v"],["x","x"],["y","y"],["z","z"]
+],
+func:[
+["sin",()=>insFunc("sin"),"small"],["cos",()=>insFunc("cos"),"small"],["tan",()=>insFunc("tan"),"small"],["log",()=>insFunc("log"),"small"],["ln",()=>insFunc("ln"),"small"],["eˣ",()=>insExp(),"small"],
+["x²",()=>insPow("2"),"small"],["xⁿ",()=>insPow(""),"small"],["x₁",()=>insSub("1"),"small"],["a/b",()=>insFrac(),"small"],["(","("],[")",")"],
+["≤","<="],["≥",">="],["≠","!="],["⇒","=>"],["∞","Infinity"],["π","pi"],["α","alpha"],["β","beta"],["γ","gamma"],["Δ","Delta"],["φ","phi"],["ω","omega"]
+],
+trig:[
+["sin",()=>insFunc("sin"),"small"],["cos",()=>insFunc("cos"),"small"],["tan",()=>insFunc("tan"),"small"],["cot",()=>insFunc("cot"),"small"],["30°","30"],["45°","45"],
+["60°","60"],["90°","90"],["π/2",()=>insFracText("pi","2"),"small"],["π/3",()=>insFracText("pi","3"),"small"],["π/4",()=>insFracText("pi","4"),"small"],["π/6",()=>insFracText("pi","6"),"small"],
+["x","x"],["y","y"],["z","z"],["+","+"],["-","-"],["=","="],["√",()=>insSqrt()],["□²",()=>insPow("2")],["/","/"],["*","*"],["1","1"],["2","2"]
+],
+extra:[
+["lim","lim"],["∑","sum"],["∫","integral"],["dx","dx"],["∞","Infinity"],["→","->"],["{","{"],["}","}"],["[","["],["]","]"],["±","+-"],["∈","in"],
+["∪","cup"],["∩","cap"],["√",()=>insSqrt()],["frac",()=>insFrac(),"small"],["x","x"],["=","="],["+","+"],["-","-"],["a","a"],["b","b"],["c","c"],["n","n"]
+]
+};
+function arr(){let a=root;for(const p of path){if(p==='top')a=a.top;else if(p==='bottom')a=a.bottom;else if(p==='body')a=a.body;
+    else if(p==='whole')a=a.whole;
+    else if(p==='index')a=a.index;else if(p==='base')a=a.base;else if(p==='sup')a=a.sup;else if(p==='sub')a=a.sub;else if(p==='children')a=a.children;
+    else if(p==='frac')a=a.frac;else a=a[p]}return a}
+function save(){history.push(JSON.stringify({root,path,cursor}));if(history.length>100)history.shift()}
+function undo(){const s=history.pop();if(!s)return;({root,path,cursor}=JSON.parse(s));render();updateDebug()}
+function insNode(n){save();arr().splice(cursor,0,n);cursor++;render();updateDebug()}
+function insText(t){insNode({type:'text',v:String(t)})}
+function smartEnter(){ if(path.length){exitBox(); return;} insNode({type:'newline'}); }
+function enter(k){path.push(cursor-1,k);cursor=0;render();updateDebug()}
+function insFrac(){insNode({type:'frac',top:[],bottom:[]});enter('top')}
+function insFracText(a,b){insNode({type:'frac',top:[{type:'text',v:a}],bottom:[{type:'text',v:b}]})}
+function insSqrt(){insNode({type:'sqrt',body:[]});enter('body')}
+function insPow(v){
+ save();
+ const a=arr();
+ if(cursor>0){
+   const base=a.splice(cursor-1,1)[0];
+   a.splice(cursor-1,0,{type:'sup',base:[base],sup:v?[{type:'text',v}]:[]});
+   cursor=cursor;
+ }else{
+   a.splice(cursor,0,{type:'sup',base:[],sup:v?[{type:'text',v}]:[]});
+   cursor++;
+ }
+ render();updateDebug();
+}
+function insSub(v){
+ save();
+ const a=arr();
+ if(cursor>0){
+   const base=a.splice(cursor-1,1)[0];
+   a.splice(cursor-1,0,{type:'sub',base:[base],sub:v?[{type:'text',v}]:[]});
+   cursor=cursor;
+ }else{
+   a.splice(cursor,0,{type:'sub',base:[],sub:v?[{type:'text',v}]:[]});
+   cursor++;
+ }
+ render();updateDebug();
+}
+function insParen(){insNode({type:'paren',body:[]});enter('body')}
+
+function insBracket(kind){
+  insNode({type:'bracket',kind:kind,body:[]});
+  enter('body');
+}
+function insMixedNumber(){
+  save();
+  const a=arr();
+  const node={
+    type:'mixed',
+    whole:[],
+    frac:{type:'frac',top:[],bottom:[]}
+  };
+  a.splice(cursor,0,node);
+  path.push(cursor,'whole');
+  cursor=0;
+  render();
+  updateDebug();
+}
+function insRoot(indexText){
+  insNode({
+    type:'root',
+    index:indexText?[{type:'text',v:indexText}]:[],
+    body:[]
+  });
+  path.push(cursor-1,'body');
+  cursor=0;
+  render();
+  updateDebug();
+}
+function insNRoot(){
+  insNode({
+    type:'root',
+    index:[],
+    body:[]
+  });
+  path.push(cursor-1,'index');
+  cursor=0;
+  render();
+  updateDebug();
+}
+
+function insFunc(name){insNode({type:'func',name,body:[]});enter('body')}
+function insExp(){insNode({type:'exp',body:[]});enter('body')}
+
+function collectCursorStopsInArray(a, p, stops){
+  // pozice před každým prvkem a za posledním prvkem
+  for(let i=0;i<=a.length;i++){
+    stops.push({path:p.slice(), cursor:i});
+
+    if(i<a.length){
+      const n=a[i];
+      const np=p.concat(i);
+
+      if(n.type==='frac'){
+        collectCursorStopsInArray(n.top, np.concat('top'), stops);
+        collectCursorStopsInArray(n.bottom, np.concat('bottom'), stops);
+      }else if(n.type==='sqrt'){
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='bracket'){
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='mixed'){
+        collectCursorStopsInArray(n.whole, np.concat('whole'), stops);
+        collectCursorStopsInArray(n.frac.top, np.concat('frac','top'), stops);
+        collectCursorStopsInArray(n.frac.bottom, np.concat('frac','bottom'), stops);
+      }else if(n.type==='root'){
+        collectCursorStopsInArray(n.index, np.concat('index'), stops);
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='sup'){
+        collectCursorStopsInArray(n.base, np.concat('base'), stops);
+        collectCursorStopsInArray(n.sup, np.concat('sup'), stops);
+      }else if(n.type==='sub'){
+        collectCursorStopsInArray(n.base, np.concat('base'), stops);
+        collectCursorStopsInArray(n.sub, np.concat('sub'), stops);
+      }else if(n.type==='paren'){
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='func'){
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='exp'){
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='box'){
+        collectCursorStopsInArray(n.children, np.concat('children'), stops);
+      }
+    }
+  }
+}
+
+function allCursorStops(){
+  const stops=[];
+  collectCursorStopsInArray(root, [], stops);
+
+  // odstranění duplicit, ale zachování pořadí
+  const seen=new Set();
+  return stops.filter(s=>{
+    const k=JSON.stringify(s.path)+'|'+s.cursor;
+    if(seen.has(k))return false;
+    seen.add(k);
+    return true;
+  });
+}
+
+function smartMove(direction){
+  const stops=allCursorStops();
+  if(!stops.length)return;
+
+  const key=JSON.stringify(path)+'|'+cursor;
+  let idx=stops.findIndex(s=>JSON.stringify(s.path)+'|'+s.cursor===key);
+
+  if(idx<0){
+    idx=0;
+  }else{
+    idx+=direction;
+  }
+
+  idx=Math.max(0,Math.min(stops.length-1,idx));
+  path=stops[idx].path.slice();
+  cursor=stops[idx].cursor;
+  render();
+}
+
+function move(d){smartMove(d)}
+
+function exitBox(){if(!path.length)return;while(path.length&&typeof path.at(-1)!=='number')path.pop();if(path.length){cursor=path.pop()+1}else cursor=root.length;render()}
+function backspaceKey(){const a=arr();if(cursor>0){save();a.splice(cursor-1,1);cursor--;render();updateDebug();return}exitBox()}
+function focusRoot(){showKb();path=[];cursor=root.length;render()}function showKb(){document.getElementById('keyboard').classList.add('show')}function hideKb(){document.getElementById('keyboard').classList.remove('show')}
+function render(){const ed=document.getElementById('editor');ed.innerHTML='';ed.classList.toggle('empty',root.length===0);renderArr(root,ed,[])}
+function renderArr(a,parent,p){for(let i=0;i<=a.length;i++){if(JSON.stringify(p)===JSON.stringify(path)&&i===cursor){const c=document.createElement('span');c.className='cur';parent.appendChild(c)}if(i===a.length)break;parent.appendChild(nodeEl(a[i],p.concat(i)))}}
+function click(el,p){el.onclick=e=>{e.stopPropagation();showKb();path=p.slice(0,-1);cursor=p.at(-1)+1;render()};return el}
+function nodeEl(n,p){
+if(n.type==='newline'){const br=document.createElement('span');br.className='lineBreak';return br}
+if(n.type==='menuText'){const s=document.createElement('span');s.className='tok';s.textContent=n.show;return click(s,p)}
+if(n.type==='text'){const s=document.createElement('span');s.className='tok';s.textContent=display(n.v);return click(s,p)}
+if(n.type==='box'){const s=document.createElement('span');s.className='box'+(eq(path,p.concat('children'))?' active':'');s.onclick=e=>{e.stopPropagation();showKb();path=p.concat('children');cursor=n.children.length;render()};renderArr(n.children,s,p.concat('children'));return s}
+if(n.type==='frac'){const w=document.createElement('span');w.className='frac tok';const t=document.createElement('span');t.className='ft box'+(eq(path,p.concat('top'))?' active':'');t.onclick=e=>{e.stopPropagation();showKb();path=p.concat('top');cursor=n.top.length;render()};renderArr(n.top,t,p.concat('top'));const l=document.createElement('span');l.className='fl';const b=document.createElement('span');b.className='fb box'+(eq(path,p.concat('bottom'))?' active':'');b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('bottom');cursor=n.bottom.length;render()};renderArr(n.bottom,b,p.concat('bottom'));w.append(t,l,b);return w}
+if(n.type==='sqrt'){const w=document.createElement('span');w.className='sqrt tok';const s=document.createElement('span');s.className='sqrtSym';s.textContent='√';const b=document.createElement('span');b.className='sqrtBody box'+(eq(path,p.concat('body'))?' active':'');b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};renderArr(n.body,b,p.concat('body'));w.append(s,b);return w}
+
+if(n.type==='bracket'){
+ const w=document.createElement('span');w.className='tok';
+ const l=document.createElement('span'),r=document.createElement('span');
+ l.className=r.className='par';
+ l.textContent=n.kind==='square'?'[':'{';
+ r.textContent=n.kind==='square'?']':'}';
+ const b=document.createElement('span');
+ b.className='box'+(eq(path,p.concat('body'))?' active':'');
+ b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};
+ renderArr(n.body,b,p.concat('body'));
+ w.append(l,b,r);return w
+}
+if(n.type==='mixed'){
+ const w=document.createElement('span');w.className='tok';
+ const whole=document.createElement('span');
+ whole.className='box'+(eq(path,p.concat('whole'))?' active':'');
+ whole.onclick=e=>{e.stopPropagation();showKb();path=p.concat('whole');cursor=n.whole.length;render()};
+ renderArr(n.whole,whole,p.concat('whole'));
+ const fr=n.frac;
+ const fw=document.createElement('span');fw.className='frac tok';
+ const t=document.createElement('span');t.className='ft box'+(eq(path,p.concat('frac','top'))?' active':'');
+ t.onclick=e=>{e.stopPropagation();showKb();path=p.concat('frac','top');cursor=fr.top.length;render()};
+ renderArr(fr.top,t,p.concat('frac','top'));
+ const l=document.createElement('span');l.className='fl';
+ const b=document.createElement('span');b.className='fb box'+(eq(path,p.concat('frac','bottom'))?' active':'');
+ b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('frac','bottom');cursor=fr.bottom.length;render()};
+ renderArr(fr.bottom,b,p.concat('frac','bottom'));
+ fw.append(t,l,b);w.append(whole,fw);return w
+}
+if(n.type==='root'){
+ const w=document.createElement('span');w.className='sqrt tok';
+ const idx=document.createElement('span');
+ idx.className='sup box'+(eq(path,p.concat('index'))?' active':'');
+ idx.onclick=e=>{e.stopPropagation();showKb();path=p.concat('index');cursor=n.index.length;render()};
+ renderArr(n.index,idx,p.concat('index'));
+ const sy=document.createElement('span');sy.className='sqrtSym';sy.textContent='√';
+ const b=document.createElement('span');b.className='sqrtBody box'+(eq(path,p.concat('body'))?' active':'');
+ b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};
+ renderArr(n.body,b,p.concat('body'));
+ w.append(idx,sy,b);return w
+}
+if(n.type==='sup'||n.type==='sub'){
+ const w=document.createElement('span');w.className=(n.type==='sup'?'supWrap':'subWrap')+' tok';
+ const baseWrap=document.createElement('span');
+ if(n.base.length){
+   renderArr(n.base,baseWrap,p.concat('base'));
+ }else{
+   baseWrap.className='box'+(eq(path,p.concat('base'))?' active':'');
+   baseWrap.onclick=e=>{e.stopPropagation();showKb();path=p.concat('base');cursor=n.base.length;render()};
+   renderArr(n.base,baseWrap,p.concat('base'));
+ }
+ const sm=document.createElement('span');
+ sm.className=(n.type==='sup'?'sup':'sub')+' box'+(eq(path,p.concat(n.type))?' active':'');
+ sm.onclick=e=>{e.stopPropagation();showKb();path=p.concat(n.type);cursor=n[n.type].length;render()};
+ renderArr(n[n.type],sm,p.concat(n.type));
+ w.append(baseWrap,sm);return w}
+if(n.type==='paren'){const w=document.createElement('span');w.className='tok';const l=document.createElement('span'),r=document.createElement('span');l.className=r.className='par';l.textContent='(';r.textContent=')';const b=document.createElement('span');b.className='box'+(eq(path,p.concat('body'))?' active':'');b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};renderArr(n.body,b,p.concat('body'));w.append(l,b,r);return w}
+if(n.type==='func'){const w=document.createElement('span');w.className='tok';const nm=document.createElement('span');nm.textContent=n.name;const l=document.createElement('span'),r=document.createElement('span');l.className=r.className='par';l.textContent='(';r.textContent=')';const b=document.createElement('span');b.className='box'+(eq(path,p.concat('body'))?' active':'');b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};renderArr(n.body,b,p.concat('body'));w.append(nm,l,b,r);return w}
+if(n.type==='exp'){const w=document.createElement('span');w.className='tok';w.textContent='e';const s=document.createElement('span');s.className='sup box'+(eq(path,p.concat('body'))?' active':'');s.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};renderArr(n.body,s,p.concat('body'));w.append(s);return w}
+}
+function eq(a,b){return JSON.stringify(a)===JSON.stringify(b)}
+function display(v){return String(v).replaceAll('*','×').replaceAll('/','÷').replaceAll('-','−').replaceAll('pi','π').replaceAll('Infinity','∞').replaceAll('<=','≤').replaceAll('>=','≥').replaceAll('!=','≠')}
+
+function calcA(a){return a.map(calc).join('')}
+function calc(n){
+ if(n.type==='newline')return '\n';
+ if(n.type==='menuText')return n.calc;
+ if(n.type==='text')return n.v;
+ if(n.type==='box')return calcA(n.children)||'';
+ if(n.type==='frac')return '(('+calcA(n.top)+')/('+calcA(n.bottom)+'))';
+ if(n.type==='bracket')return '('+calcA(n.body)+')';
+ if(n.type==='mixed')return '('+calcA(n.whole)+'+(('+calcA(n.frac.top)+')/('+calcA(n.frac.bottom)+')))';
+ if(n.type==='root')return '('+calcA(n.body)+')^(1/('+calcA(n.index)+'))';
+ if(n.type==='sqrt')return 'sqrt('+calcA(n.body)+')';
+ if(n.type==='sup')return '('+calcA(n.base)+')^('+calcA(n.sup)+')';
+ if(n.type==='sub')return calcA(n.base)+'_'+calcA(n.sub);
+ if(n.type==='paren')return '('+calcA(n.body)+')';
+ if(n.type==='func')return n.name+'('+calcA(n.body)+')';
+ if(n.type==='exp')return 'e^('+calcA(n.body)+')';
+ return '';
+}
+function latexA(a){return a.map(latexN).join('')}
+function latexN(n){
+ if(n.type==='newline')return '\\\\';
+ if(n.type==='menuText')return n.latex;
+ if(n.type==='text')return textToLatex(n.v);
+ if(n.type==='box')return latexA(n.children)||'\\square';
+ if(n.type==='frac')return '\\frac{'+(latexA(n.top)||'\\square')+'}{'+(latexA(n.bottom)||'\\square')+'}';
+ if(n.type==='bracket')return (n.kind==='square'?'\\left[':'\\left\\{')+latexA(n.body)+(n.kind==='square'?'\\right]':'\\right\\}');
+ if(n.type==='mixed')return (latexA(n.whole)||'\\square')+'\\frac{'+(latexA(n.frac.top)||'\\square')+'}{'+(latexA(n.frac.bottom)||'\\square')+'}';
+ if(n.type==='root')return '\\sqrt['+(latexA(n.index)||'\\square')+']{'+(latexA(n.body)||'\\square')+'}';
+ if(n.type==='sqrt')return '\\sqrt{'+(latexA(n.body)||'\\square')+'}';
+ if(n.type==='sup')return '{'+(latexA(n.base)||'\\square')+'}^{'+(latexA(n.sup)||'\\square')+'}';
+ if(n.type==='sub')return '{'+(latexA(n.base)||'\\square')+'}_{'+(latexA(n.sub)||'\\square')+'}';
+ if(n.type==='paren')return '\\left('+latexA(n.body)+'\\right)';
+ if(n.type==='func')return '\\'+n.name+'\\left('+latexA(n.body)+'\\right)';
+ if(n.type==='exp')return 'e^{'+(latexA(n.body)||'\\square')+'}';
+ return '';
+}
+function textToLatex(s){return String(s).replaceAll('*','\\cdot ').replaceAll('/','\\div ').replaceAll('pi','\\pi ').replaceAll('Infinity','\\infty ').replaceAll('<=','\\le ').replaceAll('>=','\\ge ').replaceAll('!=','\\ne ')}
+
+function calcTextToNodes(s){
+  s=String(s||'');
+  const nodes=[];
+  for(let i=0;i<s.length;i++){
+    const ch=s[i];
+    if(ch==='\n'){nodes.push({type:'newline'});continue;}
+    if(ch===' ') continue;
+
+    // internal fraction pattern: ((top)/(bottom))
+    if(s.slice(i,i+2)==='(('){
+      let j=i+2, depth=1, top='';
+      while(j<s.length){
+        const c=s[j];
+        if(c==='(') depth++;
+        if(c===')') depth--;
+        if(depth===0 && s[j+1]==='/' && s[j+2]==='(') break;
+        top+=c; j++;
+      }
+      if(j<s.length && s[j+1]==='/' && s[j+2]==='('){
+        j+=3; depth=1; let bot='';
+        while(j<s.length){
+          const c=s[j];
+          if(c==='(') depth++;
+          if(c===')') depth--;
+          if(depth===0 && s[j+1]===')') break;
+          bot+=c; j++;
+        }
+        if(j<s.length){
+          nodes.push({type:'frac',top:calcTextToNodes(top),bottom:calcTextToNodes(bot)});
+          i=j+1;
+          continue;
+        }
+      }
+    }
+
+    if(ch==='^'){
+      const base=nodes.length? [nodes.pop()] : [];
+      let exp='';
+      if(s[i+1]==='('){
+        let j=i+2, depth=1;
+        while(j<s.length){
+          const c=s[j];
+          if(c==='(') depth++;
+          if(c===')') depth--;
+          if(depth===0) break;
+          exp+=c; j++;
+        }
+        i=j;
+      }else{
+        exp=s[i+1]||'';
+        i++;
+      }
+      nodes.push({type:'sup',base,sup:calcTextToNodes(exp)});
+      continue;
+    }
+
+    if(ch==='('){
+      let j=i+1, depth=1, body='';
+      while(j<s.length){
+        const c=s[j];
+        if(c==='(') depth++;
+        if(c===')') depth--;
+        if(depth===0) break;
+        body+=c; j++;
+      }
+      if(j<s.length){
+        nodes.push({type:'paren',body:calcTextToNodes(body)});
+        i=j;
+        continue;
+      }
+    }
+
+    if(s.slice(i,i+5)==='sqrt('){
+      let j=i+5, depth=1, body='';
+      while(j<s.length){
+        const c=s[j];
+        if(c==='(') depth++;
+        if(c===')') depth--;
+        if(depth===0) break;
+        body+=c; j++;
+      }
+      nodes.push({type:'sqrt',body:calcTextToNodes(body)});
+      i=j;
+      continue;
+    }
+
+    if(/[a-zA-Z]/.test(ch)){
+      let name=ch; let j=i+1;
+      while(j<s.length && /[a-zA-Z]/.test(s[j])){name+=s[j];j++;}
+      if(['sin','cos','tan','cot','log','ln'].includes(name) && s[j]==='('){
+        let k=j+1, depth=1, body='';
+        while(k<s.length){
+          const c=s[k];
+          if(c==='(') depth++;
+          if(c===')') depth--;
+          if(depth===0) break;
+          body+=c;k++;
+        }
+        nodes.push({type:'func',name,body:calcTextToNodes(body)});
+        i=k;continue;
+      }
+      for(const letter of name) nodes.push({type:'text',v:letter});
+      i=j-1;continue;
+    }
+
+    nodes.push({type:'text',v:ch});
+  }
+  return nodes;
+}
+
+function denominatorsAtZero(expr,x){
+  const dens=[];
+  const re=/\/\(([^()]+)\)/g;
+  let m;
+  while((m=re.exec(expr))!==null){
+    try{dens.push(evalJS(m[1],x))}catch(e){}
+  }
+  return dens.some(v=>!Number.isFinite(v)||Math.abs(v)<1e-9);
+}
+
+function isValidRootForEquation(l,r,x){
+  if(denominatorsAtZero(l,x)||denominatorsAtZero(r,x)) return false;
+  let lv,rv;
+  try{lv=evalJS(l,x);rv=evalJS(r,x)}catch(e){return false}
+  return Number.isFinite(lv)&&Number.isFinite(rv)&&Math.abs(lv-rv)<1e-7;
+}
+
+function updateDebug(){document.getElementById('debugCalc').textContent='výpočetní zápis: '+calcA(root);document.getElementById('debugLatex').textContent='LaTeX: '+latexA(root);refreshGeneratorTargets(false)}
+function normalizeExpr(s){return s.replace(/(\d)([a-zA-Z])/g,'$1*$2').replace(/([a-zA-Z])(\d)/g,'$1*$2').replace(/(\d)\(/g,'$1*(').replace(/\)([a-zA-Z0-9])/g,')*$1').replace(/\)\(/g,')*(')}
+
+function getEquationLinesFromCalc(){
+  return calcA(root)
+    .split(/\n|;/)
+    .map(s=>s.trim())
+    .filter(s=>s.includes('='));
+}
+
+function parseLinearEquationCoeffs(eq, vars){
+  const idx=eq.indexOf('=');
+  const left=eq.slice(0,idx);
+  const right=eq.slice(idx+1);
+
+  // Linear coefficients by evaluating f = left - right at 0 and unit vectors.
+  function valueAt(values){
+    let expr=normalizeExpr('('+left+')-('+right+')');
+    vars.forEach((v,i)=>{
+      const re=new RegExp('\\b'+v+'\\b','g');
+      expr=expr.replace(re,'('+values[i]+')');
+    });
+    return Function('return ('+expr+')')();
+  }
+
+  const zero=Array(vars.length).fill(0);
+  const c=valueAt(zero);
+  const coeffs=[];
+  for(let i=0;i<vars.length;i++){
+    const e=Array(vars.length).fill(0);
+    e[i]=1;
+    coeffs.push(valueAt(e)-c);
+  }
+  // equation is coeffs·vars + c = 0 => coeffs·vars = -c
+  return {coeffs, rhs:-c};
+}
+
+function solveLinearSystemFallback(eqs, vars){
+  const n=eqs.length;
+  const A=[];
+  const b=[];
+  for(let i=0;i<n;i++){
+    const row=parseLinearEquationCoeffs(eqs[i], vars);
+    A.push(row.coeffs);
+    b.push(row.rhs);
+  }
+
+  // Gaussian elimination
+  const M=A.map((row,i)=>row.concat([b[i]]));
+  for(let col=0; col<n; col++){
+    let pivot=col;
+    for(let r=col+1;r<n;r++){
+      if(Math.abs(M[r][col])>Math.abs(M[pivot][col])) pivot=r;
+    }
+    if(Math.abs(M[pivot][col])<1e-12) throw Error('singular');
+    [M[col],M[pivot]]=[M[pivot],M[col]];
+
+    const div=M[col][col];
+    for(let j=col;j<=n;j++) M[col][j]/=div;
+
+    for(let r=0;r<n;r++){
+      if(r===col) continue;
+      const factor=M[r][col];
+      for(let j=col;j<=n;j++) M[r][j]-=factor*M[col][j];
+    }
+  }
+
+  return M.map(row=>row[n]);
+}
+
+
+function solveNonlinearSystemNumeric(eqs, vars){
+  const n=eqs.length;
+  if(n<2 || n>3)return null;
+
+  function residual(values){
+    return eqs.map(eq=>{
+      const idx=eq.indexOf('=');
+      let l=eq.slice(0,idx), r=eq.slice(idx+1);
+      vars.forEach((v,i)=>{
+        const re=new RegExp('\\b'+v+'\\b','g');
+        l=l.replace(re,'('+values[i]+')');
+        r=r.replace(re,'('+values[i]+')');
+      });
+      return evalJS(l,0)-evalJS(r,0);
+    });
+  }
+
+  // hrubé hledání celých řešení v rozsahu -10..10, což odpovídá generátoru
+  const range=[];
+  for(let i=-10;i<=10;i++)range.push(i);
+
+  if(n===2){
+    for(const x of range){
+      for(const y of range){
+        const res=residual([x,y]);
+        if(res.every(v=>Math.abs(v)<1e-8))return [x,y];
+      }
+    }
+  }
+
+  if(n===3){
+    for(const x of range){
+      for(const y of range){
+        for(const z of range){
+          const res=residual([x,y,z]);
+          if(res.every(v=>Math.abs(v)<1e-8))return [x,y,z];
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
+async function renderSystemResult(box, vars, values){
+  box.innerHTML='\\['+vars.map((v,i)=>`${v}=${fmtLatexNumber(values[i])}`).join('\\quad ')+'\\]';
+  if(window.MathJax) await MathJax.typesetPromise([box]);
+}
+
+
+
+function dedupeRoots(roots){
+ const out=[];
+ roots.forEach(r=>{
+  if(Number.isFinite(r) && !out.some(x=>Math.abs(x-r)<1e-6)) out.push(r);
+ });
+ return out.sort((a,b)=>a-b);
+}
+
+function fmtLatexNumber(n){
+ const r=Math.round(n*1e9)/1e9;
+ if(Math.abs(r-Math.round(r))<1e-9) return String(Math.round(r));
+ return String(r).replace(".",",");
+}
+
+function formatRootList(variable, roots){
+ roots=dedupeRoots(roots);
+ if(!roots.length) return null;
+ if(roots.length===1) return `\\[${variable}=${fmtLatexNumber(roots[0])}\\]`;
+ return "\\[" + roots.map((r,i)=>`${variable}_{${i+1}}=${fmtLatexNumber(r)}`).join("\\quad ") + "\\]";
+}
+
+function splitTopLevelEquation(raw){
+ const eqs=String(raw).split(/\n|;/).filter(x=>x.includes("="));
+ if(eqs.length!==1) return null;
+ const idx=eqs[0].indexOf("=");
+ return [eqs[0].slice(0,idx), eqs[0].slice(idx+1)];
+}
+
+function safeEval(expr,x){
+ const y=evalJS(expr,x);
+ return Number.isFinite(y) ? y : NaN;
+}
+
+function isValidEquationRoot(left,right,x){
+ let lv=safeEval(left,x), rv=safeEval(right,x);
+ if(!Number.isFinite(lv)||!Number.isFinite(rv)) return false;
+ if(Math.abs(lv)>1e12 || Math.abs(rv)>1e12) return false;
+ return Math.abs(lv-rv)<1e-7;
+}
+
+function findNumericRoots(left,right){
+ const f=x=>safeEval(left,x)-safeEval(right,x);
+ const roots=[];
+ const min=-100, max=100, step=0.05;
+ let px=null, pv=null;
+
+ for(let x=min; x<=max+1e-12; x+=step){
+  let y=f(x);
+
+  if(!Number.isFinite(y)){
+    px=null; pv=null; 
+    continue;
+  }
+
+  if(Math.abs(y)<1e-8 && isValidEquationRoot(left,right,x)){
+    roots.push(x);
+  }
+
+  if(px!==null && Number.isFinite(pv) && pv*y<0){
+    let a=px,b=x,fa=pv;
+    for(let i=0;i<80;i++){
+      const m=(a+b)/2;
+      const fm=f(m);
+      if(!Number.isFinite(fm)) break;
+      if(Math.abs(fm)<1e-12){a=b=m;break}
+      if(fa*fm<=0){b=m}else{a=m;fa=fm}
+    }
+    const rr=(a+b)/2;
+    if(isValidEquationRoot(left,right,rr)) roots.push(rr);
+  }
+
+  px=x; pv=y;
+ }
+
+ // exact-ish integer checks
+ for(let x=-50;x<=50;x++){
+  if(isValidEquationRoot(left,right,x)) roots.push(x);
+ }
+
+ return dedupeRoots(roots);
+}
+
+function parseNerdamerSolutions(res){
+ let txt=String(res && res.toString ? res.toString() : res);
+ txt=txt.trim();
+ if(!txt) return [];
+ if(txt.startsWith("[") && txt.endsWith("]")) txt=txt.slice(1,-1);
+ if(!txt.trim()) return [];
+ return txt.split(",").map(s=>s.trim()).filter(Boolean);
+}
+
+function numericValueFromNerdamer(s){
+ try{
+   const t=nerdamer(s).evaluate().text();
+   const n=Number(t);
+   return Number.isFinite(n) ? n : NaN;
+ }catch(e){
+   return NaN;
+ }
+}
+
+function solveQuadraticBySampling(left,right){
+ // For fallback: sample f(0), f(1), f(2) and infer ax^2+bx+c if possible.
+ const f=x=>safeEval(left,x)-safeEval(right,x);
+ const c=f(0), y1=f(1), y2=f(2);
+ if(!Number.isFinite(c)||!Number.isFinite(y1)||!Number.isFinite(y2)) return [];
+ const a=(y2-2*y1+c)/2;
+ const b=y1-c-a;
+ if(Math.abs(a)<1e-12) return [];
+ const D=b*b-4*a*c;
+ if(D<-1e-9) return [];
+ if(Math.abs(D)<1e-9) return [-b/(2*a)].filter(x=>isValidEquationRoot(left,right,x));
+ const s=Math.sqrt(D);
+ return [(-b-s)/(2*a),(-b+s)/(2*a)].filter(x=>isValidEquationRoot(left,right,x));
+}
+
+async function solveEquation(){
+ const box=document.getElementById('result'); 
+ const raw=calcA(root);
+
+ if(!raw){
+  box.innerHTML='<div class="muted">Nejdřív zadej rovnici.</div>';
+  return;
+ }
+
+ const vars=document.getElementById('vars').value.split(',').map(x=>x.trim()).filter(Boolean); 
+ const v=vars[0]||'x';
+
+ try{
+  const eqs=getEquationLinesFromCalc();
+
+  if(eqs.length>1){
+    const usedVars=vars.slice(0,eqs.length);
+    try{
+      if(window.nerdamer){
+        const used=eqs.slice(0,3).map(eq=>{
+          const idx=eq.indexOf('=');
+          const l=eq.slice(0,idx), r=eq.slice(idx+1);
+          return normalizeExpr('('+l+')-('+r+')');
+        });
+        const res=nerdamer.solveEquations(used,usedVars);
+        if(Array.isArray(res)&&res.length){
+          box.innerHTML='\\['+res.map(x=>x[0]+'='+nerdamer(x[1]).toTeX()).join('\\quad ')+'\\]';
+          if(window.MathJax) await MathJax.typesetPromise([box]);
+          return;
+        }
+      }
+    }catch(e){}
+
+    try{
+      const values=solveLinearSystemFallback(eqs,usedVars);
+      await renderSystemResult(box,usedVars,values);
+      return;
+    }catch(e){}
+
+    try{
+      const nonlinear=solveNonlinearSystemNumeric(eqs,usedVars);
+      if(nonlinear){
+        await renderSystemResult(box,usedVars,nonlinear);
+        return;
+      }
+    }catch(e){}
+
+    box.innerHTML='<div class="muted">Soustavu se nepodařilo spočítat.</div>';
+    return;
+  }
+
+  const parts=splitTopLevelEquation(raw);
+  if(!parts){
+    box.innerHTML='<div class="muted">Zápis neobsahuje jednu rovnici s rovnítkem.</div>';
+    return;
+  }
+
+  const [left,right]=parts;
+  const expr=normalizeExpr('('+left+')-('+right+')');
+
+  // 1) Nerdamer symbolic solve. Important: parse and display ALL returned solutions.
+  let symbolicRoots=[];
+  if(window.nerdamer){
+    try{
+      symbolicRoots=parseNerdamerSolutions(nerdamer.solve(expr,v));
+      symbolicRoots=symbolicRoots.filter(s=>{
+        const n=numericValueFromNerdamer(s);
+        // Keep nonnumeric symbolic roots, but filter numeric roots by substitution.
+        return !Number.isFinite(n) || isValidEquationRoot(left,right,n);
+      });
+    }catch(e){
+      symbolicRoots=[];
+    }
+  }
+
+  if(symbolicRoots.length){
+    let html='';
+    if(symbolicRoots.length===1){
+      html='\\['+v+'='+nerdamer(symbolicRoots[0]).toTeX()+'\\]';
+    }else{
+      html='\\['+symbolicRoots.map((s,i)=>`${v}_{${i+1}}=${nerdamer(s).toTeX()}`).join('\\quad ')+'\\]';
+    }
+    const degree=getMaxPowerInRaw(raw,v);
+    if(degree>2){
+      const fact=factorLatexOfEquation(left,right,v);
+      if(fact) html+='<div class="muted">Součinový tvar: \\('+fact+'=0\\)</div>';
+    }
+    box.innerHTML=html;
+    if(window.MathJax) await MathJax.typesetPromise([box]);
+    return;
+  }
+
+  // 2) Quadratic fallback: ensures two roots are shown when it is quadratic.
+  let roots=solveQuadraticBySampling(left,right);
+  if(roots.length){
+    box.innerHTML=formatRootList(v,roots);
+    if(window.MathJax) await MathJax.typesetPromise([box]);
+    return;
+  }
+
+  // 3) Numeric search for rational equations and equations with x in denominator.
+  roots=findNumericRoots(left,right);
+  if(roots.length){
+    let html=formatRootList(v,roots);
+    const degree=getMaxPowerInRaw(raw,v);
+    if(degree>2){
+      const fact=factorLatexOfEquation(left,right,v);
+      if(fact) html+='<div class="muted">Součinový tvar: \\('+fact+'=0\\)</div>';
+    }
+    box.innerHTML=html;
+    if(window.MathJax) await MathJax.typesetPromise([box]);
+    return;
+  }
+
+  // 4) Last fallback: linear.
+  const ans=linearFallback(left,right);
+  if(isValidEquationRoot(left,right,ans)){
+    box.innerHTML='\\['+v+'='+fmtLatexNumber(ans)+'\\]';
+  }else{
+    box.innerHTML='<div class="muted">Řešení nenalezeno nebo je mimo definiční obor.</div>';
+  }
+  if(window.MathJax) await MathJax.typesetPromise([box]);
+
+ }catch(e){
+  box.innerHTML='<div class="muted">Tohle se nepodařilo spočítat.</div>';
+ }
+}
+function evalJS(s,x){
+ s=normalizeExpr(String(s))
+   .replace(/\^/g,'**')
+   .replace(/\bpi\b/g,'Math.PI')
+   .replace(/\bsqrt\(/g,'Math.sqrt(')
+   .replace(/\bsin\(/g,'Math.sin(')
+   .replace(/\bcos\(/g,'Math.cos(')
+   .replace(/\btan\(/g,'Math.tan(')
+   .replace(/\blog\(/g,'Math.log(')
+   .replace(/\bln\(/g,'Math.log(');
+ return Function('x','return ('+s+')')(x)
+}
+function linearFallback(l,r){function f(x){return evalJS(l,x)-evalJS(r,x)}const b=f(0),a=f(1)-b;if(Math.abs(a)<1e-12)throw Error('not linear');return -b/a}
+function fmt(n){const r=Math.round(n*1e9)/1e9;return Math.abs(r-Math.round(r))<1e-9?String(Math.round(r)):String(r).replace('.',',')}
+function toks(raw){const out=[],re=/-?\d+(?:\.\d+)?/g;let m;while((m=re.exec(raw))){const bef=raw.slice(Math.max(0,m.index-3),m.index);if(bef.includes('^'))continue;out.push({start:m.index,end:m.index+m[0].length,value:m[0]})}return out}
+function repl(raw,rs){let o=raw;rs.sort((a,b)=>b.t.start-a.t.start).forEach(r=>o=o.slice(0,r.t.start)+r.v+o.slice(r.t.end));return o}
+function mutate(v,d){const n=Number(v);let k=0;for(let i=0;i<20;i++){k=Math.floor(Math.random()*(2*d+1))-d;if(k)break}let q=n+k;if(q===0)q=n>0?1:-1;return String(q)}
+
+function equationLines(){
+ return calcA(root).split(/\n|;/).map(s=>s.trim()).filter(s=>s.includes('='));
+}
+
+function getMaxPowerInRaw(raw, variable='x'){
+  let max=raw.includes(variable)?1:0;
+  const esc=variable.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const patterns=[
+    new RegExp(esc+'\\s*\\^\\s*(?:\\(?\\s*)?(\\d+)', 'g'),
+    new RegExp('\\('+esc+'\\)\\s*\\^\\s*\\(?\\s*(\\d+)', 'g')
+  ];
+  patterns.forEach(re=>{
+    let m;
+    while((m=re.exec(raw))!==null){
+      const n=Number(m[1]);
+      if(Number.isFinite(n)) max=Math.max(max,n);
+    }
+  });
+  return max;
+}
+
+function factorLatexOfEquation(left,right,variable='x'){
+  if(!window.nerdamer) return '';
+  try{
+    const expr=normalizeExpr('('+left+')-('+right+')');
+    const fact=nerdamer('factor('+expr+')');
+    return fact.toTeX();
+  }catch(e){
+    return '';
+  }
+}
+
+function solveLinearSystemNumeric(A,b){
+  const n=A.length;
+  if(!n)return [];
+  const m=A[0].length;
+  const M=A.map((row,i)=>row.slice().concat([b[i]]));
+  for(let col=0,row=0; col<m && row<n; col++,row++){
+    let pivot=row;
+    for(let r=row+1;r<n;r++){
+      if(Math.abs(M[r][col])>Math.abs(M[pivot][col])) pivot=r;
+    }
+    if(Math.abs(M[pivot][col])<1e-10) return null;
+    [M[row],M[pivot]]=[M[pivot],M[row]];
+    const div=M[row][col];
+    for(let j=col;j<=m;j++) M[row][j]/=div;
+    for(let r=0;r<n;r++){
+      if(r===row)continue;
+      const f=M[r][col];
+      for(let j=col;j<=m;j++) M[r][j]-=f*M[row][j];
+    }
+  }
+  const sol=Array(m).fill(0);
+  for(let i=0;i<m;i++) sol[i]=M[i][m];
+  return sol;
+}
+
+function coefficientRowsForTargets(raw,tokens,adjustIdxs,fixedValues,targets){
+  const rows=[], rhs=[];
+  for(const x of targets){
+    const full0=tokens.map((t,i)=>fixedValues[i]!==undefined?fixedValues[i]:0);
+    adjustIdxs.forEach(i=>full0[i]=0);
+    const expr0=repl(raw,tokens.map((t,i)=>({t,v:String(full0[i])})));
+    const [l0,r0]=expr0.split('=');
+    let c0;
+    try{c0=evalJS(l0,x)-evalJS(r0,x)}catch(e){continue}
+    const row=[];
+    for(const adj of adjustIdxs){
+      const full=tokens.map((t,i)=>fixedValues[i]!==undefined?fixedValues[i]:0);
+      adjustIdxs.forEach(i=>full[i]=0);
+      full[adj]=1;
+      const expr1=repl(raw,tokens.map((t,i)=>({t,v:String(full[i])})));
+      const [l1,r1]=expr1.split('=');
+      let c1;
+      try{c1=evalJS(l1,x)-evalJS(r1,x)}catch(e){c1=NaN}
+      row.push(c1-c0);
+    }
+    if(row.every(v=>Math.abs(v)<1e-10)){
+      if(Math.abs(c0)<1e-8) continue; // root is automatic for this shape
+      return null;
+    }
+    rows.push(row);
+    rhs.push(-c0);
+  }
+  return {rows,rhs};
+}
+
+function niceNumberString(n){
+  if(!Number.isFinite(n)) return null;
+  const r=Math.round(n);
+  if(Math.abs(n-r)<1e-9 && Math.abs(r)<=80) return String(r);
+  const dens=[2,3,4,5,6,8,10,12];
+  for(const d of dens){
+    const num=Math.round(n*d);
+    if(Math.abs(n-num/d)<1e-9 && Math.abs(num)<=120) return num+'/'+d;
+  }
+  return null;
+}
+
+async function generateFactorableHigher(){
+  const box=document.getElementById('generated');
+  const raw=calcA(root);
+  const tokens=toks(raw);
+  if(tokens.length<1){
+    box.innerHTML='<div class="muted">U této rovnice není žádné číslo, které by šlo v generátoru změnit.</div>';
+    return;
+  }
+
+  let targets=[];
+  for(let i=0;i<6;i++){
+    const t=readTarget(i);
+    if(t!==null && !targets.some(x=>Math.abs(x-t)<1e-9)) targets.push(t);
+  }
+  if(!targets.length) targets=[randNonZero(-5,5)];
+
+  const d=Number(document.getElementById('strength').value);
+  let best=null;
+
+  for(let attempt=0; attempt<900 && !best; attempt++){
+    const k=Math.min(Math.max(1,targets.length),tokens.length);
+    const shuffled=tokens.map((_,i)=>i).sort(()=>Math.random()-.5);
+    const adjustIdxs=shuffled.slice(0,k);
+    const fixedValues={};
+    tokens.forEach((t,i)=>{
+      if(!adjustIdxs.includes(i)) fixedValues[i]=mutate(t.value,d);
+    });
+
+    const sys=coefficientRowsForTargets(raw,tokens,adjustIdxs,fixedValues,targets);
+    if(!sys || !sys.rows.length) continue;
+    if(sys.rows.length!==adjustIdxs.length) continue;
+
+    const sol=solveLinearSystemNumeric(sys.rows,sys.rhs);
+    if(!sol) continue;
+
+    const vals=tokens.map((t,i)=>fixedValues[i]!==undefined?fixedValues[i]:0);
+    let ok=true;
+    sol.forEach((v,j)=>{
+      const txt=niceNumberString(v);
+      if(txt===null || txt==='0') ok=false;
+      vals[adjustIdxs[j]]=txt;
+    });
+    if(!ok) continue;
+
+    const cand=repl(raw,tokens.map((t,i)=>({t,v:String(vals[i])})));
+    try{
+      const [l,r]=cand.split('=');
+      const allOk=targets.every(x=>isValidEquationRoot(l,r,x));
+      if(!allOk) continue;
+      const roots=findNumericRoots(l,r);
+      const fact=factorLatexOfEquation(l,r,'x');
+      best={cand,roots,fact};
+    }catch(e){}
+  }
+
+  if(!best){
+    box.innerHTML='<div class="muted">Nepodařilo se najít variantu. Zkus zadat méně kořenů nebo menší celá čísla.</div>';
+    return;
+  }
+
+  lastGeneratedCalc=best.cand;
+  lastGeneratedLatex=calcToLatexSimple(best.cand);
+  let info='';
+  if(best.roots && best.roots.length){
+    info+='<div class="muted">Kořeny: '+best.roots.map((r,i)=>'x<sub>'+(i+1)+'</sub> = '+fmtLatexNumber(r)).join(', ')+'</div>';
+  }
+  if(best.fact){
+    info+='<div class="muted">Součinový tvar levá strana − pravá strana: \\('+best.fact+'=0\\)</div>';
+  }
+  box.innerHTML='\\['+lastGeneratedLatex+'\\]'+info;
+  if(window.MathJax) await MathJax.typesetPromise([box]);
+}
+
+function detectGeneratorMode(){
+ const lines=equationLines();
+ if(lines.length===2)return {type:'system',count:2,labels:['x','y']};
+ if(lines.length>=3)return {type:'system',count:3,labels:['x','y','z']};
+
+ const raw=calcA(root);
+ const degree=getMaxPowerInRaw(raw,'x');
+
+ if(degree>2){
+   const labels=[];
+   for(let i=1;i<=Math.min(degree,6);i++) labels.push('x'+subDigit(i));
+   return {type:'higher',count:labels.length,labels};
+ }
+
+ const looksQuadratic =
+   raw.includes('^2') ||
+   raw.includes('^(2)') ||
+   raw.includes('x^2') ||
+   raw.includes('(x)^(2)');
+
+ if(looksQuadratic)return {type:'quadratic',count:2,labels:['x₁','x₂']};
+
+ // Pro jednu nekvadratickou rovnici je jeden výsledek x.
+ return {type:'single',count:1,labels:['x']};
+}
+
+function subDigit(n){
+ const m={'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉'};
+ return String(n).split('').map(ch=>m[ch]||ch).join('');
+}
+function refreshGeneratorTargets(force=true){
+ const box=document.getElementById('targetBox');
+ if(!box)return;
+ const mode=detectGeneratorMode();
+ const key=mode.type+mode.count;
+ const oldVals=[...box.querySelectorAll('input')].map(i=>i.value);
+ if(!force && box.dataset.mode===key)return;
+ box.dataset.mode=key;
+ box.innerHTML='';
+ mode.labels.forEach((lab,i)=>{
+   const input=document.createElement('input');
+   input.id='target_'+i;
+   input.placeholder=lab;
+   input.value=oldVals[i] || (i===0?'5':'');
+   box.appendChild(input);
+ });
+ const hint=document.getElementById('targetHint');
+ if(mode.type==='system')hint.textContent=`Rozpoznána soustava ${mode.count} rovnic: zadej ${mode.labels.join(', ')}. Prázdné hodnoty program zvolí.`;
+ else if(mode.type==='quadratic')hint.textContent='Rozpoznána kvadratická rovnice: zadej jeden nebo oba kořeny. Prázdný kořen program zvolí.';
+ else if(mode.type==='higher')hint.textContent='Rozpoznána rovnice vyššího stupně: zadej kořen nebo kořeny. Generátor změní pouze čísla a znaménka, strany a mocniny nechá beze změny.';
+ else hint.textContent='Rozpoznána jedna rovnice: zadej požadovaný výsledek x.';
+}
+function readTarget(i){
+ const el=document.getElementById('target_'+i);
+ if(!el)return null;
+ const s=el.value.trim().replace(',','.');
+ if(!s)return null;
+ const n=Number(s);
+ return Number.isFinite(n)?n:null;
+}
+function randNonZero(min=-7,max=7){
+ let n=0;
+ while(n===0)n=Math.floor(Math.random()*(max-min+1))+min;
+ return n;
+}
+function det2(A){return A[0][0]*A[1][1]-A[0][1]*A[1][0]}
+function det3(A){
+ return A[0][0]*(A[1][1]*A[2][2]-A[1][2]*A[2][1])
+      - A[0][1]*(A[1][0]*A[2][2]-A[1][2]*A[2][0])
+      + A[0][2]*(A[1][0]*A[2][1]-A[1][1]*A[2][0]);
+}
+function systemCalcFromMatrix(A,b,vars){
+ return A.map((row,i)=>{
+   let left='';
+   row.forEach((c,j)=>{
+     if(c===0)return;
+     const sign=c<0?'-':(left?'+':'');
+     const abs=Math.abs(c);
+     left+=sign+(abs===1?vars[j]:abs+'*'+vars[j]);
+   });
+   return (left||'0')+'='+b[i];
+ }).join('\n');
+}
+function systemLatexFromMatrix(A,b,vars){
+ return A.map((row,i)=>{
+   let left='';
+   row.forEach((c,j)=>{
+     if(c===0)return;
+     const sign=c<0?'-':(left?'+':'');
+     const abs=Math.abs(c);
+     left+=sign+(abs===1?vars[j]:abs+vars[j]);
+   });
+   return (left||'0')+'&='+b[i];
+ }).join('\\\\');
+}
+
+function detectVariablePowersInEquation(eq, vars){
+  // Returns per variable highest power in this equation: 1 or 2. Keeps the "shape" of powers.
+  const powers={};
+  vars.forEach(v=>{
+    powers[v]=1;
+    const patterns=[
+      new RegExp(v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\^2'),
+      new RegExp('\\('+v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\)\\^\\(2\\)'),
+      new RegExp('\\('+v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\)\\^2')
+    ];
+    if(patterns.some(re=>re.test(eq))) powers[v]=2;
+  });
+  return powers;
+}
+
+function termValue(variable, power, values, vars){
+  const idx=vars.indexOf(variable);
+  const val=values[idx];
+  return Math.pow(val,power);
+}
+
+function powerTermLabel(variable, power, latex=false){
+  if(power===2) return latex ? `${variable}^{2}` : `${variable}^2`;
+  return variable;
+}
+
+function generateEquationPreservingPowers(eq, vars, values){
+  const powers=detectVariablePowersInEquation(eq, vars);
+  const activeVars=vars.filter(v=>eq.includes(v));
+
+  // Když se v rovnici proměnná nenajde, použijeme aspoň první.
+  const used=activeVars.length?activeVars:vars.slice(0,1);
+
+  const coeffs=used.map(()=>randNonZero(-8,8));
+  const rhs=coeffs.reduce((s,c,i)=>s+c*termValue(used[i],powers[used[i]],values,vars),0);
+
+  let calcLeft='';
+  let latexLeft='';
+
+  used.forEach((v,i)=>{
+    const c=coeffs[i];
+    const sign=c<0?'-':(calcLeft?'+':'');
+    const abs=Math.abs(c);
+    const p=powers[v];
+
+    calcLeft+=sign+(abs===1?'':abs+'*')+powerTermLabel(v,p,false);
+    latexLeft+=sign+(abs===1?'':abs)+powerTermLabel(v,p,true);
+  });
+
+  return {
+    calc:(calcLeft||'0')+'='+rhs,
+    latex:(latexLeft||'0')+'&='+rhs
+  };
+}
+
+function generateSystemPreserveShape(lines, count){
+ const vars=count===3?['x','y','z']:['x','y'];
+ const values=vars.map((_,i)=>readTarget(i));
+ for(let i=0;i<values.length;i++){
+   if(values[i]===null)values[i]=randNonZero(-6,6);
+ }
+
+ const generated=lines.slice(0,count).map(eq=>generateEquationPreservingPowers(eq, vars, values));
+
+ lastGeneratedCalc=generated.map(g=>g.calc).join('\n');
+ lastGeneratedLatex='\\left\\{\\begin{aligned}'+generated.map(g=>g.latex).join('\\\\')+'\\end{aligned}\\right.';
+
+ const box=document.getElementById('generated');
+ box.innerHTML='\\['+lastGeneratedLatex+'\\]<div class="muted">Řešení: '+vars.map((v,i)=>v+' = '+fmtLatexNumber(values[i])).join(', ')+'</div>';
+ if(window.MathJax) MathJax.typesetPromise([box]);
+}
+async function generateSystem(count){
+ const vars=count===3?['x','y','z']:['x','y'];
+ const values=vars.map((_,i)=>readTarget(i));
+ for(let i=0;i<values.length;i++){
+   if(values[i]===null)values[i]=randNonZero(-6,6);
+ }
+ let A,det=0,tries=0;
+ while(Math.abs(det)<1e-9 && tries++<300){
+   A=Array.from({length:count},()=>Array.from({length:count},()=>randNonZero(-8,8)));
+   det=count===2?det2(A):det3(A);
+ }
+ const b=A.map(row=>row.reduce((s,c,i)=>s+c*values[i],0));
+ lastGeneratedCalc=systemCalcFromMatrix(A,b,vars);
+ lastGeneratedLatex='\\left\\{\\begin{aligned}'+systemLatexFromMatrix(A,b,vars)+'\\end{aligned}\\right.';
+ const box=document.getElementById('generated');
+ box.innerHTML='\\['+lastGeneratedLatex+'\\]<div class="muted">Řešení: '+vars.map((v,i)=>v+' = '+fmtLatexNumber(values[i])).join(', ')+'</div>';
+ if(window.MathJax)await MathJax.typesetPromise([box]);
+}
+async function generateQuadratic(){
+ let r1=readTarget(0);
+ let r2=readTarget(1);
+ if(r1===null)r1=randNonZero(-6,6);
+ if(r2===null)r2=randNonZero(-6,6);
+ if(Math.abs(r1-r2)<1e-9)r2+=1;
+ const a=randNonZero(1,5);
+ const B=-a*(r1+r2);
+ const C=a*r1*r2;
+ lastGeneratedCalc=`${a}*x^2${B<0?B:'+'+B}*x${C<0?C:'+'+C}=0`;
+ lastGeneratedLatex=`${a===1?'':a}x^{2}${B<0?B:'+'+B}x${C<0?C:'+'+C}=0`;
+ const box=document.getElementById('generated');
+ box.innerHTML='\\['+lastGeneratedLatex+'\\]<div class="muted">Kořeny: x₁ = '+fmtLatexNumber(r1)+', x₂ = '+fmtLatexNumber(r2)+'</div>';
+ if(window.MathJax)await MathJax.typesetPromise([box]);
+}
+async function generateSimilar(){
+ refreshGeneratorTargets(false);
+ const box=document.getElementById('generated'),raw=calcA(root),d=Number(document.getElementById('strength').value);
+ const mode=detectGeneratorMode();
+ if(!raw.includes('=')){box.innerHTML='<div class="muted">Nejdřív zadej rovnici s rovnítkem.</div>';return}
+ if(mode.type==='system'){generateSystemPreserveShape(equationLines(), mode.count);return}
+ if(mode.type==='higher'){await generateFactorableHigher();return}
+ if(mode.type==='quadratic'){await generateQuadratic();return}
+
+ const target=readTarget(0);
+ if(target===null){box.innerHTML='<div class="muted">Zadej požadovaný výsledek x.</div>';return}
+ const ts=toks(raw); if(ts.length<2){box.innerHTML='<div class="muted">Málo čísel k obměně.</div>';return}
+ const vals=[];for(let i=-30;i<=30;i++)if(i)vals.push(String(i));vals.push('1/2','-1/2','3/2','-3/2','2/3','-2/3'); lastGeneratedCalc='';
+ for(let a=0;a<400&&!lastGeneratedCalc;a++){const adj=Math.floor(Math.random()*ts.length),rs=[];for(let i=0;i<ts.length;i++)if(i!==adj)rs.push({t:ts[i],v:mutate(ts[i].value,d)});const base=repl(raw,rs),nt=toks(base);if(nt.length!==ts.length)continue;for(const c of vals){const t=nt[adj],cand=base.slice(0,t.start)+c+base.slice(t.end);try{const [l,r]=cand.split('=');if(Math.abs(evalJS(l,target)-evalJS(r,target))<1e-9){lastGeneratedCalc=cand;lastGeneratedLatex=calcToLatexSimple(cand);break}}catch(e){}}}
+ if(!lastGeneratedCalc){box.innerHTML='<div class="muted">Nepodařilo se najít variantu.</div>';return}
+ let rootInfo='';
+ try{
+   const [gl,gr]=lastGeneratedCalc.split('=');
+   const roots=findNumericRoots(gl,gr);
+   if(roots.length>1){
+     rootInfo='<div class="muted">Kořeny: '+roots.map((r,i)=>'x<sub>'+(i+1)+'</sub> = '+fmtLatexNumber(r)).join(', ')+'</div>';
+   }else if(roots.length===1){
+     rootInfo='<div class="muted">Kořen: x = '+fmtLatexNumber(roots[0])+'</div>';
+   }else{
+     rootInfo='<div class="muted">Kontrola: pro \\(x='+target+'\\) rovnice vychází.</div>';
+   }
+ }catch(e){
+   rootInfo='<div class="muted">Kontrola: pro \\(x='+target+'\\) rovnice vychází.</div>';
+ }
+ box.innerHTML='\\['+lastGeneratedLatex+'\\]'+rootInfo; 
+ if(window.MathJax)await MathJax.typesetPromise([box]);
+}
+function calcToLatexSimple(s){
+  let out=String(s);
+  // simplify generated internal fractions of the form ((a)/(b))
+  let last='';
+  while(last!==out){
+    last=out;
+    out=out.replace(/\(\(([^()]+)\)\/\(([^()]+)\)\)/g,'\\\\frac{$1}{$2}');
+  }
+  out=out.replace(/\*/g,'\\\\cdot ');
+  out=out.replace(/pi/g,'\\\\pi ');
+  out=out.replace(/sqrt\(([^()]*)\)/g,'\\\\sqrt{$1}');
+  out=out.replace(/\^(\(?[0-9a-zA-Z+\-*/.]+\)?)/g,'^{$1}');
+  return out;
+}
+function useGenerated(){
+ if(!lastGeneratedCalc)return;
+ root=calcTextToNodes(lastGeneratedCalc);
+ path=[];
+ cursor=root.length;
+ render();
+ updateDebug();
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function fallbackCopyText(text){
+  const ta=document.createElement('textarea');
+  ta.value=text;
+  ta.style.position='fixed';
+  ta.style.left='-9999px';
+  ta.style.top='0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  let ok=false;
+  try{ok=document.execCommand('copy')}catch(e){ok=false}
+  document.body.removeChild(ta);
+  return ok;
+}
+
+async function copyTextSmart(text){
+  if(!text)return false;
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  }catch(e){}
+  return fallbackCopyText(text);
+}
+
+function showCopyResult(ok, label){
+  const box=document.getElementById('generated');
+  if(ok){
+    const old=box.innerHTML;
+    box.innerHTML=old+'<div class="muted">Zkopírováno: '+label+'</div>';
+  }else{
+    alert('Kopírování se nepodařilo. Označ text ručně: ' + label);
+  }
+}
+
+async function copyGenerated(){
+ const lx=lastGeneratedLatex||calcToLatexSimple(lastGeneratedCalc||'');
+ if(!lx)return;
+ const text='\\[\n'+lx+'\n\\]';
+ const ok=await copyTextSmart(text);
+ showCopyResult(ok,text);
+}
+async function copyLatex(){
+ const text='\\[\n'+latexA(root)+'\n\\]';
+ const ok=await copyTextSmart(text);
+ if(!ok) alert('Kopírování se nepodařilo. Text: '+text);
+}
+async function copyCalc(){
+ const text=calcA(root);
+ const ok=await copyTextSmart(text);
+ if(!ok) alert('Kopírování se nepodařilo. Text: '+text);
+}
+function setPanel(p,btn){panel=p;document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));btn.classList.add('active');renderKeys()}
+
+
+function latexFromMenuLabel(label, calc){
+  const map={
+    "≥":"\\ge ",
+    "≤":"\\le ",
+    "≠":"\\ne ",
+    "π":"\\pi ",
+    "∞":"\\infty ",
+    "±":"\\pm ",
+    "→":"\\to ",
+    "⇒":"\\Rightarrow ",
+    "∈":"\\in ",
+    "∪":"\\cup ",
+    "∩":"\\cap ",
+    "÷":"\\div ",
+    "×":"\\cdot ",
+    "−":"-"
+  };
+  return map[label] || textToLatex(calc);
+}
+
+function insertMenuText(label, calc){
+  insNode({
+    type:"menuText",
+    show:String(label),
+    calc:String(calc),
+    latex:latexFromMenuLabel(String(label), String(calc))
+  });
+}
+
+function runPopoverOption(opt){
+  const label=opt[0];
+  const action=opt[1];
+
+  if(typeof action==="function"){
+    action();
+  }else{
+    insertMenuText(label, action);
+  }
+}
+
+function runKeyAction(action){
+  if(typeof action==='function') action();
+  else insText(action);
+}
+
+let longPressTimer=null;
+let activePopoverKey=null;
+
+function hidePopover(){
+  const pop=document.getElementById('keyPopover');
+  pop.classList.remove('show');
+  pop.innerHTML='';
+  activePopoverKey=null;
+}
+
+function showKeyPopover(btn, options){
+  const pop=document.getElementById('keyPopover');
+  pop.innerHTML='';
+  const rect=btn.getBoundingClientRect();
+
+  options.forEach((opt,i)=>{
+    const div=document.createElement('div');
+    div.className='popOpt'+(i===0?' active':'');
+    div.innerHTML=opt[0];
+    div.onclick=()=>{
+      runPopoverOption(opt);
+      hidePopover();
+    };
+    pop.appendChild(div);
+  });
+
+  pop.style.left=Math.max(8, Math.min(window.innerWidth-80, rect.left))+'px';
+  pop.style.bottom=(window.innerHeight-rect.top+8)+'px';
+  pop.classList.add('show');
+  activePopoverKey={btn,options};
+}
+
+function handleKeyPointerStart(e, btn, item){
+  if(!item[3])return;
+  clearTimeout(longPressTimer);
+  longPressTimer=setTimeout(()=>{
+    showKeyPopover(btn,item[3]);
+  },420);
+}
+
+function handleKeyPointerEnd(e, item){
+  clearTimeout(longPressTimer);
+  const pop=document.getElementById('keyPopover');
+  if(pop.classList.contains('show')){
+    // necháme uživatele kliknout na volbu
+    return;
+  }
+  runKeyAction(item[1]);
+}
+
+function renderKeys(){
+ const k=document.getElementById('keys');
+ k.innerHTML='';
+ panels[panel].forEach(item=>{
+   const b=document.createElement('button');
+   b.className='key '+(item[2]||'');
+   b.innerHTML=item[0];
+
+   if(item[3]){
+     b.addEventListener('pointerdown',e=>handleKeyPointerStart(e,b,item));
+     b.addEventListener('pointerup',e=>handleKeyPointerEnd(e,item));
+     b.addEventListener('pointerleave',e=>clearTimeout(longPressTimer));
+   }else{
+     b.onclick=()=>runKeyAction(item[1]);
+   }
+
+   k.appendChild(b);
+ });
+}
+renderKeys();render();updateDebug();refreshGeneratorTargets(true);
+</script>
+</body>
+</html>
