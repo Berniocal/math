@@ -897,7 +897,7 @@ async function solveEquation(){
   if(degree>2 && allDirectRoots.length){
     let html=formatRootList(v,allDirectRoots);
     const fact=factorLatexOfEquation(left,right,v);
-    if(fact) html+='<div class="muted">Součinový tvar: \('+fact+'=0\)</div>';
+    if(fact) html+='<div class="muted">Součinový tvar: \\('+fact+'=0\\)</div>';
     box.innerHTML=html;
     if(window.MathJax) await MathJax.typesetPromise([box]);
     return;
@@ -1435,10 +1435,22 @@ function calcToLatexSimple(s){
     last=out;
     out=out.replace(/\(\(([^()]+)\)\/\(([^()]+)\)\)/g,'\\\\frac{$1}{$2}');
   }
+
+  // Generátor má uvnitř kvůli výpočtům zápis typu (x)^(3).
+  // Pro zobrazení v LaTeXu ho zkrátíme na hezké x^{3}.
+  out=out.replace(/\(([a-zA-Z])\)\^\((-?\d+)\)/g,'$1^{$2}');
+  out=out.replace(/\(([a-zA-Z])\)\^(-?\d+)/g,'$1^{$2}');
+  out=out.replace(/([a-zA-Z])\^\((-?\d+)\)/g,'$1^{$2}');
+
   out=out.replace(/\*/g,'\\\\cdot ');
   out=out.replace(/pi/g,'\\\\pi ');
   out=out.replace(/sqrt\(([^()]*)\)/g,'\\\\sqrt{$1}');
   out=out.replace(/\^(\(?[0-9a-zA-Z+\-*/.]+\)?)/g,'^{$1}');
+
+  // Pojistka pro případy, které vzniknou až po obecném převodu mocniny.
+  out=out.replace(/\^\{\(([^{}()]+)\)\}/g,'^{$1}');
+  out=out.replace(/\(([a-zA-Z])\)(\^\{[^{}]+\})/g,'$1$2');
+
   return out;
 }
 function useGenerated(){
@@ -1495,12 +1507,13 @@ async function copyGenerated(){
  showCopyResult(ok,text);
 }
 async function copyLatex(){
- const text='\\[\n'+latexA(root)+'\n\\]';
+ const lx=lastGeneratedLatex || (lastGeneratedCalc ? calcToLatexSimple(lastGeneratedCalc) : latexA(root));
+ const text='\\[\n'+lx+'\n\\]';
  const ok=await copyTextSmart(text);
  if(!ok) alert('Kopírování se nepodařilo. Text: '+text);
 }
 async function copyCalc(){
- const text=calcA(root);
+ const text=lastGeneratedCalc || calcA(root);
  const ok=await copyTextSmart(text);
  if(!ok) alert('Kopírování se nepodařilo. Text: '+text);
 }
