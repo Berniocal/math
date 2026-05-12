@@ -1319,6 +1319,13 @@ function niceNumberString(n){
   return null;
 }
 
+function generatorTimedOut(start, limitMs=2000){
+  return performance && performance.now ? performance.now()-start>limitMs : false;
+}
+function generatorStoppedMessage(){
+  return '<div class="muted">Generátor hledání zastavil, aby se nezasekl. Zkus méně kořenů, menší čísla nebo menší změnu.</div>';
+}
+
 async function generateFactorableHigher(){
   const box=document.getElementById('generated');
   const raw=calcA(root);
@@ -1337,8 +1344,10 @@ async function generateFactorableHigher(){
 
   const d=Number(document.getElementById('strength').value);
   let best=null;
+  const started=performance.now();
 
-  for(let attempt=0; attempt<900 && !best; attempt++){
+  for(let attempt=0; attempt<200000 && !best; attempt++){
+    if(generatorTimedOut(started)) break;
     const k=Math.min(Math.max(1,targets.length),tokens.length);
     const shuffled=tokens.map((_,i)=>i).sort(()=>Math.random()-.5);
     const adjustIdxs=shuffled.slice(0,k);
@@ -1378,12 +1387,12 @@ async function generateFactorableHigher(){
   }
 
   if(!best){
-    box.innerHTML='<div class="muted">Nepodařilo se najít variantu. Zkus zadat méně kořenů nebo menší celá čísla.</div>';
+    box.innerHTML=generatorStoppedMessage();
     return;
   }
 
-  lastGeneratedCalc=best.cand;
-  lastGeneratedLatex=calcToLatexSimple(best.cand);
+  lastGeneratedCalc=prettifyUnitCoefficientsCalc(best.cand);
+  lastGeneratedLatex=calcToLatexSimple(lastGeneratedCalc);
   let info='';
   if(best.roots && best.roots.length){
     info+='<div class="muted">Kořeny: \\('+best.roots.map((r,i)=>'x_{'+(i+1)+'} = '+fmtLatexNumber(r)).join('\\quad ')+'\\)</div>';
@@ -1720,7 +1729,9 @@ function generateInequalityByLinearFit(line,targets,d){
   if(tokens.length<1)return null;
 
   let best=null;
+  const started=performance.now();
   for(let attempt=0; attempt<1200 && !best; attempt++){
+    if(generatorTimedOut(started)) break;
     const k=Math.min(Math.max(1,targets.length),tokens.length);
     const shuffled=tokens.map((_,i)=>i).sort(()=>Math.random()-.5);
     const adjustIdxs=shuffled.slice(0,k);
@@ -1836,8 +1847,9 @@ async function generateSimilar(){
  if(target===null){box.innerHTML='<div class="muted">Zadej požadovaný výsledek x.</div>';return}
  const ts=toks(raw); if(ts.length<2){box.innerHTML='<div class="muted">Málo čísel k obměně.</div>';return}
  const vals=[];for(let i=-30;i<=30;i++)if(i)vals.push(String(i));vals.push('1/2','-1/2','3/2','-3/2','2/3','-2/3'); lastGeneratedCalc='';
- for(let a=0;a<400&&!lastGeneratedCalc;a++){const adj=Math.floor(Math.random()*ts.length),rs=[];for(let i=0;i<ts.length;i++)if(i!==adj)rs.push({t:ts[i],v:mutate(ts[i].value,d)});const base=repl(raw,rs),nt=toks(base);if(nt.length!==ts.length)continue;for(const c of vals){const t=nt[adj],cand=base.slice(0,t.start)+c+base.slice(t.end);try{const [l,r]=cand.split('=');if(Math.abs(evalJS(l,target)-evalJS(r,target))<1e-9){lastGeneratedCalc=cand;lastGeneratedLatex=calcToLatexSimple(cand);break}}catch(e){}}}
- if(!lastGeneratedCalc){box.innerHTML='<div class="muted">Nepodařilo se najít variantu.</div>';return}
+ const started=performance.now();
+ for(let a=0;a<100000&&!lastGeneratedCalc;a++){if(generatorTimedOut(started))break;const adj=Math.floor(Math.random()*ts.length),rs=[];for(let i=0;i<ts.length;i++)if(i!==adj)rs.push({t:ts[i],v:mutate(ts[i].value,d)});const base=repl(raw,rs),nt=toks(base);if(nt.length!==ts.length)continue;for(const c of vals){if(generatorTimedOut(started))break;const t=nt[adj],cand=base.slice(0,t.start)+c+base.slice(t.end);try{const [l,r]=cand.split('=');if(Math.abs(evalJS(l,target)-evalJS(r,target))<1e-9){lastGeneratedCalc=cand;lastGeneratedLatex=calcToLatexSimple(cand);break}}catch(e){}}}
+ if(!lastGeneratedCalc){box.innerHTML=generatorStoppedMessage();return}
  let rootInfo='';
  try{
    const [gl,gr]=lastGeneratedCalc.split('=');
@@ -1852,6 +1864,8 @@ async function generateSimilar(){
  }catch(e){
    rootInfo='<div class="muted">Kontrola: pro \\(x='+target+'\\) rovnice vychází.</div>';
  }
+ lastGeneratedCalc=prettifyUnitCoefficientsCalc(lastGeneratedCalc);
+ lastGeneratedLatex=calcToLatexSimple(lastGeneratedCalc);
  box.innerHTML='\\['+lastGeneratedLatex+'\\]'+rootInfo; 
  if(window.MathJax)await MathJax.typesetPromise([box]);
 }
@@ -1946,7 +1960,11 @@ function exprToLatexGenerated(expr){
 
   const factors=splitTopLevelFactors(expr);
   if(factors.length>1){
-    const rendered=factors.map(exprToLatexGenerated).join('\\cdot ');
+    const rendered=factors.map(f=>{
+      const part=exprToLatexGenerated(f);
+      // Záporný činitel za násobením má být čitelně v závorce: (5+x)\cdot (-x), ne (5+x)\cdot -x.
+      return String(f).trim().startsWith('-') ? '\\left('+part+'\\right)' : part;
+    }).join('\\cdot ');
     return wasWrapped ? '\\left('+rendered+'\\right)' : rendered;
   }
 
@@ -1977,8 +1995,9 @@ function exprToLatexGenerated(expr){
 
 function prettifyUnitCoefficientsCalc(s){
   return String(s||'')
-    .replace(/(^|[=+\-*/(<>,;\s])-1\*?([xyz](?:\^\(?\d+\)?)?)/g,'$1-$2')
-    .replace(/(^|[=+\-*/(<>,;\s])1\*?([xyz](?:\^\(?\d+\)?)?)/g,'$1$2')
+    // 1x, 1*x, 1x^2, 1*x^(2) -> x, x^2; stejně pro -1x -> -x.
+    // Nezasahuje do čísel typu 10x, protože před jedničkou nesmí být číslice.
+    .replace(/(^|[^0-9A-Za-z_])(-?)1\*?([a-zA-Z](?:_\d+)?(?:\^\(?\d+\)?)?)/g,(m,p,sg,v)=>p+(sg?'-':'')+v)
     .replace(/\+\-/g,'-')
     .replace(/--/g,'+');
 }
