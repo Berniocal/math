@@ -1312,12 +1312,10 @@ function coefficientRowsForTargets(raw,tokens,adjustIdxs,fixedValues,targets){
 function niceNumberString(n){
   if(!Number.isFinite(n)) return null;
   const r=Math.round(n);
+  // Generátor má zachovat stejný tvar zápisu jako v editoru.
+  // Proto sem nepouštíme zlomky typu 7/5, které by v hotové rovnici
+  // vytvářely nový zlomek nebo složený zlomek, pokud ve vzoru nebyl.
   if(Math.abs(n-r)<1e-9 && Math.abs(r)<=80) return String(r);
-  const dens=[2,3,4,5,6,8,10,12];
-  for(const d of dens){
-    const num=Math.round(n*d);
-    if(Math.abs(n-num/d)<1e-9 && Math.abs(num)<=120) return num+'/'+d;
-  }
   return null;
 }
 
@@ -1366,6 +1364,9 @@ async function generateFactorableHigher(){
     if(!ok) continue;
 
     const cand=repl(raw,tokens.map((t,i)=>({t,v:String(vals[i])})));
+    // Nepřidávej nový znak dělení: vygenerovaný příklad má mít stejný tvar
+    // jako zápis v editoru, jen s jinými čísly.
+    if((cand.match(/\//g)||[]).length !== (raw.match(/\//g)||[]).length) continue;
     try{
       const [l,r]=cand.split('=');
       const allOk=targets.every(x=>isValidEquationRoot(l,r,x));
@@ -1920,6 +1921,9 @@ function hasTopLevelPlusMinus(s){
 }
 function exprToLatexGenerated(expr){
   expr=String(expr||'').trim();
+  // V generovaném LaTeXu nechceme proměnnou zbytečně jako (x)^2.
+  // Zápis (x)^(2) převádíme jen vizuálně na x^2; výpočty se nemění.
+  expr=expr.replace(/\(([a-zA-Z])\)\s*\^\s*\(?\s*(\d+)\s*\)?/g,'$1^$2');
   if(!expr) return '';
 
   const beforeStrip=expr;
