@@ -1346,7 +1346,7 @@ async function generateFactorableHigher(){
   let best=null;
   const started=performance.now();
 
-  for(let attempt=0; attempt<2000 && !best; attempt++){
+  for(let attempt=0; attempt<10000 && !best; attempt++){
     if(generatorTimedOut(started)) break;
     const k=Math.min(Math.max(1,targets.length),tokens.length);
     const shuffled=tokens.map((_,i)=>i).sort(()=>Math.random()-.5);
@@ -1730,7 +1730,7 @@ function generateInequalityByLinearFit(line,targets,d){
 
   let best=null;
   const started=performance.now();
-  for(let attempt=0; attempt<1200 && !best; attempt++){
+  for(let attempt=0; attempt<8000 && !best; attempt++){
     if(generatorTimedOut(started)) break;
     const k=Math.min(Math.max(1,targets.length),tokens.length);
     const shuffled=tokens.map((_,i)=>i).sort(()=>Math.random()-.5);
