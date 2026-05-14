@@ -1319,7 +1319,7 @@ function niceNumberString(n){
   return null;
 }
 
-function generatorTimedOut(start, limitMs=1400){
+function generatorTimedOut(start, limitMs=2000){
   return performance && performance.now ? performance.now()-start>limitMs : false;
 }
 function generatorStoppedMessage(){
