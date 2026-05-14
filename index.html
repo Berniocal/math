@@ -1319,7 +1319,7 @@ function niceNumberString(n){
   return null;
 }
 
-function generatorTimedOut(start, limitMs=2000){
+function generatorTimedOut(start, limitMs=1400){
   return performance && performance.now ? performance.now()-start>limitMs : false;
 }
 function generatorStoppedMessage(){
@@ -1346,7 +1346,7 @@ async function generateFactorableHigher(){
   let best=null;
   const started=performance.now();
 
-  for(let attempt=0; attempt<200000 && !best; attempt++){
+  for(let attempt=0; attempt<2000 && !best; attempt++){
     if(generatorTimedOut(started)) break;
     const k=Math.min(Math.max(1,targets.length),tokens.length);
     const shuffled=tokens.map((_,i)=>i).sort(()=>Math.random()-.5);
