@@ -716,7 +716,7 @@ const NUMERIC_ROOTS_MAX_RESULTS=20;
 const NUMERIC_ROOTS_SCAN_MIN=-40;
 const NUMERIC_ROOTS_SCAN_MAX=40;
 const NUMERIC_ROOTS_SCAN_STEP=0.2;
-const GENERATOR_MAX_TOKENS=25;
+const GENERATOR_MAX_TOKENS=45;
 
 function findNumericRoots(left,right){
  const f=x=>safeEval(left,x)-safeEval(right,x);
@@ -831,13 +831,20 @@ function solveAllNumericRootsRobust(left,right,variable='x'){
   // 1) nejspolehlivější pro školní příklady: celé kořeny přes přímé dosazení
   for(let x=-50;x<=50 && roots.length<NUMERIC_ROOTS_MAX_RESULTS;x++) add(x);
 
-  // 2) jemnější numerické hledání změny znaménka
+  // 2) u kvadratických rovnic najdi i zlomkové dvojné kořeny.
+  // Samotné skenování podle změny znaménka je může minout (např. x = 1/2).
+  try{
+    const quad=solveQuadraticBySampling(left,right);
+    quad.forEach(add);
+  }catch(e){}
+
+  // 3) jemnější numerické hledání změny znaménka
   try{
     const more=findNumericRoots(left,right);
     more.forEach(add);
   }catch(e){}
 
-  // 3) zkus i kořeny z rozkladu Nerdameru, ale jen jako doplněk
+  // 4) zkus i kořeny z rozkladu Nerdameru, ale jen jako doplněk
   try{
     if(window.nerdamer){
       const expr=normalizeExpr('('+left+')-('+right+')');
@@ -1378,6 +1385,68 @@ function coefficientRowsForTargets(raw,tokens,adjustIdxs,fixedValues,targets){
   return {rows,rhs};
 }
 
+
+function evalJSVars(s,vars,values){
+  s=normalizeExpr(String(s))
+    .replace(/\^/g,'**')
+    .replace(/\bpi\b/g,'Math.PI')
+    .replace(/\bsqrt\(/g,'Math.sqrt(')
+    .replace(/\bsin\(/g,'Math.sin(')
+    .replace(/\bcos\(/g,'Math.cos(')
+    .replace(/\btan\(/g,'Math.tan(')
+    .replace(/\blog\(/g,'Math.log(')
+    .replace(/\bln\(/g,'Math.log(');
+  return Function(...vars,'return ('+s+')')(...values);
+}
+function equationLineValueAt(eq,vars,values){
+  const idx=eq.indexOf('=');
+  if(idx<0)throw Error('missing equals');
+  const l=eq.slice(0,idx), r=eq.slice(idx+1);
+  return evalJSVars(l,vars,values)-evalJSVars(r,vars,values);
+}
+function sameTokenCountAndOperators(original,candidate){
+  if(toks(original).length!==toks(candidate).length)return false;
+  const mask=s=>String(s).replace(/-?\d+(?:\.\d+)?/g,'#');
+  return mask(original).replace(/\s+/g,'')===mask(candidate).replace(/\s+/g,'');
+}
+function generateEquationLinePreserveShape(eq,vars,values,d){
+  const tokens=toks(eq);
+  if(tokens.length>GENERATOR_MAX_TOKENS || tokens.length<1)return null;
+  const started=nowMs();
+  for(let attempt=0; attempt<GENERATOR_MAX_ATTEMPTS; attempt++){
+    if(generatorTimedOut(started))break;
+    const adj=Math.floor(Math.random()*tokens.length);
+    const fixedValues={};
+    tokens.forEach((t,i)=>{ if(i!==adj) fixedValues[i]=mutate(t.value,d); });
+
+    const full0=tokens.map((t,i)=>fixedValues[i]!==undefined?fixedValues[i]:0);
+    full0[adj]=0;
+    const expr0=repl(eq,tokens.map((t,i)=>({t,v:String(full0[i])})));
+    let c0;
+    try{c0=equationLineValueAt(expr0,vars,values)}catch(e){continue;}
+
+    const full1=tokens.map((t,i)=>fixedValues[i]!==undefined?fixedValues[i]:0);
+    full1[adj]=1;
+    const expr1=repl(eq,tokens.map((t,i)=>({t,v:String(full1[i])})));
+    let c1;
+    try{c1=equationLineValueAt(expr1,vars,values)}catch(e){continue;}
+
+    const denom=c1-c0;
+    if(!Number.isFinite(denom) || Math.abs(denom)<1e-10)continue;
+    const solved=-c0/denom;
+    const txt=niceNumberString(solved);
+    if(txt===null || txt==='0')continue;
+
+    const vals=tokens.map((t,i)=>fixedValues[i]!==undefined?fixedValues[i]:txt);
+    const cand=repl(eq,tokens.map((t,i)=>({t,v:String(vals[i])})));
+    if(!sameTokenCountAndOperators(eq,cand))continue;
+    try{
+      if(Math.abs(equationLineValueAt(cand,vars,values))<1e-8)return cand;
+    }catch(e){}
+  }
+  return null;
+}
+
 function niceNumberString(n){
   if(!Number.isFinite(n)) return null;
   const r=Math.round(n);
@@ -1388,10 +1457,10 @@ function niceNumberString(n){
   return null;
 }
 
-const GENERATOR_TIME_LIMIT_MS=3000;
-const GENERATOR_YIELD_EVERY=80;
-const GENERATOR_MAX_ATTEMPTS=2500;
-const GENERATOR_SINGLE_ROOT_MAX_ATTEMPTS=3000;
+const GENERATOR_TIME_LIMIT_MS=8000;
+const GENERATOR_YIELD_EVERY=120;
+const GENERATOR_MAX_ATTEMPTS=8000;
+const GENERATOR_SINGLE_ROOT_MAX_ATTEMPTS=8000;
 function nowMs(){return performance && performance.now ? performance.now() : Date.now()}
 function generatorTimedOut(start, limitMs=GENERATOR_TIME_LIMIT_MS){
   return nowMs()-start>limitMs;
@@ -1646,31 +1715,13 @@ function powerTermLabel(variable, power, latex=false){
 }
 
 function generateEquationPreservingPowers(eq, vars, values){
-  const powers=detectVariablePowersInEquation(eq, vars);
-  const activeVars=vars.filter(v=>eq.includes(v));
-
-  // Když se v rovnici proměnná nenajde, použijeme aspoň první.
-  const used=activeVars.length?activeVars:vars.slice(0,1);
-
-  const coeffs=used.map(()=>randNonZero(-8,8));
-  const rhs=coeffs.reduce((s,c,i)=>s+c*termValue(used[i],powers[used[i]],values,vars),0);
-
-  let calcLeft='';
-  let latexLeft='';
-
-  used.forEach((v,i)=>{
-    const c=coeffs[i];
-    const sign=c<0?'-':(calcLeft?'+':'');
-    const abs=Math.abs(c);
-    const p=powers[v];
-
-    calcLeft+=sign+(abs===1?'':abs+'*')+powerTermLabel(v,p,false);
-    latexLeft+=sign+(abs===1?'':abs)+powerTermLabel(v,p,true);
-  });
-
+  // Zachová přesný tvar původního řádku. Nic nepřesouvá mezi stranami,
+  // pouze přepíše číselné tokeny na stejných místech.
+  const calc=generateEquationLinePreserveShape(eq,vars,values,getMutationDelta());
+  if(!calc)return null;
   return {
-    calc:(calcLeft||'0')+'='+rhs,
-    latex:(latexLeft||'0')+'&='+rhs
+    calc,
+    latex:calcToLatexSimple(calc).replace('=','&=')
   };
 }
 
@@ -1681,7 +1732,16 @@ function generateSystemPreserveShape(lines, count){
    if(values[i]===null)values[i]=randNonZero(-6,6);
  }
 
- const generated=lines.slice(0,count).map(eq=>generateEquationPreservingPowers(eq, vars, values));
+ const generated=[];
+ for(const eq of lines.slice(0,count)){
+   const g=generateEquationPreservingPowers(eq, vars, values);
+   if(!g){
+     const box=document.getElementById('generated');
+     box.innerHTML=generatorStoppedMessage();
+     return;
+   }
+   generated.push(g);
+ }
 
  lastGeneratedCalc=generated.map(g=>g.calc).join('\n');
  lastGeneratedLatex='\\left\\{\\begin{aligned}'+generated.map(g=>g.latex).join('\\\\')+'\\end{aligned}\\right.';
@@ -1893,11 +1953,12 @@ async function generateInequalitySimilar(){
       });
     }
 
-    // Tohle je původní chování: nejdřív se zkusí zachovat přesný tvar řádku
-    // a mění se jen čísla. Teprve když to nejde, použije se nouzový součinový tvar.
+    // Zachovat přesný tvar řádku: členy nesmí cestovat ani se skládat nový součinový tvar.
+    // Pokud to nejde najít výměnou čísel na původních místech, generování se zastaví.
     let gen=await generateInequalityByLinearFit(lines[i],lineTargets,d);
     if(!gen){
-      gen=buildFactorCalcFromTargets(lineTargets.length?lineTargets:targets,p.op,hasQuotient,denominatorTargets);
+      box.innerHTML=generatorStoppedMessage();
+      return;
     }
     generated.push(gen);
   }
