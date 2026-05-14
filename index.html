@@ -34,7 +34,9 @@ body{margin:0;background:#f3f3f3;font-family:system-ui,-apple-system,"Segoe UI",
 </head>
 <body>
 <div class="top">Matematický editor</div>
-<div class="editorWrap"><div id="editor" class="editor empty" tabindex="0" onclick="focusRoot()"></div></div>
+<div class="editorWrap"><div id="editor" class="editor empty" tabindex="0" onclick="focusRoot()"></div>
+  <div class="row" style="margin-top:10px"><button onclick="copyEditorLink()">Zkopírovat odkaz s aktuální rovnicí</button><div id="editorLinkStatus" class="small"></div></div>
+</div>
 
 <section class="panel">
   <div class="title">Výpočet</div>
@@ -541,6 +543,7 @@ function updateDebug(){
   document.getElementById('debugCalc').textContent='výpočetní zápis: '+calcA(root);
   document.getElementById('debugLatex').textContent='LaTeX: '+latexA(root);
   scheduleGeneratorTargetRefresh(false);
+  syncEditorToUrl();
 }
 function normalizeExpr(s){
   s=String(s||'');
@@ -2263,6 +2266,57 @@ async function copyCalc(){
  const ok=await copyTextSmart(text);
  if(!ok) alert('Kopírování se nepodařilo. Text: '+text);
 }
+
+function base64UrlEncodeUtf8(text){
+  const bytes=new TextEncoder().encode(text);
+  let bin='';
+  bytes.forEach(b=>bin+=String.fromCharCode(b));
+  return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function base64UrlDecodeUtf8(text){
+  text=String(text||'').replace(/-/g,'+').replace(/_/g,'/');
+  while(text.length%4) text+='=';
+  const bin=atob(text);
+  const bytes=new Uint8Array([...bin].map(ch=>ch.charCodeAt(0)));
+  return new TextDecoder().decode(bytes);
+}
+function editorStateForUrl(){
+  return {root};
+}
+function syncEditorToUrl(){
+  try{
+    const url=new URL(window.location.href);
+    if(root.length){
+      url.searchParams.set('eq',base64UrlEncodeUtf8(JSON.stringify(editorStateForUrl())));
+    }else{
+      url.searchParams.delete('eq');
+    }
+    history.replaceState(null,'',url.toString());
+  }catch(e){}
+}
+function loadEditorFromUrl(){
+  try{
+    const data=new URLSearchParams(window.location.search).get('eq');
+    if(!data)return;
+    const parsed=JSON.parse(base64UrlDecodeUtf8(data));
+    if(parsed && Array.isArray(parsed.root)){
+      root=parsed.root;
+      path=[];
+      cursor=root.length;
+    }
+  }catch(e){}
+}
+async function copyEditorLink(){
+  syncEditorToUrl();
+  const text=window.location.href;
+  const ok=await copyTextSmart(text);
+  const status=document.getElementById('editorLinkStatus');
+  if(status){
+    status.textContent=ok?'Odkaz s aktuální rovnicí zkopírován.':'Kopírování se nepodařilo.';
+    setTimeout(()=>{status.textContent=''},2500);
+  }
+  if(!ok) alert('Kopírování se nepodařilo. Odkaz: '+text);
+}
 function setPanel(p,btn){panel=p;document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));btn.classList.add('active');renderKeys()}
 
 
@@ -2633,7 +2687,7 @@ function renderKeys(){
    k.appendChild(b);
  });
 }
-renderKeys();render();updateDebug();refreshGeneratorTargets(true);
+loadEditorFromUrl();renderKeys();render();updateDebug();refreshGeneratorTargets(true);
 </script>
 </body>
 </html>
