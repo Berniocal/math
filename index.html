@@ -10,6 +10,7 @@ window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},svg
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Calculus.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Solve.js"></script>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -2283,20 +2284,29 @@ function base64UrlDecodeUtf8(text){
 function editorStateForUrl(){
   return {root};
 }
+function getEditorUrlData(){
+  const hash=String(window.location.hash||'');
+  if(hash.startsWith('#eq=')) return hash.slice(4);
+  return new URLSearchParams(window.location.search).get('eq');
+}
 function syncEditorToUrl(){
   try{
     const url=new URL(window.location.href);
-    if(root.length){
-      url.searchParams.set('eq',base64UrlEncodeUtf8(JSON.stringify(editorStateForUrl())));
-    }else{
-      url.searchParams.delete('eq');
-    }
+    // Hash je spolehlivější než ?eq=...: funguje i při otevření jako file://
+    // a server/GitHub Pages/PWA ho po cestě nijak neupravuje.
+    url.searchParams.delete('eq');
+    url.hash=root.length ? 'eq='+base64UrlEncodeUtf8(JSON.stringify(editorStateForUrl())) : '';
     history.replaceState(null,'',url.toString());
-  }catch(e){}
+  }catch(e){
+    // Nouzový fallback pro velmi omezené prohlížeče / file:// režim.
+    try{
+      window.location.hash=root.length ? 'eq='+base64UrlEncodeUtf8(JSON.stringify(editorStateForUrl())) : '';
+    }catch(_e){}
+  }
 }
 function loadEditorFromUrl(){
   try{
-    const data=new URLSearchParams(window.location.search).get('eq');
+    const data=getEditorUrlData();
     if(!data)return;
     const parsed=JSON.parse(base64UrlDecodeUtf8(data));
     if(parsed && Array.isArray(parsed.root)){
