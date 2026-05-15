@@ -23,20 +23,20 @@ body{margin:0;background:#f3f3f3;font-family:system-ui,-apple-system,"Segoe UI",
 .tok{display:inline-flex;align-items:center;justify-content:center}.box{min-width:36px;min-height:34px;border:2px dotted #888;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;padding:2px 4px;margin:1px}.box.active{border-color:#2563eb;background:#eaf1ff}
 .frac{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;vertical-align:middle;margin:0 6px}.ft,.fb{min-width:42px;min-height:28px;display:flex;align-items:center;justify-content:center}.fl{width:100%;min-width:46px;height:2px;background:#111}
 .sqrt{display:inline-flex;align-items:center;gap:2px;margin:0 4px}.sqrtSym{font-size:46px;line-height:.8}.sqrtBody{border-top:2px solid #111;min-width:40px;padding-top:2px}.supw,.subw{display:inline-flex;align-items:center}.sup,.sub{font-size:.6em;min-width:26px;min-height:24px}.sup{transform:translateY(-14px)}.sub{transform:translateY(14px)}.par{font-size:1.3em}
-.panel{margin:12px;background:white;border-radius:24px;padding:14px;box-shadow:0 2px 12px #0001;display:grid;gap:12px}.title{font-weight:900;font-size:22px}.row{display:grid;grid-template-columns:1fr auto;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.targetGrid{display:flex;flex-wrap:wrap;gap:8px}.coeffGrid{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.labeledInput{display:flex;align-items:center;gap:6px;background:#f7f7f7;border:1px solid #ddd;border-radius:16px;padding:6px 8px}.labeledInput label{font-weight:900;white-space:nowrap}.labeledInput input{min-width:90px;flex:1}.editorActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}input,select,button{border:1px solid #ccc;background:#f9f9f9;border-radius:14px;padding:11px 12px;font-size:16px;font-weight:750}button{cursor:pointer;transition:transform .08s,background .12s}button:active{transform:scale(.94);background:#dfe8ff!important}.out{min-height:60px;background:#f7f7f7;border:1px solid #ddd;border-radius:16px;padding:12px;font-size:18px;overflow:auto}.muted{color:#777;font-size:14px}.small{font-size:13px;color:#777;word-break:break-all}
+.panel{margin:12px;background:white;border-radius:24px;padding:14px;box-shadow:0 2px 12px #0001;display:grid;gap:12px}.title{font-weight:900;font-size:22px}.row{display:grid;grid-template-columns:1fr auto;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.targetGrid{display:flex;flex-wrap:wrap;gap:8px}.coeffGrid{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.labeledInput{display:flex;align-items:center;gap:6px;background:#f7f7f7;border:1px solid #ddd;border-radius:16px;padding:6px 8px}.labeledInput label{font-weight:900;white-space:nowrap}.labeledInput input{min-width:90px;flex:1}.editorActions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}input,select,button{border:1px solid #ccc;background:#f9f9f9;border-radius:14px;padding:11px 12px;font-size:16px;font-weight:750}button{cursor:pointer;transition:transform .08s,background .12s}.keepNumberBtn.active{background:#fee2e2!important;border-color:#dc2626;color:#b91c1c}.keepNum{color:#dc2626;font-weight:900}button:active{transform:scale(.94);background:#dfe8ff!important}.out{min-height:60px;background:#f7f7f7;border:1px solid #ddd;border-radius:16px;padding:12px;font-size:18px;overflow:auto}.muted{color:#777;font-size:14px}.small{font-size:13px;color:#777;word-break:break-all}
 .keyboard{position:fixed;left:0;right:0;bottom:0;background:#f7f7f7;border-top-left-radius:28px;border-top-right-radius:28px;box-shadow:0 -8px 30px #0002;transform:translateY(110%);transition:.25s;z-index:20}.keyboard.show{transform:translateY(0)}
 .kTop{display:grid;grid-template-columns:repeat(6,1fr);padding:10px;gap:8px}.kTop button{border:0;background:none;font-size:28px}.pills{display:flex;gap:10px;overflow:auto;padding:0 10px 10px}.pill{min-width:120px;border-radius:999px;border:2px solid #ccc;background:white;font-size:18px;line-height:1.15;padding:10px 18px}.pill.active{background:#000;color:#fff;border-color:#000}.keys{display:grid;grid-template-columns:repeat(6,1fr)}.key{height:68px;border:1px solid #ddd;border-radius:0;background:#f8f8f8;font-size:28px;display:flex;align-items:center;justify-content:center;position:relative}.key.dark{background:#ececec}.key.small{font-size:21px}.key.tiny{font-size:16px;line-height:1.05}.dot:after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:#d10038;bottom:10px;right:12px}
 .popover{position:fixed;display:none;background:#fff;border:1px solid #ddd;border-radius:10px;box-shadow:0 4px 16px #0002;z-index:50;overflow:hidden}
 .popover.show{display:flex}
 .popOpt{min-width:76px;height:68px;display:flex;align-items:center;justify-content:center;font-size:27px;border-right:1px solid #eee;background:#fff}
 .popOpt:last-child{border-right:0}.popOpt.active{background:#eee}
-@media(max-width:700px){.row,.row3{grid-template-columns:1fr}.editorActions{grid-template-columns:1fr 1fr}.editor{min-height:220px;font-size:30px}.key{height:66px;font-size:24px}.top{font-size:32px}}
+@media(max-width:700px){.row,.row3{grid-template-columns:1fr}.editorActions{grid-template-columns:1fr 1fr 1fr}.editor{min-height:220px;font-size:30px}.key{height:66px;font-size:24px}.top{font-size:32px}}
 </style>
 </head>
 <body>
 <div class="top">Matematický editor</div>
 <div class="editorWrap"><div id="editor" class="editor empty" tabindex="0" onclick="focusRoot()"></div>
-  <div class="editorActions"><button onclick="solveEquation()">Spočítat</button><button onclick="copyEditorLink()">Zkopírovat odkaz</button></div>
+  <div class="editorActions"><button onclick="solveEquation()">Spočítat</button><button onclick="copyEditorLink()">Zkopírovat odkaz</button><button id="keepNumberBtn" class="keepNumberBtn" onclick="toggleKeepNumberMode()">Zachovat číslo</button></div>
   <div id="result" class="out" style="margin-top:10px"></div>
   <div id="editorLinkStatus" class="small"></div>
   <input id="vars" value="x,y,z" style="display:none">
@@ -50,11 +50,10 @@ body{margin:0;background:#f3f3f3;font-family:system-ui,-apple-system,"Segoe UI",
   <div class="coeffGrid">
     <div class="labeledInput"><label for="minCoeff">Min. |koeficient|:</label><input id="minCoeff" type="number" value="1" min="0" max="999" placeholder="Min. |koeficient|"></div>
     <div class="labeledInput"><label for="maxCoeff">Max. |koeficient|:</label><input id="maxCoeff" type="number" value="20" min="1" max="999" placeholder="Max. |koeficient|"></div>
-    <button onclick="generateSimilar()">Vytvořit</button>
   </div>
+  <div><button onclick="generateSimilar()">Vytvořit</button></div>
   <div id="generated" class="out"><div class="muted">U soustav zadáš hodnoty x, y, z; u kvadratické rovnice kořeny x₁, x₂.</div></div>
   <button onclick="copyLatex()">Kopírovat LaTeX do Wordu</button>
-  <div class="row"><button onclick="useGenerated()">Použít v editoru</button></div>
   <div class="small" id="debugLatex" style="display:none"></div>
 </section>
 
@@ -74,7 +73,7 @@ body{margin:0;background:#f3f3f3;font-family:system-ui,-apple-system,"Segoe UI",
 </div>
 
 <script>
-let root=[],path=[],cursor=0,history=[],panel='basic',lastGeneratedCalc='',lastGeneratedLatex='';
+let root=[],path=[],cursor=0,history=[],panel='basic',lastGeneratedCalc='',lastGeneratedLatex='',keepNumberMode=false;
 const panels={
 basic:[
 ["(□)",()=>insParen(),"dot",[["(□)",()=>insParen()],["[□]",()=>insBracket("square")],["{□}",()=>insBracket("curly")]]],
@@ -291,14 +290,79 @@ function move(d){smartMove(d)}
 
 function exitBox(){if(!path.length)return;while(path.length&&typeof path.at(-1)!=='number')path.pop();if(path.length){cursor=path.pop()+1}else cursor=root.length;render()}
 function backspaceKey(){const a=arr();if(cursor>0){save();a.splice(cursor-1,1);cursor--;render();updateDebug();return}exitBox()}
+
+function isNumberTextNode(n){return n&&n.type==='text'&&/^[-+]?\d*(?:\.\d*)?$/.test(String(n.v))&&String(n.v)!==''&&String(n.v)!=='-'&&String(n.v)!=='+'}
+function isNumberPartNode(n){return n&&n.type==='text'&&/^[0-9.]$/.test(String(n.v))}
+function toggleKeepNumberMode(){
+  keepNumberMode=!keepNumberMode;
+  const btn=document.getElementById('keepNumberBtn');
+  if(btn)btn.classList.toggle('active',keepNumberMode);
+  if(!keepNumberMode)render();
+}
+function toggleKeepNumberAtPath(p){
+  const parentPath=p.slice(0,-1);
+  const idx=p[p.length-1];
+  const oldPath=path.slice(),oldCursor=cursor;
+  path=parentPath;cursor=0;
+  const a=arr();
+  path=oldPath;cursor=oldCursor;
+  if(!a[idx]||!isNumberPartNode(a[idx]))return false;
+  let l=idx,r=idx;
+  while(l>0&&isNumberPartNode(a[l-1]))l--;
+  while(r+1<a.length&&isNumberPartNode(a[r+1]))r++;
+  if(l>0&&a[l-1]&&a[l-1].type==='text'&&a[l-1].v==='-'&&(l-1===0 || (a[l-2]&&a[l-2].type==='text'&&/[=+\-*/(<>{\[]/.test(a[l-2].v)))) l--;
+  const shouldKeep=!a.slice(l,r+1).some(n=>n.keep);
+  save();
+  for(let i=l;i<=r;i++) if(a[i]&&a[i].type==='text') a[i].keep=shouldKeep;
+  render();updateDebug();
+  return true;
+}
+function markedConcat(parts){
+  return parts.reduce((acc,p)=>({s:acc.s+p.s,keep:acc.keep.concat(p.keep)}),{s:'',keep:[]});
+}
+function markedLiteral(txt,keep=false){txt=String(txt);return {s:txt,keep:Array(txt.length).fill(!!keep)}}
+function calcMarkedA(a){return markedConcat(a.map(calcMarked))}
+function calcMarked(n){
+ if(n.type==='newline')return markedLiteral('\n');
+ if(n.type==='menuText')return markedLiteral(n.calc);
+ if(n.type==='text')return markedLiteral(n.v,!!n.keep);
+ if(n.type==='box')return calcMarkedA(n.children);
+ if(n.type==='frac')return markedConcat([markedLiteral('(('),calcMarkedA(n.top),markedLiteral(')/('),calcMarkedA(n.bottom),markedLiteral('))')]);
+ if(n.type==='bracket')return markedConcat([markedLiteral('('),calcMarkedA(n.body),markedLiteral(')')]);
+ if(n.type==='mixed')return markedConcat([markedLiteral('('),calcMarkedA(n.whole),markedLiteral('+(('),calcMarkedA(n.frac.top),markedLiteral(')/('),calcMarkedA(n.frac.bottom),markedLiteral(')))')]);
+ if(n.type==='root')return markedConcat([markedLiteral('('),calcMarkedA(n.body),markedLiteral(')^(1/('),calcMarkedA(n.index),markedLiteral('))')]);
+ if(n.type==='sqrt')return markedConcat([markedLiteral('sqrt('),calcMarkedA(n.body),markedLiteral(')')]);
+ if(n.type==='sup')return markedConcat([markedLiteral('('),calcMarkedA(n.base),markedLiteral(')^('),calcMarkedA(n.sup),markedLiteral(')')]);
+ if(n.type==='sub')return markedConcat([calcMarkedA(n.base),markedLiteral('_'),calcMarkedA(n.sub)]);
+ if(n.type==='paren')return markedConcat([markedLiteral('('),calcMarkedA(n.body),markedLiteral(')')]);
+ if(n.type==='func')return markedConcat([markedLiteral(n.name+'('),calcMarkedA(n.body),markedLiteral(')')]);
+ if(n.type==='exp')return markedConcat([markedLiteral('e^('),calcMarkedA(n.body),markedLiteral(')')]);
+ return markedLiteral('');
+}
+function preservedTokenIndexesForRaw(raw){
+  const marked=calcMarkedA(root);
+  if(marked.s!==String(raw))return new Set();
+  const out=new Set(),re=/-?\d+(?:\.\d+)?/g;
+  let m,idx=0;
+  while((m=re.exec(raw))){
+    const bef=raw.slice(Math.max(0,m.index-3),m.index);
+    if(bef.includes('^')){idx++;continue;}
+    for(let i=m.index;i<m.index+m[0].length;i++){
+      if(marked.keep[i]){out.add(idx);break;}
+    }
+    idx++;
+  }
+  return out;
+}
+
 function focusRoot(){showKb();path=[];cursor=root.length;render()}function showKb(){document.getElementById('keyboard').classList.add('show')}function hideKb(){document.getElementById('keyboard').classList.remove('show')}
 function render(){const ed=document.getElementById('editor');ed.innerHTML='';ed.classList.toggle('empty',root.length===0);renderArr(root,ed,[])}
 function renderArr(a,parent,p){for(let i=0;i<=a.length;i++){if(JSON.stringify(p)===JSON.stringify(path)&&i===cursor){const c=document.createElement('span');c.className='cur';parent.appendChild(c)}if(i===a.length)break;parent.appendChild(nodeEl(a[i],p.concat(i)))}}
-function click(el,p){el.onclick=e=>{e.stopPropagation();showKb();path=p.slice(0,-1);cursor=p.at(-1)+1;render()};return el}
+function click(el,p){el.onclick=e=>{e.stopPropagation();if(keepNumberMode&&toggleKeepNumberAtPath(p))return;showKb();path=p.slice(0,-1);cursor=p.at(-1)+1;render()};return el}
 function nodeEl(n,p){
 if(n.type==='newline'){const br=document.createElement('span');br.className='lineBreak';return br}
 if(n.type==='menuText'){const s=document.createElement('span');s.className='tok';s.textContent=n.show;return click(s,p)}
-if(n.type==='text'){const s=document.createElement('span');s.className='tok';s.textContent=display(n.v);return click(s,p)}
+if(n.type==='text'){const s=document.createElement('span');s.className='tok'+(n.keep?' keepNum':'');s.textContent=display(n.v);return click(s,p)}
 if(n.type==='box'){const s=document.createElement('span');s.className='box'+(eq(path,p.concat('children'))?' active':'');s.onclick=e=>{e.stopPropagation();showKb();path=p.concat('children');cursor=n.children.length;render()};renderArr(n.children,s,p.concat('children'));return s}
 if(n.type==='frac'){const w=document.createElement('span');w.className='frac tok';const t=document.createElement('span');t.className='ft box'+(eq(path,p.concat('top'))?' active':'');t.onclick=e=>{e.stopPropagation();showKb();path=p.concat('top');cursor=n.top.length;render()};renderArr(n.top,t,p.concat('top'));const l=document.createElement('span');l.className='fl';const b=document.createElement('span');b.className='fb box'+(eq(path,p.concat('bottom'))?' active':'');b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('bottom');cursor=n.bottom.length;render()};renderArr(n.bottom,b,p.concat('bottom'));w.append(t,l,b);return w}
 if(n.type==='sqrt'){const w=document.createElement('span');w.className='sqrt tok';const s=document.createElement('span');s.className='sqrtSym';s.textContent='√';const b=document.createElement('span');b.className='sqrtBody box'+(eq(path,p.concat('body'))?' active':'');b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};renderArr(n.body,b,p.concat('body'));w.append(s,b);return w}
@@ -545,9 +609,11 @@ function updateDebug(){
 function normalizeExpr(s){
   s=String(s||'');
   s=s.replace(/−/g,'-');
+  s=s.replace(/[\[{]/g,'(').replace(/[\]}]/g,')');
   s=s.replace(/(\d)([a-zA-Z])/g,'$1*$2')
      .replace(/([a-zA-Z])(\d)/g,'$1*$2')
      .replace(/(\d)\(/g,'$1*(')
+     .replace(/(^|[^a-zA-Z])([a-zA-Z])\(/g,'$1$2*(')
      .replace(/\)([a-zA-Z0-9])/g,')*$1')
      .replace(/\)\(/g,')*(');
   return s;
@@ -1232,10 +1298,11 @@ function evalJS(s,x){
 }
 function linearFallback(l,r){function f(x){return evalJS(l,x)-evalJS(r,x)}const b=f(0),a=f(1)-b;if(Math.abs(a)<1e-12)throw Error('not linear');return -b/a}
 function fmt(n){const r=Math.round(n*1e9)/1e9;return Math.abs(r-Math.round(r))<1e-9?String(Math.round(r)):String(r).replace('.',',')}
-function toks(raw){const out=[],re=/-?\d+(?:\.\d+)?/g;let m;while((m=re.exec(raw))){const bef=raw.slice(Math.max(0,m.index-3),m.index);if(bef.includes('^'))continue;out.push({start:m.index,end:m.index+m[0].length,value:m[0]})}return out}
+function toks(raw){const out=[],re=/-?\d+(?:\.\d+)?/g;let m,idx=0;const preserved=preservedTokenIndexesForRaw(raw);while((m=re.exec(raw))){const bef=raw.slice(Math.max(0,m.index-3),m.index);if(bef.includes('^')){idx++;continue;}out.push({start:m.index,end:m.index+m[0].length,value:m[0],keep:preserved.has(idx)});idx++;}return out}
 function repl(raw,rs){
   let o=raw;
   rs.sort((a,b)=>b.t.start-a.t.start).forEach(r=>{
+    if(r.t&&r.t.keep)return;
     let v=String(r.v);
 
     // Důležité: tokeny typu -4 obsahují i znaménko mínus.
