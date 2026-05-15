@@ -23,42 +23,38 @@ body{margin:0;background:#f3f3f3;font-family:system-ui,-apple-system,"Segoe UI",
 .tok{display:inline-flex;align-items:center;justify-content:center}.box{min-width:36px;min-height:34px;border:2px dotted #888;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;padding:2px 4px;margin:1px}.box.active{border-color:#2563eb;background:#eaf1ff}
 .frac{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;vertical-align:middle;margin:0 6px}.ft,.fb{min-width:42px;min-height:28px;display:flex;align-items:center;justify-content:center}.fl{width:100%;min-width:46px;height:2px;background:#111}
 .sqrt{display:inline-flex;align-items:center;gap:2px;margin:0 4px}.sqrtSym{font-size:46px;line-height:.8}.sqrtBody{border-top:2px solid #111;min-width:40px;padding-top:2px}.supw,.subw{display:inline-flex;align-items:center}.sup,.sub{font-size:.6em;min-width:26px;min-height:24px}.sup{transform:translateY(-14px)}.sub{transform:translateY(14px)}.par{font-size:1.3em}
-.panel{margin:12px;background:white;border-radius:24px;padding:14px;box-shadow:0 2px 12px #0001;display:grid;gap:12px}.title{font-weight:900;font-size:22px}.row{display:grid;grid-template-columns:1fr auto;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.targetGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}input,select,button{border:1px solid #ccc;background:#f9f9f9;border-radius:14px;padding:11px 12px;font-size:16px;font-weight:750}button{cursor:pointer;transition:transform .08s,background .12s}button:active{transform:scale(.94);background:#dfe8ff!important}.out{min-height:60px;background:#f7f7f7;border:1px solid #ddd;border-radius:16px;padding:12px;font-size:18px;overflow:auto}.muted{color:#777;font-size:14px}.small{font-size:13px;color:#777;word-break:break-all}
+.panel{margin:12px;background:white;border-radius:24px;padding:14px;box-shadow:0 2px 12px #0001;display:grid;gap:12px}.title{font-weight:900;font-size:22px}.row{display:grid;grid-template-columns:1fr auto;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.targetGrid{display:flex;flex-wrap:wrap;gap:8px}.coeffGrid{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.labeledInput{display:flex;align-items:center;gap:6px;background:#f7f7f7;border:1px solid #ddd;border-radius:16px;padding:6px 8px}.labeledInput label{font-weight:900;white-space:nowrap}.labeledInput input{min-width:90px;flex:1}.editorActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}input,select,button{border:1px solid #ccc;background:#f9f9f9;border-radius:14px;padding:11px 12px;font-size:16px;font-weight:750}button{cursor:pointer;transition:transform .08s,background .12s}button:active{transform:scale(.94);background:#dfe8ff!important}.out{min-height:60px;background:#f7f7f7;border:1px solid #ddd;border-radius:16px;padding:12px;font-size:18px;overflow:auto}.muted{color:#777;font-size:14px}.small{font-size:13px;color:#777;word-break:break-all}
 .keyboard{position:fixed;left:0;right:0;bottom:0;background:#f7f7f7;border-top-left-radius:28px;border-top-right-radius:28px;box-shadow:0 -8px 30px #0002;transform:translateY(110%);transition:.25s;z-index:20}.keyboard.show{transform:translateY(0)}
 .kTop{display:grid;grid-template-columns:repeat(6,1fr);padding:10px;gap:8px}.kTop button{border:0;background:none;font-size:28px}.pills{display:flex;gap:10px;overflow:auto;padding:0 10px 10px}.pill{min-width:120px;border-radius:999px;border:2px solid #ccc;background:white;font-size:18px;line-height:1.15;padding:10px 18px}.pill.active{background:#000;color:#fff;border-color:#000}.keys{display:grid;grid-template-columns:repeat(6,1fr)}.key{height:68px;border:1px solid #ddd;border-radius:0;background:#f8f8f8;font-size:28px;display:flex;align-items:center;justify-content:center;position:relative}.key.dark{background:#ececec}.key.small{font-size:21px}.key.tiny{font-size:16px;line-height:1.05}.dot:after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:#d10038;bottom:10px;right:12px}
 .popover{position:fixed;display:none;background:#fff;border:1px solid #ddd;border-radius:10px;box-shadow:0 4px 16px #0002;z-index:50;overflow:hidden}
 .popover.show{display:flex}
 .popOpt{min-width:76px;height:68px;display:flex;align-items:center;justify-content:center;font-size:27px;border-right:1px solid #eee;background:#fff}
 .popOpt:last-child{border-right:0}.popOpt.active{background:#eee}
-@media(max-width:700px){.row,.row3{grid-template-columns:1fr}.editor{min-height:220px;font-size:30px}.key{height:66px;font-size:24px}.top{font-size:32px}}
+@media(max-width:700px){.row,.row3{grid-template-columns:1fr}.editorActions{grid-template-columns:1fr 1fr}.editor{min-height:220px;font-size:30px}.key{height:66px;font-size:24px}.top{font-size:32px}}
 </style>
 </head>
 <body>
 <div class="top">Matematický editor</div>
 <div class="editorWrap"><div id="editor" class="editor empty" tabindex="0" onclick="focusRoot()"></div>
-  <div class="row" style="margin-top:10px"><button onclick="copyEditorLink()">Zkopírovat odkaz s aktuální rovnicí</button><div id="editorLinkStatus" class="small"></div></div>
-</div>
-
-<section class="panel">
-  <div class="title">Výpočet</div>
-  <button onclick="solveEquation()">Spočítat</button>
-  <div id="result" class="out"></div>
+  <div class="editorActions"><button onclick="solveEquation()">Spočítat</button><button onclick="copyEditorLink()">Zkopírovat odkaz</button></div>
+  <div id="result" class="out" style="margin-top:10px"></div>
+  <div id="editorLinkStatus" class="small"></div>
   <input id="vars" value="x,y,z" style="display:none">
   <div class="small" id="debugCalc" style="display:none"></div>
-</section>
+</div>
 
 <section class="panel">
   <div class="title">Generátor podobného příkladu</div>
   <div class="muted" id="targetHint">Generátor automaticky pozná počet výsledků podle zadání v editoru.</div>
   <div id="targetBox" class="targetGrid"></div>
-  <div class="row3"><input id="minCoeff" type="number" value="1" min="0" max="999" placeholder="Min. |koeficient|"><input id="maxCoeff" type="number" value="20" min="1" max="999" placeholder="Max. |koeficient|"><button onclick="generateSimilar()">Vytvořit</button></div>
+  <div class="coeffGrid">
+    <div class="labeledInput"><label for="minCoeff">Min. |koeficient|:</label><input id="minCoeff" type="number" value="1" min="0" max="999" placeholder="Min. |koeficient|"></div>
+    <div class="labeledInput"><label for="maxCoeff">Max. |koeficient|:</label><input id="maxCoeff" type="number" value="20" min="1" max="999" placeholder="Max. |koeficient|"></div>
+    <button onclick="generateSimilar()">Vytvořit</button>
+  </div>
   <div id="generated" class="out"><div class="muted">U soustav zadáš hodnoty x, y, z; u kvadratické rovnice kořeny x₁, x₂.</div></div>
+  <button onclick="copyLatex()">Kopírovat LaTeX do Wordu</button>
   <div class="row"><button onclick="useGenerated()">Použít v editoru</button></div>
-</section>
-
-<section class="panel">
-  <div class="title">Export</div>
-  <div class="row"><button onclick="copyLatex()">Kopírovat LaTeX do Wordu</button><button onclick="copyCalc()">Kopírovat výpočetní zápis</button></div>
   <div class="small" id="debugLatex" style="display:none"></div>
 </section>
 
@@ -1625,11 +1621,17 @@ function refreshGeneratorTargets(force=true){
  box.dataset.mode=key;
  box.innerHTML='';
  mode.labels.forEach((lab,i)=>{
+   const wrap=document.createElement('div');
+   wrap.className='labeledInput';
+   const label=document.createElement('label');
+   label.setAttribute('for','target_'+i);
+   label.textContent=lab+':';
    const input=document.createElement('input');
    input.id='target_'+i;
    input.placeholder=lab;
    input.value=oldVals[i] || (i===0?'5':'');
-   box.appendChild(input);
+   wrap.append(label,input);
+   box.appendChild(wrap);
  });
  const hint=document.getElementById('targetHint');
  if(mode.type==='inequality')hint.textContent=`Rozpoznána nerovnice: zadej ${mode.count===1?'nulový bod':'nulové body'} ${mode.labels.join(', ')}. Generátor zachová typ znaménka nerovnosti a dopočítá intervaly.`;
