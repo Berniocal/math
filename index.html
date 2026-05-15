@@ -2281,9 +2281,6 @@ function base64UrlDecodeUtf8(text){
   const bytes=new Uint8Array([...bin].map(ch=>ch.charCodeAt(0)));
   return new TextDecoder().decode(bytes);
 }
-function editorStateForUrl(){
-  return {root};
-}
 function getEditorUrlData(){
   const hash=String(window.location.hash||'');
   if(hash.startsWith('#eq=')) return hash.slice(4);
@@ -2292,15 +2289,14 @@ function getEditorUrlData(){
 function syncEditorToUrl(){
   try{
     const url=new URL(window.location.href);
-    // Hash je spolehlivější než ?eq=...: funguje i při otevření jako file://
-    // a server/GitHub Pages/PWA ho po cestě nijak neupravuje.
+    // Kratší odkaz: ukládá se jen výpočetní zápis, ne celý JSON strom editoru.
+    // Hash funguje i při otevření jako file:// a GitHub Pages/PWA ho neupravuje.
     url.searchParams.delete('eq');
-    url.hash=root.length ? 'eq='+base64UrlEncodeUtf8(JSON.stringify(editorStateForUrl())) : '';
+    url.hash=root.length ? 'eq='+encodeURIComponent(calcA(root)) : '';
     history.replaceState(null,'',url.toString());
   }catch(e){
-    // Nouzový fallback pro velmi omezené prohlížeče / file:// režim.
     try{
-      window.location.hash=root.length ? 'eq='+base64UrlEncodeUtf8(JSON.stringify(editorStateForUrl())) : '';
+      window.location.hash=root.length ? 'eq='+encodeURIComponent(calcA(root)) : '';
     }catch(_e){}
   }
 }
@@ -2308,12 +2304,24 @@ function loadEditorFromUrl(){
   try{
     const data=getEditorUrlData();
     if(!data)return;
-    const parsed=JSON.parse(base64UrlDecodeUtf8(data));
-    if(parsed && Array.isArray(parsed.root)){
-      root=parsed.root;
-      path=[];
-      cursor=root.length;
-    }
+
+    // Nový krátký formát: #eq=x%5E2-5*x%3D6
+    let raw=decodeURIComponent(data);
+
+    // Zpětná kompatibilita se starším dlouhým formátem, kde byl uložen JSON v base64url.
+    try{
+      const parsed=JSON.parse(base64UrlDecodeUtf8(data));
+      if(parsed && Array.isArray(parsed.root)){
+        root=parsed.root;
+        path=[];
+        cursor=root.length;
+        return;
+      }
+    }catch(_oldFormat){}
+
+    root=calcTextToNodes(raw);
+    path=[];
+    cursor=root.length;
   }catch(e){}
 }
 async function copyEditorLink(){
