@@ -23,20 +23,20 @@ body{margin:0;background:#f3f3f3;font-family:system-ui,-apple-system,"Segoe UI",
 .tok{display:inline-flex;align-items:center;justify-content:center}.box{min-width:36px;min-height:34px;border:2px dotted #888;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;padding:2px 4px;margin:1px}.box.active{border-color:#2563eb;background:#eaf1ff}
 .frac{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;vertical-align:middle;margin:0 6px}.ft,.fb{min-width:42px;min-height:28px;display:flex;align-items:center;justify-content:center}.fl{width:100%;min-width:46px;height:2px;background:#111}
 .sqrt{display:inline-flex;align-items:center;gap:2px;margin:0 4px}.sqrtSym{font-size:46px;line-height:.8}.sqrtBody{border-top:2px solid #111;min-width:40px;padding-top:2px}.supw,.subw{display:inline-flex;align-items:center}.sup,.sub{font-size:.6em;min-width:26px;min-height:24px}.sup{transform:translateY(-14px)}.sub{transform:translateY(14px)}.par{font-size:1.3em}
-.panel{margin:12px;background:white;border-radius:24px;padding:14px;box-shadow:0 2px 12px #0001;display:grid;gap:12px}.title{font-weight:900;font-size:22px}.row{display:grid;grid-template-columns:1fr auto;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.targetGrid{display:flex;flex-wrap:wrap;gap:8px}.coeffGrid{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.labeledInput{display:flex;align-items:center;gap:6px;background:#f7f7f7;border:1px solid #ddd;border-radius:16px;padding:6px 8px}.labeledInput label{font-weight:900;white-space:nowrap}.labeledInput input{min-width:90px;flex:1}.editorActions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}input,select,button{border:1px solid #ccc;background:#f9f9f9;border-radius:14px;padding:11px 12px;font-size:16px;font-weight:750}button{cursor:pointer;transition:transform .08s,background .12s}.keepNumberBtn.active{background:#fee2e2!important;border-color:#dc2626;color:#b91c1c}.keepNum{color:#dc2626;font-weight:900}button:active{transform:scale(.94);background:#dfe8ff!important}.out{min-height:60px;background:#f7f7f7;border:1px solid #ddd;border-radius:16px;padding:12px;font-size:18px;overflow:auto}.muted{color:#777;font-size:14px}.small{font-size:13px;color:#777;word-break:break-all}
+.panel{margin:12px;background:white;border-radius:24px;padding:14px;box-shadow:0 2px 12px #0001;display:grid;gap:12px}.title{font-weight:900;font-size:22px}.row{display:grid;grid-template-columns:1fr auto;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.targetGrid{display:flex;flex-wrap:wrap;gap:8px}.coeffGrid{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.labeledInput{display:flex;align-items:center;gap:6px;background:#f7f7f7;border:1px solid #ddd;border-radius:16px;padding:6px 8px}.labeledInput label{font-weight:900;white-space:nowrap}.labeledInput input{min-width:90px;flex:1}.editorActions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}input,select,button{border:1px solid #ccc;background:#f9f9f9;border-radius:14px;padding:11px 12px;font-size:16px;font-weight:750}button{cursor:pointer;transition:transform .08s,background .12s}.keepNumberBtn.active{background:#fee2e2!important;border-color:#dc2626;color:#b91c1c}.keepNum{color:#dc2626;font-weight:900}button:active{transform:scale(.94);background:#dfe8ff!important}.out{min-height:60px;background:#f7f7f7;border:1px solid #ddd;border-radius:16px;padding:12px;font-size:18px;overflow:auto}.muted{color:#777;font-size:14px}.small{font-size:13px;color:#777;word-break:break-all}
 .keyboard{position:fixed;left:0;right:0;bottom:0;background:#f7f7f7;border-top-left-radius:28px;border-top-right-radius:28px;box-shadow:0 -8px 30px #0002;transform:translateY(110%);transition:.25s;z-index:20}.keyboard.show{transform:translateY(0)}
 .kTop{display:grid;grid-template-columns:repeat(6,1fr);padding:10px;gap:8px}.kTop button{border:0;background:none;font-size:28px}.pills{display:flex;gap:10px;overflow:auto;padding:0 10px 10px}.pill{min-width:120px;border-radius:999px;border:2px solid #ccc;background:white;font-size:18px;line-height:1.15;padding:10px 18px}.pill.active{background:#000;color:#fff;border-color:#000}.keys{display:grid;grid-template-columns:repeat(6,1fr)}.key{height:68px;border:1px solid #ddd;border-radius:0;background:#f8f8f8;font-size:28px;display:flex;align-items:center;justify-content:center;position:relative}.key.dark{background:#ececec}.key.small{font-size:21px}.key.tiny{font-size:16px;line-height:1.05}.dot:after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:#d10038;bottom:10px;right:12px}
 .popover{position:fixed;display:none;background:#fff;border:1px solid #ddd;border-radius:10px;box-shadow:0 4px 16px #0002;z-index:50;overflow:hidden}
 .popover.show{display:flex}
 .popOpt{min-width:76px;height:68px;display:flex;align-items:center;justify-content:center;font-size:27px;border-right:1px solid #eee;background:#fff}
 .popOpt:last-child{border-right:0}.popOpt.active{background:#eee}
-@media(max-width:700px){.row,.row3{grid-template-columns:1fr}.editorActions{grid-template-columns:1fr 1fr 1fr}.editor{min-height:220px;font-size:30px}.key{height:66px;font-size:24px}.top{font-size:32px}}
+@media(max-width:700px){.row,.row3{grid-template-columns:1fr}.editorActions{grid-template-columns:1fr 1fr}.editor{min-height:220px;font-size:30px}.key{height:66px;font-size:24px}.top{font-size:32px}}
 </style>
 </head>
 <body>
 <div class="top">Matematický editor</div>
 <div class="editorWrap"><div id="editor" class="editor empty" tabindex="0" onclick="focusRoot()"></div>
-  <div class="editorActions"><button onclick="solveEquation()">Spočítat</button><button onclick="copyEditorLink()">Zkopírovat odkaz</button><button id="keepNumberBtn" class="keepNumberBtn" onclick="toggleKeepNumberMode()">Zachovat číslo</button></div>
+  <div class="editorActions"><button onclick="solveEquation()">Spočítat</button><button id="keepNumberBtn" class="keepNumberBtn" onclick="toggleKeepNumberMode()">Zachovat číslo</button><button onclick="copyEditorLink()">Zkopírovat odkaz</button><button onclick="copyEditorLatex()">Kopírovat LaTeX</button></div>
   <div id="result" class="out" style="margin-top:10px"></div>
   <div id="editorLinkStatus" class="small"></div>
   <input id="vars" value="x,y,z" style="display:none">
@@ -78,7 +78,7 @@ const panels={
 basic:[
 ["(□)",()=>insParen(),"dot",[["(□)",()=>insParen()],["[□]",()=>insBracket("square")],["{□}",()=>insBracket("curly")]]],
 [">",">","dot",[[">",">"],["≥",">="],["<","<"],["≤","<="]]],
-["7","7","dark"],["8","8","dark"],["9","9","dark"],["÷","/"],
+["7","7","dark"],["8","8","dark"],["9","9","dark"],[":","/"],
 
 ["□/□",()=>insFrac(),"tiny dot",[
   ["□/□",()=>insFrac()],
@@ -94,7 +94,8 @@ basic:[
 ["□²",()=>insPow("2"),"dot",[
   ["□²",()=>insPow("2")],
   ["□³",()=>insPow("3")],
-  ["□ⁿ",()=>insPow("")]
+  ["□ⁿ",()=>insPow("")],
+  ["□ₙ",()=>insSub("")]
 ]],
 ["x","x","dot",[
   ["x","x"],["y","y"],["z","z"]
@@ -106,7 +107,7 @@ basic:[
   ["π/2",()=>insFracText("pi","2")],
   ["π/3",()=>insFracText("pi","3")]
 ]],
-["%","%","dot"],["0","0","dark"],[",",".","dark"],["=","="],["+","+"]
+["📋",()=>pasteClipboard(),"dot"],["0","0","dark"],[",",".","dark"],["=","="],["+","+"]
 ],
 abc:[
 ["a","a"],["b","b"],["c","c"],["d","d"],["e","e"],["f","f"],["g","g"],["h","h"],["i","i"],["j","j"],["k","k"],["l","l"],["m","m"],["n","n"],["p","p"],["q","q"],["r","r"],["s","s"],["t","t"],["u",()=>insPow(""),"dot"],["v","v"],["x","x"],["y","y"],["z","z"]
@@ -356,6 +357,105 @@ function preservedTokenIndexesForRaw(raw){
 }
 
 function focusRoot(){showKb();path=[];cursor=root.length;render()}function showKb(){document.getElementById('keyboard').classList.add('show')}function hideKb(){document.getElementById('keyboard').classList.remove('show')}
+function insertPastedTextIntoEditor(txt){
+  txt=String(txt||'');
+  if(!txt.trim()) return;
+
+  save();
+
+  let nodes;
+  const looksLatex=/\\frac|\\sqrt|\\left|\\right|\\cdot|\\times|\\le|\\ge|\\pi|\^|_\{/.test(txt);
+  if(looksLatex && typeof latexToCalcText==='function'){
+    nodes=calcTextToNodes(latexToCalcText(txt));
+  }else{
+    nodes=calcTextToNodes(txt);
+  }
+
+  arr().splice(cursor,0,...nodes);
+  cursor += nodes.length;
+  render();
+  updateDebug();
+  showKb();
+}
+
+function openManualPasteBox(){
+  const old=document.getElementById('pasteOverlay');
+  if(old) old.remove();
+
+  const overlay=document.createElement('div');
+  overlay.id='pasteOverlay';
+  overlay.style.position='fixed';
+  overlay.style.inset='0';
+  overlay.style.background='rgba(0,0,0,.45)';
+  overlay.style.zIndex='999';
+  overlay.style.display='flex';
+  overlay.style.alignItems='center';
+  overlay.style.justifyContent='center';
+  overlay.style.padding='18px';
+
+  const box=document.createElement('div');
+  box.style.background='#fff';
+  box.style.borderRadius='24px';
+  box.style.padding='16px';
+  box.style.width='min(560px,100%)';
+  box.style.boxShadow='0 12px 35px rgba(0,0,0,.25)';
+  box.style.display='grid';
+  box.style.gap='10px';
+
+  const title=document.createElement('div');
+  title.textContent='Vlož obsah schránky';
+  title.style.fontWeight='900';
+  title.style.fontSize='22px';
+
+  const hint=document.createElement('div');
+  hint.textContent='Prohlížeč tady nedovolil přečíst schránku automaticky. Klepni do pole, vlož text/LaTeX a potvrď.';
+  hint.style.color='#666';
+  hint.style.fontSize='14px';
+
+  const ta=document.createElement('textarea');
+  ta.rows=5;
+  ta.style.width='100%';
+  ta.style.fontSize='18px';
+  ta.style.border='1px solid #ccc';
+  ta.style.borderRadius='14px';
+  ta.style.padding='10px';
+
+  const row=document.createElement('div');
+  row.style.display='grid';
+  row.style.gridTemplateColumns='1fr 1fr';
+  row.style.gap='8px';
+
+  const cancel=document.createElement('button');
+  cancel.textContent='Zrušit';
+  cancel.onclick=()=>overlay.remove();
+
+  const ok=document.createElement('button');
+  ok.textContent='Vložit';
+  ok.onclick=()=>{
+    insertPastedTextIntoEditor(ta.value);
+    overlay.remove();
+  };
+
+  row.append(cancel,ok);
+  box.append(title,hint,ta,row);
+  overlay.append(box);
+  document.body.appendChild(overlay);
+  setTimeout(()=>ta.focus(),50);
+}
+
+async function pasteClipboard(){
+ try{
+   if(navigator.clipboard && window.isSecureContext){
+     const txt = await navigator.clipboard.readText();
+     if(txt){
+       insertPastedTextIntoEditor(txt);
+       return;
+     }
+   }
+ }catch(e){}
+ openManualPasteBox();
+}
+
 function render(){const ed=document.getElementById('editor');ed.innerHTML='';ed.classList.toggle('empty',root.length===0);renderArr(root,ed,[])}
 function renderArr(a,parent,p){for(let i=0;i<=a.length;i++){if(JSON.stringify(p)===JSON.stringify(path)&&i===cursor){const c=document.createElement('span');c.className='cur';parent.appendChild(c)}if(i===a.length)break;parent.appendChild(nodeEl(a[i],p.concat(i)))}}
 function click(el,p){el.onclick=e=>{e.stopPropagation();if(keepNumberMode&&toggleKeepNumberAtPath(p))return;showKb();path=p.slice(0,-1);cursor=p.at(-1)+1;render()};return el}
@@ -428,7 +528,7 @@ if(n.type==='func'){const w=document.createElement('span');w.className='tok';con
 if(n.type==='exp'){const w=document.createElement('span');w.className='tok';w.textContent='e';const s=document.createElement('span');s.className='sup box'+(eq(path,p.concat('body'))?' active':'');s.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};renderArr(n.body,s,p.concat('body'));w.append(s);return w}
 }
 function eq(a,b){return JSON.stringify(a)===JSON.stringify(b)}
-function display(v){return prettifyUnitCoefficientsCalc(String(v)).replaceAll('*','×').replaceAll('/','÷').replaceAll('-','−').replaceAll('pi','π').replaceAll('Infinity','∞').replaceAll('<=','≤').replaceAll('>=','≥').replaceAll('!=','≠')}
+function display(v){return prettifyUnitCoefficientsCalc(String(v)).replaceAll('*','×').replaceAll('/',':').replaceAll('-','−').replaceAll('pi','π').replaceAll('Infinity','∞').replaceAll('<=','≤').replaceAll('>=','≥').replaceAll('!=','≠')}
 
 function calcA(a){return a.map(calc).join('')}
 function calc(n){
@@ -459,9 +559,18 @@ function latexN(n){
  if(n.type==='mixed')return (latexA(n.whole)||'\\square')+'\\frac{'+(latexA(n.frac.top)||'\\square')+'}{'+(latexA(n.frac.bottom)||'\\square')+'}';
  if(n.type==='root')return '\\sqrt['+(latexA(n.index)||'\\square')+']{'+(latexA(n.body)||'\\square')+'}';
  if(n.type==='sqrt')return '\\sqrt{'+(latexA(n.body)||'\\square')+'}';
- if(n.type==='sup')return '{'+(latexA(n.base)||'\\square')+'}^{'+(latexA(n.sup)||'\\square')+'}';
+ if(n.type==='sup'){
+ const b=(latexA(n.base)||'\\square');
+ const needsParens=/^[\+\-]/.test(b)||/[\+\-=]/.test(b.slice(1));
+ const outBase=needsParens?'('+b+')':b;
+ return outBase+'^{'+(latexA(n.sup)||'\\square')+'}';
+}
  if(n.type==='sub')return '{'+(latexA(n.base)||'\\square')+'}_{'+(latexA(n.sub)||'\\square')+'}';
- if(n.type==='paren')return '\\left('+latexA(n.body)+'\\right)';
+ if(n.type==='paren'){
+  const bodyLatex=latexA(n.body);
+  const simple=/^[a-zA-Z0-9+\-*/.,\s]+$/.test(bodyLatex);
+  return simple ? '('+bodyLatex+')' : '\\left('+bodyLatex+'\\right)';
+}
  if(n.type==='func')return '\\'+n.name+'\\left('+latexA(n.body)+'\\right)';
  if(n.type==='exp')return 'e^{'+(latexA(n.body)||'\\square')+'}';
  return '';
@@ -1696,7 +1805,7 @@ function refreshGeneratorTargets(force=true){
    const input=document.createElement('input');
    input.id='target_'+i;
    input.placeholder=lab;
-   input.value=oldVals[i] || (i===0?'5':'');
+   input.value=oldVals[i] || '';
    wrap.append(label,input);
    box.appendChild(wrap);
  });
@@ -2218,8 +2327,9 @@ function exprToLatexGenerated(expr, context="normal") {
   if(factors.length>1){
     const rendered=factors.map(f=>{
       const part=exprToLatexGenerated(f);
-      // Záporný činitel za násobením má být čitelně v závorce: (5+x)\cdot (-x), ne (5+x)\cdot -x.
-      return String(f).trim().startsWith('-') ? '\\left('+part+'\\right)' : part;
+      // Záporný činitel za násobením má být čitelně v závorce: 5\cdot \left(-2\right), ne 5\cdot -2.
+      const plainFactor=stripOuterParens(String(f).trim());
+      return plainFactor.startsWith('-') ? '\\left('+part+'\\right)' : part;
     }).join('\\cdot ');
     return (wasWrapped && context!=='suppressWrap') ? '\\left('+rendered+'\\right)' : rendered;
   }
@@ -2257,19 +2367,31 @@ function prettifyUnitCoefficientsCalc(s){
     .replace(/\+\-/g,'-')
     .replace(/--/g,'+');
 }
+function cleanupCopiedLatex(s){
+  return String(s||'')
+    .replace(/\\left\(([a-zA-Z0-9]+)\\right\)\^\{/g,'$1^{')
+    .replace(/\(([a-zA-Z0-9]+)\)\^\{/g,'$1^{')
+    .replace(/\{([a-zA-Z0-9]+)\}\^\{/g,'$1^{')
+    .replace(/\\left\(([a-zA-Z0-9]+)\\right\)_\{/g,'$1_{')
+    .replace(/\(([a-zA-Z0-9]+)\)_\{/g,'$1_{')
+    .replace(/\{([a-zA-Z0-9]+)\}_\{/g,'$1_{');
+}
 function calcToLatexSimple(s){
   let out=prettifyUnitCoefficientsCalc(s);
   out=out.replace(/−/g,'-');
   const opMatch=out.match(/(<=|>=|<|>|=)/);
+  let result;
   if(opMatch){
     const op=opMatch[1];
     const left=out.slice(0,opMatch.index);
     const right=out.slice(opMatch.index+op.length);
     const opLatex=op==='<= إ'?'\\le ':op; // never used, keeps minifier away
     const map={ '<=':'\\le ', '>=':'\\ge ', '<':'<', '>':'>', '=':'=' };
-    return exprToLatexGenerated(left)+map[op]+exprToLatexGenerated(right);
+    result=exprToLatexGenerated(left)+map[op]+exprToLatexGenerated(right);
+  }else{
+    result=exprToLatexGenerated(out);
   }
-  return exprToLatexGenerated(out);
+  return cleanupCopiedLatex(result);
 }
 function useGenerated(){
  if(!lastGeneratedCalc)return;
@@ -2327,8 +2449,21 @@ async function copyGenerated(){
 }
 async function copyLatex(){
  const lx=lastGeneratedLatex || (lastGeneratedCalc ? calcToLatexSimple(lastGeneratedCalc) : latexA(root));
- const text=lx;
+ const text=cleanupCopiedLatex(lx);
  const ok=await copyTextSmart(text);
+ if(!ok) alert('Kopírování se nepodařilo. Text: '+text);
+}
+
+async function copyEditorLatex(){
+ const raw=prettifyUnitCoefficientsCalc(calcA(root));
+ const text=calcToLatexSimple(raw);
+ if(!text)return;
+ const ok=await copyTextSmart(text);
+ const status=document.getElementById('editorLinkStatus');
+ if(status){
+   status.textContent=ok?'LaTeX z editoru zkopírován.':'Kopírování se nepodařilo.';
+   setTimeout(()=>{status.textContent=''},2500);
+ }
  if(!ok) alert('Kopírování se nepodařilo. Text: '+text);
 }
 async function copyCalc(){
@@ -2420,7 +2555,7 @@ function latexFromMenuLabel(label, calc){
     "∈":"\\in ",
     "∪":"\\cup ",
     "∩":"\\cap ",
-    "÷":"\\div ",
+    ":":"\\div ",
     "×":"\\cdot ",
     "−":"-"
   };
@@ -2461,6 +2596,13 @@ function hidePopover(){
   pop.innerHTML='';
   activePopoverKey=null;
 }
+
+document.addEventListener('pointerdown',function(e){
+  const pop=document.getElementById('keyPopover');
+  if(!pop || !pop.classList.contains('show')) return;
+  if(pop.contains(e.target)) return;
+  hidePopover();
+}, true);
 
 function showKeyPopover(btn, options){
   const pop=document.getElementById('keyPopover');
@@ -2736,6 +2878,7 @@ function handlePhysicalKeyboard(e){
 
   if(printable){
     e.preventDefault();
+    if(key==='d'){ insSub(''); return; }
     if(key==='/'){ keyboardFractionFromSlash(); return; }
     if(key==='^' || key==='u'){ keyboardPowerFromCaret(); return; }
     if(key==='(' || key==='[' || key==='{'){ keyboardParen(key); return; }
@@ -2774,6 +2917,122 @@ function renderKeys(){
    k.appendChild(b);
  });
 }
+
+
+function latexToCalcText(latex){
+  let s=String(latex||'').trim();
+
+  s=s.replace(/^\s*\\\[/,'').replace(/\\\]\s*$/,'');
+  s=s.replace(/^\s*\\\(/,'').replace(/\\\)\s*$/,'');
+  s=s.replace(/^\s*\$\$/,'').replace(/\$\$\s*$/,'');
+  s=s.replace(/^\s*\$/,'').replace(/\$\s*$/,'');
+
+  s=s.replace(/\r/g,'\n');
+  s=s.replace(/\\begin\{(?:aligned|array|cases|matrix)\}/g,'');
+  s=s.replace(/\\end\{(?:aligned|array|cases|matrix)\}/g,'');
+  s=s.replace(/\\\\/g,'\n');
+  s=s.replace(/&/g,'');
+
+  s=s.replace(/\\left/g,'').replace(/\\right/g,'');
+  s=s.replace(/\\,/g,'').replace(/\\;/g,'').replace(/\\!/g,'').replace(/\\:/g,'');
+  s=s.replace(/\s+/g,'');
+
+  s=s.replace(/\\cdot|\\times/g,'*');
+  s=s.replace(/\\div/g,'/');
+  s=s.replace(/\\pi/g,'pi');
+  s=s.replace(/\\infty/g,'Infinity');
+  s=s.replace(/\\leq|\\le/g,'<=');
+  s=s.replace(/\\geq|\\ge/g,'>=');
+  s=s.replace(/\\neq|\\ne/g,'!=');
+  s=s.replace(/\\sin/g,'sin');
+  s=s.replace(/\\cos/g,'cos');
+  s=s.replace(/\\tan/g,'tan');
+  s=s.replace(/\\cot/g,'cot');
+  s=s.replace(/\\log/g,'log');
+  s=s.replace(/\\ln/g,'ln');
+
+  function readGroup(str,i){
+    if(str[i]!=='{') return {body:str[i]||'', end:i+1};
+    let depth=1, j=i+1, body='';
+    while(j<str.length){
+      if(str[j]==='{') depth++;
+      else if(str[j]==='}'){
+        depth--;
+        if(depth===0) break;
+      }
+      body+=str[j];
+      j++;
+    }
+    return {body,end:j+1};
+  }
+
+  function convertSpecial(str){
+    let out='', i=0;
+    while(i<str.length){
+      if(str.startsWith('\\frac',i)){
+        i+=5;
+        const top=readGroup(str,i);
+        const bot=readGroup(str,top.end);
+        out+='(('+convertSpecial(top.body)+')/('+convertSpecial(bot.body)+'))';
+        i=bot.end;
+      }else if(str.startsWith('\\sqrt',i)){
+        i+=5;
+        if(str[i]==='['){
+          let j=i+1, idx='';
+          while(j<str.length && str[j]!==']'){idx+=str[j];j++;}
+          const body=readGroup(str,j+1);
+          out+='('+convertSpecial(body.body)+')^(1/('+convertSpecial(idx)+'))';
+          i=body.end;
+        }else{
+          const body=readGroup(str,i);
+          out+='sqrt('+convertSpecial(body.body)+')';
+          i=body.end;
+        }
+      }else{
+        out+=str[i];
+        i++;
+      }
+    }
+    return out;
+  }
+
+  s=convertSpecial(s);
+  s=s.replace(/\{/g,'(').replace(/\}/g,')');
+  s=s.replace(/\^\(([^()]*)\)/g,'^($1)');
+  s=s.replace(/\^([0-9a-zA-Z]+)/g,'^($1)');
+  s=s.replace(/_\(([^()]*)\)/g,'_$1');
+  s=s.replace(/_([0-9a-zA-Z]+)/g,'_$1');
+  s=s.replace(/\\/g,'');
+  return s;
+}
+
+function pasteLatexIntoEditor(e){
+  const text=e.clipboardData?.getData('text/plain') || '';
+  if(!text.trim()) return;
+
+  const looksLatex=/\\frac|\\sqrt|\\left|\\right|\\cdot|\\times|\\le|\\ge|\\pi|\\begin|\^|_\{/.test(text);
+  if(!looksLatex) return;
+
+  e.preventDefault();
+  try{
+    save();
+    const calcText=latexToCalcText(text);
+    root=calcTextToNodes(calcText);
+    path=[];
+    cursor=root.length;
+    render();
+    updateDebug();
+    showKb();
+  }catch(err){
+    alert('LaTeX se nepodařilo převést.');
+  }
+}
+
+const editorPasteTarget=document.getElementById('editor');
+if(editorPasteTarget){
+  editorPasteTarget.addEventListener('paste',pasteLatexIntoEditor);
+}
+
 loadEditorFromUrl();renderKeys();render();updateDebug();refreshGeneratorTargets(true);
 </script>
 </body>
