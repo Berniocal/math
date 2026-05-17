@@ -78,7 +78,7 @@ let generatorRecentBySignature={};
 let generatorRecentFullBySignature={};
 const panels={
 basic:[
-["(□)",()=>insParen(),"dot",[["(□)",()=>insParen()],["[□]",()=>insBracket("square")],["{□}",()=>insBracket("curly")]]],
+["(□)",()=>insParen(),"dot",[["(□)",()=>insParen()],["[□]",()=>insBracket("square")],["{□}",()=>insBracket("curly")],["|□|",()=>insAbs()]]],
 [">",">","dot",[[">",">"],["≥",">="],["<","<"],["≤","<="]]],
 ["7","7","dark"],["8","8","dark"],["9","9","dark"],[":","/"],
 
@@ -169,6 +169,7 @@ function insSub(v){
  render();updateDebug();
 }
 function insParen(){insNode({type:'paren',body:[]});enter('body')}
+function insAbs(){insNode({type:'abs',body:[]});enter('body')}
 
 function insBracket(kind){
   insNode({type:'bracket',kind:kind,body:[]});
@@ -254,6 +255,8 @@ function collectCursorStopsInArray(a, p, stops){
         collectCursorStopsInArray(n.base, np.concat('base'), stops);
         collectCursorStopsInArray(n.sub, np.concat('sub'), stops);
       }else if(n.type==='paren'){
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='abs'){
         collectCursorStopsInArray(n.body, np.concat('body'), stops);
       }else if(n.type==='func'){
         collectCursorStopsInArray(n.body, np.concat('body'), stops);
@@ -351,6 +354,7 @@ function calcMarked(n){
  if(n.type==='sup')return markedConcat([markedLiteral('('),calcMarkedA(n.base),markedLiteral(')^('),calcMarkedA(n.sup),markedLiteral(')')]);
  if(n.type==='sub')return markedConcat([calcMarkedA(n.base),markedLiteral('_'),calcMarkedA(n.sub)]);
  if(n.type==='paren')return markedConcat([markedLiteral('('),calcMarkedA(n.body),markedLiteral(')')]);
+ if(n.type==='abs')return markedConcat([markedLiteral('abs('),calcMarkedA(n.body),markedLiteral(')')]);
  if(n.type==='func')return markedConcat([markedLiteral(n.name+'('),calcMarkedA(n.body),markedLiteral(')')]);
  if(n.type==='logbase')return markedConcat([markedLiteral('logbase('),calcMarkedA(n.base),markedLiteral(','),calcMarkedA(n.body),markedLiteral(')')]);
  if(n.type==='exp')return markedConcat([markedLiteral('e^('),calcMarkedA(n.body),markedLiteral(')')]);
@@ -540,6 +544,7 @@ if(n.type==='sup'||n.type==='sub'){
  renderArr(n[n.type],sm,p.concat(n.type));
  w.append(baseWrap,sm);return w}
 if(n.type==='paren'){const w=document.createElement('span');w.className='tok';const l=document.createElement('span'),r=document.createElement('span');l.className=r.className='par';l.textContent='(';r.textContent=')';const b=document.createElement('span');b.className='box'+(eq(path,p.concat('body'))?' active':'');b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};renderArr(n.body,b,p.concat('body'));w.append(l,b,r);return w}
+if(n.type==='abs'){const w=document.createElement('span');w.className='tok';const l=document.createElement('span'),r=document.createElement('span');l.className=r.className='par';l.textContent='|';r.textContent='|';const b=document.createElement('span');b.className='box'+(eq(path,p.concat('body'))?' active':'');b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};renderArr(n.body,b,p.concat('body'));w.append(l,b,r);return w}
 if(n.type==='func'){const w=document.createElement('span');w.className='tok';const nm=document.createElement('span');nm.textContent=n.name;const l=document.createElement('span'),r=document.createElement('span');l.className=r.className='par';l.textContent='(';r.textContent=')';const b=document.createElement('span');b.className='box'+(eq(path,p.concat('body'))?' active':'');b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};renderArr(n.body,b,p.concat('body'));w.append(nm,l,b,r);return w}
 if(n.type==='logbase'){
  const w=document.createElement('span');w.className='tok';
@@ -572,6 +577,7 @@ function calc(n){
  if(n.type==='sup')return '('+calcA(n.base)+')^('+calcA(n.sup)+')';
  if(n.type==='sub')return calcA(n.base)+'_'+calcA(n.sub);
  if(n.type==='paren')return '('+calcA(n.body)+')';
+ if(n.type==='abs')return 'abs('+calcA(n.body)+')';
  if(n.type==='func')return n.name+'('+calcA(n.body)+')';
  if(n.type==='logbase')return 'logbase('+calcA(n.base)+','+calcA(n.body)+')';
  if(n.type==='exp')return 'e^('+calcA(n.body)+')';
@@ -595,6 +601,7 @@ function latexN(n){
  return outBase+'^{'+(latexA(n.sup)||'\\square')+'}';
 }
  if(n.type==='sub')return '{'+(latexA(n.base)||'\\square')+'}_{'+(latexA(n.sub)||'\\square')+'}';
+ if(n.type==='abs')return '\\left| '+latexA(n.body)+' \\right|';
  if(n.type==='paren'){
   const bodyLatex=latexA(n.body);
   const simple=/^[a-zA-Z0-9+\-*/.,\s]+$/.test(bodyLatex);
@@ -694,6 +701,21 @@ function calcTextToNodes(s){
         i=j;
         continue;
       }
+    }
+
+
+    if(s.slice(i,i+4)==='abs('){
+      let j=i+4, depth=1, body='';
+      while(j<s.length){
+        const c=s[j];
+        if(c==='(') depth++;
+        if(c===')') depth--;
+        if(depth===0) break;
+        body+=c; j++;
+      }
+      nodes.push({type:'abs',body:calcTextToNodes(body)});
+      i=j;
+      continue;
     }
 
     if(s.slice(i,i+5)==='sqrt('){
@@ -852,32 +874,125 @@ function solveLinearSystemFallback(eqs, vars){
 }
 
 
+function isEquationLinearInVars(eq, vars){
+  // Ověří linearitu numericky: lineární rovnice musí sedět nejen v bodech 0 a jednotkových
+  // vektorech, ale i v několika kombinacích hodnot. Tím se kvadratická soustava omylem
+  // nepošle do lineárního Gaussova řešení.
+  let row;
+  try{ row=parseLinearEquationCoeffs(eq, vars); }catch(e){ return false; }
+  const tests=[];
+  if(vars.length===2){
+    [-2,-1,0,1,2].forEach(x=>[-2,-1,0,1,2].forEach(y=>tests.push([x,y])));
+  }else{
+    tests.push(Array(vars.length).fill(0));
+    for(let i=0;i<vars.length;i++){
+      const a=Array(vars.length).fill(0); a[i]=2; tests.push(a);
+      const b=Array(vars.length).fill(1); b[i]=-1; tests.push(b);
+    }
+    tests.push(Array(vars.length).fill(2),Array(vars.length).fill(-1));
+  }
+  for(const values of tests){
+    let actual;
+    try{ actual=equationLineValueAt(eq, vars, values); }catch(e){ return false; }
+    const predicted=row.coeffs.reduce((s,c,i)=>s+c*values[i],0)-row.rhs;
+    if(!Number.isFinite(actual) || Math.abs(actual-predicted)>1e-7)return false;
+  }
+  return true;
+}
+
+function uniqueSystemSolutions(solutions){
+  const out=[];
+  (solutions||[]).forEach(sol=>{
+    if(!Array.isArray(sol) || !sol.every(Number.isFinite))return;
+    if(!out.some(o=>o.length===sol.length && o.every((v,i)=>Math.abs(v-sol[i])<1e-7)))out.push(sol);
+  });
+  return out.sort((a,b)=>{
+    for(let i=0;i<Math.min(a.length,b.length);i++){
+      if(Math.abs(a[i]-b[i])>1e-7)return a[i]-b[i];
+    }
+    return a.length-b.length;
+  });
+}
+
+function systemSolutionIsValid(eqs, vars, values){
+  try{
+    return eqs.every(eq=>Math.abs(equationLineValueAt(eq,vars,values))<1e-7);
+  }catch(e){ return false; }
+}
+
+function solveLinearQuadratic2System(eqs, vars){
+  if(eqs.length!==2 || vars.length!==2)return null;
+  const linearIndexes=[];
+  for(let i=0;i<2;i++) if(isEquationLinearInVars(eqs[i],vars)) linearIndexes.push(i);
+  if(linearIndexes.length!==1)return null;
+
+  const li=linearIndexes[0], qi=1-li;
+  const row=parseLinearEquationCoeffs(eqs[li],vars);
+  const a=row.coeffs[0], b=row.coeffs[1], rhs=row.rhs;
+  if(Math.abs(a)<1e-12 && Math.abs(b)<1e-12)return null;
+
+  const solutions=[];
+  const solveByFreeVariable=(freeIndex)=>{
+    const depIndex=1-freeIndex;
+    const depCoeff=row.coeffs[depIndex];
+    if(Math.abs(depCoeff)<1e-12)return;
+    const freeCoeff=row.coeffs[freeIndex];
+    const valuesFromFree=t=>{
+      const vals=[0,0];
+      vals[freeIndex]=t;
+      vals[depIndex]=(rhs-freeCoeff*t)/depCoeff;
+      return vals;
+    };
+    const g=t=>equationLineValueAt(eqs[qi],vars,valuesFromFree(t));
+    let c,y1,y2;
+    try{ c=g(0); y1=g(1); y2=g(2); }catch(e){ return; }
+    if(![c,y1,y2].every(Number.isFinite))return;
+    const A=(y2-2*y1+c)/2;
+    const B=y1-c-A;
+    const roots=[];
+    if(Math.abs(A)<1e-10){
+      if(Math.abs(B)>1e-10)roots.push(-c/B);
+    }else{
+      const D=B*B-4*A*c;
+      if(D>=-1e-9){
+        if(Math.abs(D)<1e-9)roots.push(-B/(2*A));
+        else{
+          const s=Math.sqrt(D);
+          roots.push((-B-s)/(2*A),(-B+s)/(2*A));
+        }
+      }
+    }
+    roots.forEach(t=>{
+      const vals=valuesFromFree(t);
+      if(systemSolutionIsValid(eqs,vars,vals))solutions.push(vals);
+    });
+  };
+
+  // Vyzkoušíme obě vyjádření; druhé je pojistka pro svislou/vodorovnou přímku.
+  solveByFreeVariable(0);
+  solveByFreeVariable(1);
+  return uniqueSystemSolutions(solutions);
+}
+
 function solveNonlinearSystemNumeric(eqs, vars){
   const n=eqs.length;
   if(n<2 || n>3)return null;
+  const solutions=[];
 
   function residual(values){
-    return eqs.map(eq=>{
-      const idx=eq.indexOf('=');
-      let l=eq.slice(0,idx), r=eq.slice(idx+1);
-      vars.forEach((v,i)=>{
-        const re=new RegExp('\\b'+v+'\\b','g');
-        l=l.replace(re,'('+values[i]+')');
-        r=r.replace(re,'('+values[i]+')');
-      });
-      return evalJS(l,0)-evalJS(r,0);
-    });
+    return eqs.map(eq=>equationLineValueAt(eq,vars,values));
   }
 
-  // hrubé hledání celých řešení v rozsahu -10..10, což odpovídá generátoru
+  // Bezpečný hrubý fallback: najde všechna celá řešení v rozsahu -10..10, ne jen první.
   const range=[];
   for(let i=-10;i<=10;i++)range.push(i);
 
   if(n===2){
     for(const x of range){
       for(const y of range){
-        const res=residual([x,y]);
-        if(res.every(v=>Math.abs(v)<1e-8))return [x,y];
+        const vals=[x,y];
+        const res=residual(vals);
+        if(res.every(v=>Math.abs(v)<1e-8))solutions.push(vals);
       }
     }
   }
@@ -886,18 +1001,92 @@ function solveNonlinearSystemNumeric(eqs, vars){
     for(const x of range){
       for(const y of range){
         for(const z of range){
-          const res=residual([x,y,z]);
-          if(res.every(v=>Math.abs(v)<1e-8))return [x,y,z];
+          const vals=[x,y,z];
+          const res=residual(vals);
+          if(res.every(v=>Math.abs(v)<1e-8))solutions.push(vals);
         }
       }
     }
   }
 
-  return null;
+  const out=uniqueSystemSolutions(solutions);
+  return out.length?out:null;
+}
+
+function solveSystemAll(eqs, vars){
+  if(!eqs || eqs.length<2)return null;
+  const usedVars=vars.slice(0,eqs.length);
+
+  // 1) Lineární soustavy řešíme lineárně, ale jen když jsou všechny řádky opravdu lineární.
+  if(eqs.every(eq=>isEquationLinearInVars(eq,usedVars))){
+    try{
+      const values=solveLinearSystemFallback(eqs,usedVars);
+      if(systemSolutionIsValid(eqs,usedVars,values))return [values];
+    }catch(e){}
+  }
+
+  // 2) Typický školní případ: jedna lineární a jedna kvadratická rovnice o dvou neznámých.
+  try{
+    const lq=solveLinearQuadratic2System(eqs,usedVars);
+    if(lq && lq.length)return lq;
+  }catch(e){}
+
+  // 3) Nerdamer může vrátit symbolické řešení; bereme ho jen po kontrole dosazením.
+  try{
+    if(window.nerdamer){
+      const used=eqs.slice(0,3).map(eq=>{
+        const idx=eq.indexOf('=');
+        const l=eq.slice(0,idx), r=eq.slice(idx+1);
+        return normalizeExpr('('+l+')-('+r+')');
+      });
+      const res=nerdamer.solveEquations(used,usedVars);
+      const sols=[];
+      if(Array.isArray(res) && res.length){
+        // Nerdamer často vrací jedno řešení jako [[x,val],[y,val]].
+        if(res.every(item=>Array.isArray(item) && item.length>=2 && typeof item[0]==='string')){
+          const vals=usedVars.map(v=>{
+            const item=res.find(x=>x[0]===v);
+            return item?numericValueFromNerdamer(String(item[1])):NaN;
+          });
+          if(systemSolutionIsValid(eqs,usedVars,vals))sols.push(vals);
+        }else{
+          res.forEach(sol=>{
+            if(Array.isArray(sol)){
+              const vals=usedVars.map(v=>{
+                const item=sol.find && sol.find(x=>Array.isArray(x)&&x[0]===v);
+                return item?numericValueFromNerdamer(String(item[1])):NaN;
+              });
+              if(systemSolutionIsValid(eqs,usedVars,vals))sols.push(vals);
+            }
+          });
+        }
+      }
+      const out=uniqueSystemSolutions(sols);
+      if(out.length)return out;
+    }
+  }catch(e){}
+
+  // 4) Poslední pojistka: celočíselná řešení v rozumném rozsahu.
+  return solveNonlinearSystemNumeric(eqs,usedVars);
+}
+
+function systemSolutionsToLatex(vars, solutions){
+  solutions=uniqueSystemSolutions(solutions);
+  if(!solutions.length)return '';
+
+  // Výsledky soustav zapisujeme jako dvojice/trojice:
+  // [x_1; y_1]=[1; 2] \quad [x_2; y_2]=[-3; 5]
+  return solutions.map((sol,si)=>{
+    const k=si+1;
+    const left='\\left['+vars.map(v=>`${v}_{${k}}`).join(';\\;')+'\\right]';
+    const right='\\left['+sol.map(v=>fmtLatexNumber(v)).join(';\\;')+'\\right]';
+    return left+'='+right;
+  }).join('\\quad ');
 }
 
 async function renderSystemResult(box, vars, values){
-  box.innerHTML='\\['+vars.map((v,i)=>`${v}=${fmtLatexNumber(values[i])}`).join('\\quad ')+'\\]';
+  const solutions=Array.isArray(values) && Array.isArray(values[0]) ? values : [values];
+  box.innerHTML='\\['+systemSolutionsToLatex(vars,solutions)+'\\]';
   if(window.MathJax) await MathJax.typesetPromise([box]);
 }
 
@@ -1165,7 +1354,9 @@ function addUniqueNumber(arr,x){
 }
 function criticalPointsForInequality(left,right,variable='x'){
   const pts=[];
-  try{ solveAllNumericRootsRobust(left,right,variable).forEach(x=>addUniqueNumber(pts,x)); }catch(e){}
+  try{ solveEquationSetSmart(left,right,variable).roots.forEach(x=>addUniqueNumber(pts,x)); }catch(e){}
+  try{ absCriticalPointsForExpr(left,variable).forEach(x=>addUniqueNumber(pts,x)); }catch(e){}
+  try{ absCriticalPointsForExpr(right,variable).forEach(x=>addUniqueNumber(pts,x)); }catch(e){}
   try{ findNumericRoots(left,right).forEach(x=>addUniqueNumber(pts,x)); }catch(e){}
   try{ solveQuadraticBySampling(left,right).forEach(x=>addUniqueNumber(pts,x)); }catch(e){}
   try{ denomZerosForExpression(left,variable).forEach(x=>addUniqueNumber(pts,x)); }catch(e){}
@@ -1296,6 +1487,148 @@ async function solveInequalityAndRender(raw,box,variable='x'){
   if(window.MathJax) await MathJax.typesetPromise([box]);
 }
 
+
+function hasAbsExpr(s){return /\babs\(/.test(String(s||''));}
+function readFunctionArgumentAt(str,openIndex){
+  if(str[openIndex]!=='(') return null;
+  let depth=1, j=openIndex+1, body='';
+  while(j<str.length){
+    const c=str[j];
+    if(c==='(') depth++;
+    else if(c===')'){
+      depth--;
+      if(depth===0) return {body,end:j};
+    }
+    body+=c; j++;
+  }
+  return null;
+}
+function extractAbsArguments(expr){
+  expr=String(expr||'');
+  const out=[];
+  for(let i=0;i<expr.length;i++){
+    if(expr.slice(i,i+4)==='abs('){
+      const parsed=readFunctionArgumentAt(expr,i+3);
+      if(parsed){out.push(parsed.body); i=parsed.end;}
+    }
+  }
+  return out;
+}
+function replaceAbsBySign(expr,testX){
+  expr=String(expr||'');
+  let out='';
+  for(let i=0;i<expr.length;i++){
+    if(expr.slice(i,i+4)==='abs('){
+      const parsed=readFunctionArgumentAt(expr,i+3);
+      if(parsed){
+        const inner=replaceAbsBySign(parsed.body,testX);
+        let val=NaN;
+        try{val=evalJS(inner,testX);}catch(e){}
+        const sign=val>=0?1:-1;
+        out+=(sign>=0?'(':'(-(')+inner+(sign>=0?')':'))');
+        i=parsed.end;
+        continue;
+      }
+    }
+    out+=expr[i];
+  }
+  return out;
+}
+function midpointForSegment(a,b){
+  if(a===-Infinity && b===Infinity) return 0;
+  if(a===-Infinity) return b-1;
+  if(b===Infinity) return a+1;
+  return (a+b)/2;
+}
+function absCriticalPointsForExpr(expr,variable='x'){
+  const pts=[];
+  function add(x){if(Number.isFinite(x)&&!pts.some(y=>Math.abs(y-x)<1e-7))pts.push(cleanEndpoint(x));}
+  extractAbsArguments(expr).forEach(arg=>{
+    try{solveAllNumericRootsRobust(arg,'0',variable).forEach(add);}catch(e){}
+    try{findNumericRoots(arg,'0').forEach(add);}catch(e){}
+  });
+  try{denomZerosForExpression(expr,variable).forEach(add);}catch(e){}
+  return pts.sort((a,b)=>a-b);
+}
+function equationCandidateCriticalPoints(left,right,variable='x'){
+  const pts=[];
+  function add(x){if(Number.isFinite(x)&&!pts.some(y=>Math.abs(y-x)<1e-7))pts.push(cleanEndpoint(x));}
+  absCriticalPointsForExpr(left,variable).forEach(add);
+  absCriticalPointsForExpr(right,variable).forEach(add);
+  try{denomZerosForExpression(left,variable).forEach(add);}catch(e){}
+  try{denomZerosForExpression(right,variable).forEach(add);}catch(e){}
+  return pts.sort((a,b)=>a-b);
+}
+function expressionIdentityOnSegment(left,right,a,b){
+  const tests=[];
+  const m=midpointForSegment(a,b);
+  tests.push(m);
+  if(a!==-Infinity && b!==Infinity){tests.push(a+(b-a)/3,a+2*(b-a)/3);}
+  else {tests.push(m-0.37,m+0.61);}
+  for(const x of tests){
+    if(isForbiddenPoint(left,right,x)) return false;
+    if(!isValidEquationRoot(left,right,x)) return false;
+  }
+  return true;
+}
+function solveAbsEquationSet(left,right,variable='x'){
+  const pts=equationCandidateCriticalPoints(left,right,variable);
+  const roots=[];
+  const intervals=[];
+  const bounds=[-Infinity,...pts,Infinity];
+  function inOpenSegment(x,a,b){return x>a+1e-8 && x<b-1e-8;}
+  function addRoot(x){if(isValidEquationRoot(left,right,x)&&!roots.some(r=>Math.abs(r-x)<1e-7))roots.push(cleanEndpoint(x));}
+  for(let i=0;i<bounds.length-1;i++){
+    const a=bounds[i], b=bounds[i+1];
+    if(!(a<b)) continue;
+    const test=midpointForSegment(a,b);
+    const sl=replaceAbsBySign(left,test);
+    const sr=replaceAbsBySign(right,test);
+    if(expressionIdentityOnSegment(sl,sr,a,b)){
+      intervals.push({a,b,leftClosed:false,rightClosed:false});
+      continue;
+    }
+    let segRoots=[];
+    try{segRoots=solveAllNumericRootsRobust(sl,sr,variable);}catch(e){segRoots=[];}
+    segRoots.forEach(x=>{if(inOpenSegment(x,a,b)) addRoot(x);});
+  }
+  pts.forEach(addRoot);
+  const merged=mergeIntervals(intervals);
+  const filteredRoots=roots.filter(x=>!merged.some(it=>x>it.a+1e-8 && x<it.b-1e-8));
+  return {roots:dedupeRoots(filteredRoots),intervals:merged};
+}
+function solutionSetToLatex(sol,variable='x'){
+  const hasIntervals=sol && sol.intervals && sol.intervals.length;
+  const hasRoots=sol && sol.roots && sol.roots.length;
+  if(hasIntervals){
+    let intervals=sol.intervals.slice();
+    (sol.roots||[]).forEach(x=>intervals.push({a:x,b:x,leftClosed:true,rightClosed:true}));
+    return intervalsToLatex(mergeIntervals(intervals),variable);
+  }
+  if(hasRoots) return formatRootList(variable,sol.roots);
+  return `\\[${variable}\\in\\varnothing\\]`;
+}
+function solveEquationSetSmart(left,right,variable='x'){
+  if(hasAbsExpr(left)||hasAbsExpr(right)) return solveAbsEquationSet(left,right,variable);
+  return {roots:solveAllNumericRootsRobust(left,right,variable),intervals:[]};
+}
+function solutionSummaryHtml(left,right,variable='x'){
+  const sol=solveEquationSetSmart(left,right,variable);
+  return solutionSetToLatex(sol,variable);
+}
+function solutionSetContainsValue(sol,x){
+  if(!sol || !Number.isFinite(x)) return false;
+  if((sol.roots||[]).some(r=>Math.abs(r-x)<1e-7)) return true;
+  return (sol.intervals||[]).some(it=>{
+    const leftOk = it.a===-Infinity || x>it.a+1e-8 || (it.leftClosed && Math.abs(x-it.a)<1e-8);
+    const rightOk = it.b===Infinity || x<it.b-1e-8 || (it.rightClosed && Math.abs(x-it.b)<1e-8);
+    return leftOk && rightOk;
+  });
+}
+function solutionLatexInline(latex){
+  return String(latex||'').replace(/^\\[/,'\(').replace(/\\]$/,'\)');
+}
+
 async function solveEquation(){
  const box=document.getElementById('result'); 
  const raw=calcA(root);
@@ -1318,36 +1651,11 @@ async function solveEquation(){
 
   if(eqs.length>1){
     const usedVars=vars.slice(0,eqs.length);
-    try{
-      if(window.nerdamer){
-        const used=eqs.slice(0,3).map(eq=>{
-          const idx=eq.indexOf('=');
-          const l=eq.slice(0,idx), r=eq.slice(idx+1);
-          return normalizeExpr('('+l+')-('+r+')');
-        });
-        const res=nerdamer.solveEquations(used,usedVars);
-        if(Array.isArray(res)&&res.length){
-          box.innerHTML='\\['+res.map(x=>x[0]+'='+nerdamer(x[1]).toTeX()).join('\\quad ')+'\\]';
-          if(window.MathJax) await MathJax.typesetPromise([box]);
-          return;
-        }
-      }
-    }catch(e){}
-
-    try{
-      const values=solveLinearSystemFallback(eqs,usedVars);
-      await renderSystemResult(box,usedVars,values);
+    const solutions=solveSystemAll(eqs,usedVars);
+    if(solutions && solutions.length){
+      await renderSystemResult(box,usedVars,solutions);
       return;
-    }catch(e){}
-
-    try{
-      const nonlinear=solveNonlinearSystemNumeric(eqs,usedVars);
-      if(nonlinear){
-        await renderSystemResult(box,usedVars,nonlinear);
-        return;
-      }
-    }catch(e){}
-
+    }
     box.innerHTML='<div class="muted">Soustavu se nepodařilo spočítat.</div>';
     return;
   }
@@ -1360,6 +1668,12 @@ async function solveEquation(){
 
   const [left,right]=parts;
   const expr=normalizeExpr('('+left+')-('+right+')');
+  if(hasAbsExpr(left)||hasAbsExpr(right)){
+    const sol=solveAbsEquationSet(left,right,v);
+    box.innerHTML=solutionSetToLatex(sol,v);
+    if(window.MathJax) await MathJax.typesetPromise([box]);
+    return;
+  }
   const degree=getMaxPowerInRaw(raw,v);
 
   // Nejdřív robustně najdi všechny reálné číselné kořeny.
@@ -1470,6 +1784,7 @@ function evalJS(s,x){
    .replace(/\^/g,'**')
    .replace(/\bpi\b/g,'Math.PI')
    .replace(/\blogbase\(/g,'logBaseValue(')
+   .replace(/\babs\(/g,'Math.abs(')
    .replace(/\bsqrt\(/g,'Math.sqrt(')
    .replace(/\bsin\(/g,'Math.sin(')
    .replace(/\bcos\(/g,'Math.cos(')
@@ -1640,6 +1955,7 @@ function evalJSVars(s,vars,values){
     .replace(/\^/g,'**')
     .replace(/\bpi\b/g,'Math.PI')
     .replace(/\blogbase\(/g,'logBaseValue(')
+   .replace(/\babs\(/g,'Math.abs(')
    .replace(/\bsqrt\(/g,'Math.sqrt(')
     .replace(/\bsin\(/g,'Math.sin(')
     .replace(/\bcos\(/g,'Math.cos(')
@@ -1707,7 +2023,7 @@ function niceNumberString(n){
   return null;
 }
 
-const GENERATOR_TIME_LIMIT_MS=8000;
+const GENERATOR_TIME_LIMIT_MS=1400;
 const GENERATOR_YIELD_EVERY=120;
 const GENERATOR_MAX_ATTEMPTS=8000;
 const GENERATOR_SINGLE_ROOT_MAX_ATTEMPTS=8000;
@@ -1809,6 +2125,13 @@ async function generateFactorableHigher(){
 function detectGeneratorMode(){
  const raw=calcA(root);
 
+ // Rovnice s absolutní hodnotou: v generátoru vždy jen jedno políčko x.
+ // Absolutní rovnice často dávají interval nebo sjednocení intervalů; generátor
+ // proto nesmí nabízet x₁…x₆ ani se přepnout do obecného „higher“ režimu.
+ if(hasAbsExpr(raw) && raw.includes('=') && !hasInequality(raw)){
+   return {type:'absEquation',count:1,labels:['x']};
+ }
+
  if(raw.includes('logbase(')){
    return {type:'logarithmic',count:1,labels:['x']};
  }
@@ -1869,7 +2192,7 @@ function refreshGeneratorTargets(force=true){
  const box=document.getElementById('targetBox');
  if(!box)return;
  const mode=detectGeneratorMode();
- const key=mode.type+mode.count;
+ const key=mode.type+'|'+mode.count+'|'+(mode.labels||[]).join('|');
  const oldVals=[...box.querySelectorAll('input')].map(i=>i.value);
  if(!force && box.dataset.mode===key)return;
  box.dataset.mode=key;
@@ -1893,6 +2216,7 @@ function refreshGeneratorTargets(force=true){
  else if(mode.type==='system')hint.textContent=`Rozpoznána soustava ${mode.count} rovnic: zadej ${mode.labels.join(', ')}. Prázdné hodnoty program zvolí.`;
  else if(mode.type==='quadratic')hint.textContent='Rozpoznána kvadratická rovnice: zadej jeden nebo oba kořeny. Generátor zachová stejný tvar rovnice, stejné strany i pořadí členů; změní jen čísla.';
  else if(mode.type==='higher')hint.textContent='Rozpoznána rovnice vyššího stupně: zadej kořen nebo kořeny. Generátor změní pouze čísla a znaménka, strany a mocniny nechá beze změny.';
+ else if(mode.type==='absEquation')hint.textContent='Rozpoznána rovnice s absolutní hodnotou: zadej jeden požadovaný výsledek / kontrolní bod x. Výsledek může být kořen, interval nebo sjednocení intervalů.';
  else hint.textContent='Rozpoznána jedna rovnice: zadej požadovaný výsledek x.';
 }
 function parseTargetNumber(s){
@@ -1947,7 +2271,7 @@ function systemCalcFromMatrix(A,b,vars){
      if(c===0)return;
      const sign=c<0?'-':(left?'+':'');
      const abs=Math.abs(c);
-     left+=sign+(abs===1?vars[j]:abs+'*'+vars[j]);
+     left+=sign+abs+'*'+vars[j];
    });
    return (left||'0')+'='+b[i];
  }).join('\n');
@@ -1959,7 +2283,9 @@ function systemLatexFromMatrix(A,b,vars){
      if(c===0)return;
      const sign=c<0?'-':(left?'+':'');
      const abs=Math.abs(c);
-     left+=sign+(abs===1?vars[j]:abs+vars[j]);
+     // Koeficient 1 se před neznámou v zobrazení nepíše.
+     const coeff=(abs===1)?'':String(abs);
+     left+=sign+coeff+vars[j];
    });
    return (left||'0')+'&='+b[i];
  }).join('\\\\');
@@ -2024,7 +2350,18 @@ function generateSystemPreserveShape(lines, count){
  lastGeneratedLatex='\\left\\{\\begin{aligned}'+generated.map(g=>g.latex).join('\\\\')+'\\end{aligned}\\right.';
 
  const box=document.getElementById('generated');
- box.innerHTML='\\['+lastGeneratedLatex+'\\]<div class="muted">Řešení: \\('+vars.map((v,i)=>v+' = '+fmtLatexNumber(values[i])).join('\\quad ')+'\\)</div>';
+ let solutionInfo='';
+ try{
+   const sols=solveSystemAll(lastGeneratedCalc.split(/\n|;/).filter(x=>x.includes('=')), vars);
+   if(sols && sols.length){
+     solutionInfo='<div class="muted">Řešení: \\('+systemSolutionsToLatex(vars,sols)+'\\)</div>';
+   }else{
+     solutionInfo='<div class="muted">Kontrola: pro \\('+vars.map((v,i)=>v+' = '+fmtLatexNumber(values[i])).join('\\quad ')+'\\) soustava vychází.</div>';
+   }
+ }catch(e){
+   solutionInfo='<div class="muted">Kontrola: pro \\('+vars.map((v,i)=>v+' = '+fmtLatexNumber(values[i])).join('\\quad ')+'\\) soustava vychází.</div>';
+ }
+ box.innerHTML='\\['+lastGeneratedLatex+'\\]'+solutionInfo;
  if(window.MathJax) MathJax.typesetPromise([box]);
 }
 async function generateSystem(count){
@@ -2485,12 +2822,90 @@ async function generateLogarithmicSimilar(){
   if(window.MathJax)await MathJax.typesetPromise([box]);
 }
 
+
+function isFastValidAbsCandidate(left,right,x){
+  if(!Number.isFinite(x)) return false;
+  try{
+    if(isForbiddenPoint(left,right,x)) return false;
+    return isValidEquationRoot(left,right,x);
+  }catch(e){
+    return false;
+  }
+}
+
+
+async function generateAbsSimilar(){
+ const box=document.getElementById('generated'), raw=calcA(root), d=getMutationDelta();
+ if(!raw.includes('=')){box.innerHTML='<div class="muted">Nejdřív zadej rovnici s rovnítkem.</div>';return}
+ const manualTarget=readTarget(0);
+ const targets=targetInputIsFilled(0) ? [manualTarget] : shuffledPrettyTargets();
+ if(targets.length===1 && targets[0]===null){box.innerHTML='<div class="muted">Zadej platnou hodnotu x, nebo nech políčko prázdné.</div>';return;}
+ const ts=toks(raw);
+ if(ts.length>GENERATOR_MAX_TOKENS){box.innerHTML='<div class="muted">Příklad je pro bezpečné generování příliš složitý. Zkus jednodušší tvar nebo méně čísel.</div>';return}
+ if(ts.length<1){box.innerHTML='<div class="muted">U této rovnice není žádné číslo, které by šlo v generátoru změnit.</div>';return}
+ const vals=[];
+ const {minCoeff,maxCoeff}=coeffLimits();
+ for(let i=-maxCoeff;i<=maxCoeff;i++){
+   if(i!==0 && Math.abs(i)>=minCoeff) vals.push(String(i));
+ }
+ lastGeneratedCalc='';
+ let acceptedTarget=null;
+ const started=nowMs();
+ const maxAttempts=Math.min(GENERATOR_SINGLE_ROOT_MAX_ATTEMPTS,220);
+ for(let ti=0; ti<targets.length && !lastGeneratedCalc; ti++){
+   const target=targets[ti];
+   if(target===null || !Number.isFinite(target)) continue;
+   for(let attempt=0; attempt<maxAttempts && !lastGeneratedCalc; attempt++){
+     if(await generatorShouldStop(started,attempt,GENERATOR_TIME_LIMIT_MS)) break;
+     const adj=Math.floor(Math.random()*ts.length), rs=[];
+     for(let i=0;i<ts.length;i++) if(i!==adj) rs.push({t:ts[i],v:mutate(ts[i].value,d)});
+     const base=repl(raw,rs), nt=toks(base);
+     if(nt.length!==ts.length) continue;
+     const shuffledVals=vals.slice().sort(()=>Math.random()-.5);
+     for(const c of shuffledVals){
+       if(generatorTimedOut(started,GENERATOR_TIME_LIMIT_MS)) break;
+       const t=nt[adj], cand=base.slice(0,t.start)+c+base.slice(t.end);
+       if(!candidateRespectsCurrentCoeffLimits(cand)) continue;
+       try{
+         const parts=splitTopLevelEquation(cand);
+         if(!parts) continue;
+         // Rychlá kontrola: při generování absolutních rovnic neřešíme po každém pokusu celou množinu řešení.
+         // To bylo nejdražší místo a na mobilu umělo zaseknout stránku.
+         // Stačí ověřit dosazením zadaného / vybraného x; celé intervalové řešení se spočítá až jednou pro finální příklad.
+         if(!isFastValidAbsCandidate(parts[0],parts[1],target)) continue;
+         lastGeneratedCalc=cand;
+         acceptedTarget=target;
+         break;
+       }catch(e){}
+     }
+   }
+   if(generatorTimedOut(started,GENERATOR_TIME_LIMIT_MS)) break;
+ }
+ if(!lastGeneratedCalc){
+   box.innerHTML=generatorStoppedMessage();
+   return;
+ }
+ lastGeneratedCalc=prettifyUnitCoefficientsCalc(lastGeneratedCalc);
+ rememberGeneratedCandidate(lastGeneratedCalc);
+ lastGeneratedLatex=calcToLatexSimple(lastGeneratedCalc);
+ let rootInfo='';
+ try{
+   const [gl,gr]=splitTopLevelEquation(lastGeneratedCalc);
+   rootInfo='<div class="muted">Výsledek: '+solutionLatexInline(solutionSummaryHtml(gl,gr,'x'))+'</div>';
+ }catch(e){
+   rootInfo='<div class="muted">Kontrola: pro \\(x='+fmtLatexNumber(acceptedTarget)+'\\) rovnice vychází.</div>';
+ }
+ box.innerHTML='\\['+lastGeneratedLatex+'\\]'+rootInfo;
+ if(window.MathJax)await MathJax.typesetPromise([box]);
+}
+
 async function generateSimilar(){
- refreshGeneratorTargets(false);
+ refreshGeneratorTargets(true);
  const box=document.getElementById('generated'),raw=calcA(root),d=getMutationDelta();
  const mode=detectGeneratorMode();
  if(mode.type==='inequality'){await generateInequalitySimilar();return}
  if(mode.type==='logarithmic'){await generateLogarithmicSimilar();return}
+ if(mode.type==='absEquation'){await generateAbsSimilar();return}
  if(!raw.includes('=')){box.innerHTML='<div class="muted">Nejdřív zadej rovnici s rovnítkem.</div>';return}
  if(mode.type==='system'){generateSystemPreserveShape(equationLines(), mode.count);return}
  if(mode.type==='higher'){await generateFactorableHigher();return}
@@ -2523,6 +2938,10 @@ async function generateSimilar(){
      try{
        const [l,r]=cand.split('=');
        if(Math.abs(evalJS(l,target)-evalJS(r,target))<1e-9){
+         if(hasAbsExpr(cand)){
+           const sol=solveEquationSetSmart(l,r,'x');
+           if(!solutionSetContainsValue(sol,target)) continue;
+         }
          if(isRepeatedGeneratedCandidate(cand)) continue;
          lastGeneratedCalc=cand;
          lastGeneratedLatex=calcToLatexSimple(cand);
@@ -2538,13 +2957,17 @@ async function generateSimilar(){
  let rootInfo='';
  try{
    const [gl,gr]=lastGeneratedCalc.split('=');
-   const roots=findNumericRoots(gl,gr);
-   if(roots.length>1){
-     rootInfo='<div class="muted">Kořeny: \\('+roots.map((r,i)=>'x_{'+(i+1)+'} = '+fmtLatexNumber(r)).join('\\quad ')+'\\)</div>';
-   }else if(roots.length===1){
-     rootInfo='<div class="muted">Kořen: \\(x = '+fmtLatexNumber(roots[0])+'\\)</div>';
+   if(hasAbsExpr(lastGeneratedCalc)){
+     rootInfo='<div class="muted">Výsledek: '+solutionLatexInline(solutionSummaryHtml(gl,gr,'x'))+'</div>';
    }else{
-     rootInfo='<div class="muted">Kontrola: pro \\(x='+target+'\\) rovnice vychází.</div>';
+     const roots=findNumericRoots(gl,gr);
+     if(roots.length>1){
+       rootInfo='<div class="muted">Kořeny: \\('+roots.map((r,i)=>'x_{'+(i+1)+'} = '+fmtLatexNumber(r)).join('\\quad ')+'\\)</div>';
+     }else if(roots.length===1){
+       rootInfo='<div class="muted">Kořen: \\(x = '+fmtLatexNumber(roots[0])+'\\)</div>';
+     }else{
+       rootInfo='<div class="muted">Kontrola: pro \\(x='+target+'\\) rovnice vychází.</div>';
+     }
    }
  }catch(e){
    rootInfo='<div class="muted">Kontrola: pro \\(x='+target+'\\) rovnice vychází.</div>';
@@ -2640,6 +3063,9 @@ function exprToLatexGenerated(expr, context="normal") {
   // V generovaném LaTeXu nechceme proměnnou zbytečně jako (x)^2.
   // Zápis (x)^(2) převádíme jen vizuálně na x^2; výpočty se nemění.
   expr=expr.replace(/\(([a-zA-Z])\)\s*\^\s*\(?\s*(\d+)\s*\)?/g,'$1^$2');
+  // Po vizuálním zjednodušení mocnin ještě znovu smažeme jednotkové koeficienty.
+  // Bez toho zůstávalo například -1*(x)^(2) jako -1x^2 nebo 1\cdot x^2.
+  expr=prettifyUnitCoefficientsCalc(expr);
   if(!expr) return '';
 
   const beforeStrip=expr;
@@ -2649,6 +3075,11 @@ function exprToLatexGenerated(expr, context="normal") {
   const logBaseCall=parseFunctionCall(expr,'logbase');
   if(logBaseCall && logBaseCall.args.length===2){
     return '\\log_{'+exprToLatexGenerated(logBaseCall.args[0], 'suppressWrap')+'}\\left('+exprToLatexGenerated(logBaseCall.args[1], 'suppressWrap')+'\\right)';
+  }
+
+  const absCall=parseFunctionCall(expr,'abs');
+  if(absCall && absCall.args.length===1){
+    return '\\left| '+exprToLatexGenerated(absCall.args[0], 'suppressWrap')+' \\right|';
   }
 
   const frac=splitTopLevelOnce(expr,'/');
@@ -2734,6 +3165,11 @@ function calcToLatexSimple(s){
     result=exprToLatexGenerated(out);
   }
   return cleanupCopiedLatex(result);
+}
+
+function calcToLatexSimpleKeepUnitCoeff(s){
+  // Zachováno jen kvůli případným starším voláním; i tady už se jednotkový koeficient nemaže výjimkou.
+  return calcToLatexSimple(s);
 }
 function useGenerated(){
  if(!lastGeneratedCalc)return;
@@ -3289,6 +3725,25 @@ function latexToCalcText(latex){
   s=s.replace(/\\left/g,'').replace(/\\right/g,'');
   s=s.replace(/\\,/g,'').replace(/\\;/g,'').replace(/\\!/g,'').replace(/\\:/g,'');
   s=s.replace(/\s+/g,'');
+
+  function convertAbsBarsInLatexText(str){
+    let out='', stack=[];
+    for(let i=0;i<str.length;i++){
+      if(str[i]==='|'){
+        if(stack.length){
+          out+=')';
+          stack.pop();
+        }else{
+          out+='abs(';
+          stack.push('|');
+        }
+      }else{
+        out+=str[i];
+      }
+    }
+    return out;
+  }
+  s=convertAbsBarsInLatexText(s);
 
   s=s.replace(/\\cdot|\\times/g,'*');
   s=s.replace(/\\div/g,'/');
