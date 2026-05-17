@@ -2967,10 +2967,47 @@ function logarithmicCandidateReallyHasTargetRoot(candidate,target){
   }
 }
 
+function solveAffineArgumentTargetForX(argExpr,targetValue){
+  // Vrátí x z rovnice argExpr(x)=targetValue, pokud je argument v x opravdu lineární.
+  // Používá se jen pro výběr hezkých cílů generátoru logaritmů, výsledek se pak ještě ověřuje dosazením.
+  try{
+    argExpr=String(argExpr||'').trim();
+    if(!argExpr) return NaN;
+    const y0=evalJS(argExpr,0);
+    const y1=evalJS(argExpr,1);
+    const y2=evalJS(argExpr,2);
+    if(![y0,y1,y2].every(Number.isFinite)) return NaN;
+    const a=y1-y0;
+    if(Math.abs(a)<1e-12) return NaN;
+    // pojistka: argument musí být lineární, ne třeba x^2+2
+    if(Math.abs((y2-y1)-a)>1e-8) return NaN;
+    const x=(targetValue-y0)/a;
+    if(!Number.isFinite(x)) return NaN;
+    // ověření, že opravdu dává požadovanou mocninu v argumentu logaritmu
+    const check=evalJS(argExpr,x);
+    if(!Number.isFinite(check) || Math.abs(check-targetValue)>1e-7*Math.max(1,Math.abs(targetValue))) return NaN;
+    return x;
+  }catch(e){
+    return NaN;
+  }
+}
+function addNiceTargetsFromLogArgument(out,base,argExpr){
+  function add(v){
+    if(Number.isFinite(v) && v>0 && Math.abs(v)<1e9 && !out.some(x=>Math.abs(x-v)<1e-10)) out.push(v);
+  }
+  if(!Number.isFinite(base) || base<=0 || Math.abs(base-1)<1e-12) return;
+  // Nejdřív chceme hodnoty x, pro které je argument logaritmu hezká mocnina základu:
+  // log_b(2x+2): 2x+2=b^k => x=(b^k-2)/2.
+  [1,2,3,-1,-2,0,4,-3].forEach(k=>{
+    const inside=Math.pow(base,k);
+    const x=solveAffineArgumentTargetForX(argExpr,inside);
+    add(x);
+  });
+}
 function prioritizedLogarithmicTargets(raw){
-  // Pro rovnice s mocninou logaritmu nechceme začínat náhodně zápornými čísly.
-  // Hezké cíle jsou mocniny základu: pro log_5(x) dává x=5,25,1/5...
-  // a pravá strana pak vychází jako hezké čtverce 1,4,9...
+  // U logaritmů není hezký cíl vždy přímo x=b^k.
+  // Když je argument třeba 2x+2, hezké má být uvnitř logaritmu: 2x+2=b^k.
+  // Proto cíle dopočítáme z argumentu každého logbase(base,arg).
   const out=[];
   function add(v){
     if(Number.isFinite(v) && v>0 && Math.abs(v)<1e9 && !out.some(x=>Math.abs(x-v)<1e-10)) out.push(v);
@@ -2978,6 +3015,9 @@ function prioritizedLogarithmicTargets(raw){
   const ranges=logbaseCallRanges(raw);
   ranges.forEach(r=>{
     const b=Number(raw.slice(r.baseStart,r.baseEnd).trim());
+    const arg=raw.slice(r.argStart,r.argEnd).trim();
+    addNiceTargetsFromLogArgument(out,b,arg);
+    // Záloha pro původní jednoduché případy log_b(x), kdyby argument nešel rozpoznat.
     if(Number.isFinite(b) && b>0 && Math.abs(b-1)>1e-12){
       [1,2,3,-1,-2].forEach(k=>add(Math.pow(b,k)));
     }
