@@ -47,8 +47,8 @@ h2{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#64758b;marg
 
 /* Sbalitelná nastavení: výchozí stav je zavřený */
 .accordion{padding:0!important}.accordion-summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;padding:17px 20px;user-select:none}.accordion-summary::-webkit-details-marker{display:none}.accordion-summary .muted{margin-left:auto}.accordion-arrow{margin-left:auto;font-size:20px;color:#7c8da4;transition:transform .17s}.accordion-summary .muted+.accordion-arrow{margin-left:0}.accordion[open] .accordion-arrow{transform:rotate(180deg)}.accordion-summary:hover{background:#f8faff}.accordion-summary:focus-visible{outline:2px solid #557de5;outline-offset:-3px}.accordion-body{padding:0 20px 18px}.font-size-row{align-items:center;flex-wrap:wrap}.font-size-controls{display:flex;align-items:center;gap:9px;min-width:145px;flex:1}.font-size-controls input{width:100%;accent-color:#426ee8;cursor:pointer}.font-size-controls output{font-size:12px;font-variant-numeric:tabular-nums;min-width:38px;text-align:right;color:#506888}
-.add-formula-area{margin-top:11px}.add-formula-plus{width:100%;justify-content:flex-start;border:1px dashed #b5c5dc;color:#3659ac;font-size:19px;background:#f8faff}.add-formula-plus span{font-size:12px;font-weight:650}.add-formula-plus:hover{border-color:#426ee8;background:#eef4ff}#inlineFormulaForm{display:flex;align-items:center;gap:6px;flex-wrap:wrap}#inlineFormulaInput{flex:1;min-width:145px;border:1px solid #b8c9e2;border-radius:9px;min-height:37px;padding:8px 10px;background:#fff;color:#233652}#inlineFormulaInput:focus{outline:2px solid #5278ea;outline-offset:1px}
-.formula-entry{flex:1;min-width:220px}.formula-toolbar{display:flex;flex-wrap:wrap;gap:5px;width:100%;padding-top:5px}.formula-key{font-family:Cambria,Georgia,serif;font-size:15px;min-width:40px;height:30px;border:1px solid #d9e3f0;background:#f7faff;border-radius:7px;padding:4px 8px;color:#2b426c;cursor:pointer}.formula-key:hover{background:#e5edff;border-color:#93addd}.formula-examples{width:100%;display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:3px}.formula-example{border:1px solid #e1e8f3;background:#fff;border-radius:7px;color:#526788;padding:4px 8px;font-size:11px;cursor:pointer}.formula-example:hover{color:#244cad;background:#f0f5ff}.formula-hint{width:100%;font-size:11px;line-height:1.45;color:#77869e;margin:3px 0 0}.formula-hint.invalid{color:#ac3b49}.formula-head{display:flex;align-items:center;gap:6px;width:100%}.formula-head label{font-size:12px;font-weight:700;color:#485f80;flex:1}.formula-head .btn{min-height:30px}#inlineFormulaInput{width:100%;flex:auto;min-width:0}.formula-entry button:focus-visible{outline:2px solid #426ee8}
+.add-formula-area{margin-top:11px}.add-formula-plus{width:100%;justify-content:flex-start;border:1px dashed #b5c5dc;color:#3659ac;font-size:19px;background:#f8faff}.add-formula-plus span{font-size:12px;font-weight:650}.add-formula-plus:hover{border-color:#426ee8;background:#eef4ff}#inlineFormulaForm{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.formula-entry{flex:1;min-width:220px}.formula-toolbar{display:flex;flex-wrap:wrap;gap:5px;width:100%;padding-top:5px}.formula-key{font-family:Cambria,Georgia,serif;font-size:15px;min-width:40px;height:30px;border:1px solid #d9e3f0;background:#f7faff;border-radius:7px;padding:4px 8px;color:#2b426c;cursor:pointer}.formula-key:hover{background:#e5edff;border-color:#93addd}.formula-examples{width:100%;display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:3px}.formula-example{border:1px solid #e1e8f3;background:#fff;border-radius:7px;color:#526788;padding:4px 8px;font-size:11px;cursor:pointer}.formula-example:hover{color:#244cad;background:#f0f5ff}.formula-hint{width:100%;font-size:11px;line-height:1.45;color:#77869e;margin:3px 0 0}.formula-hint.invalid{color:#ac3b49}.formula-head{display:flex;align-items:center;gap:6px;width:100%}.formula-head label{font-size:12px;font-weight:700;color:#485f80;flex:1}.formula-head .btn{min-height:30px}.formula-entry button:focus-visible{outline:2px solid #426ee8}
 
 @media(max-width:980px){.accordion-summary{padding:14px 16px}.accordion-body{padding:0 16px 14px}}
 @media(max-width:760px){.accordion-summary{padding:13px 15px}.accordion-body{padding:0 15px 13px}}
@@ -63,12 +63,23 @@ h2{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#64758b;marg
 #plot [data-edit="axis"]{cursor:move!important;touch-action:none}
 #inlineEdit{white-space:pre-wrap;line-height:1.3;font-family:inherit;resize:both}
 .formula-live{min-height:53px;margin:8px 0 5px;border:1px solid #b7c9ee;background:#f8fbff;border-radius:10px;padding:11px 13px;color:#233657;font:22px/1.5 Cambria,Georgia,serif;overflow-x:auto;white-space:nowrap;cursor:text}
-.formula-live:focus-visible{outline:2px solid #4772e7}
+.formula-live:focus-within{outline:2px solid #4772e7;outline-offset:1px;background:white}
+.math-editable{display:inline-block;min-width:45px;min-height:29px;vertical-align:middle;outline:none;white-space:nowrap;caret-color:#345de1;color:#182d50;cursor:text;user-select:text;-webkit-user-select:text}
+.math-editable:empty:before{content:'…';color:#9eacc0}
+.math-editable .math-top,.math-editable .math-bottom,.math-editable .math-radicand,.math-editable sup{cursor:text;min-width:.7em}
+.math-editable .math-frac{margin:0 4px}
+.math-editable .math-variable:has(> .math-empty){color:#a1acbc}
+.math-editable .math-empty{color:#a1acbc;display:inline-block;min-width:.6em}
+.math-editable .math-operator{user-select:text}
+.math-editable .math-root-sign{user-select:none}
+.math-editable .math-frac:focus-within .math-top,.math-editable .math-frac:focus-within .math-bottom{min-width:.9em}
+.math-editable [data-math-caret]{font-size:1px;display:inline}
+@media(max-width:450px){.formula-live{font-size:21px;padding:10px 9px}}
 .formula-live .math-frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px;font-size:.83em;line-height:1.2}
 .formula-live .math-top{border-bottom:1.4px solid currentColor;padding:1px 5px 2px}.formula-live .math-bottom{padding:2px 5px 0}
 .formula-live .math-root{display:inline-flex;align-items:stretch;white-space:nowrap}.formula-live .math-radicand{border-top:1.2px solid currentColor;padding:0 3px 0 2px}.formula-live .math-root-sign{font-size:1.32em;line-height:1.08}
 .formula-live sup{font-size:.65em;vertical-align:super}.formula-live .math-operator{padding:0 .12em}.formula-live .math-function{font-style:normal}.formula-live .math-variable{font-style:italic}
-.formula-raw-label{display:block;color:#71839b;font-size:11px;margin:5px 0 3px}.formula-live.empty{color:#9aa9ba;font-size:17px}
+.formula-raw-label{display:none}.formula-live.empty{color:#9aa9ba;font-size:17px}
 @media(max-width:760px){.sidebar-splitter,.bottom-splitter{display:none!important}}
 
 .func-card .formula .math-frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px;font-size:.8em;line-height:1.18}
@@ -92,7 +103,7 @@ h2{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#64758b;marg
 </aside><div id="sidebarSplitter" class="sidebar-splitter" role="separator" aria-label="Změnit šířku levého panelu" aria-orientation="vertical" title="Tažením změnit šířku levého panelu"></div>
 <main class="workspace"><div class="topbar"><div class="page-title">Souřadnicová soustava <span class="muted" id="saveStatus">• připraveno</span></div><div class="actions"><button class="btn" id="undoBtn">↶ Zpět</button><button class="btn danger" id="clearBtn">Vymazat</button></div></div>
  <div class="plot-card"><div class="plot-shell" id="shell"><svg id="plot" xmlns="http://www.w3.org/2000/svg" aria-label="Interaktivní souřadnicová soustava" role="img"></svg><div class="plot-coord" id="coords">x: 0 · y: 0</div><textarea id="inlineEdit" aria-label="Upravit popisek nebo číslo" autocomplete="off" rows="2" spellcheck="false"></textarea></div><div class="plot-status" id="hint">Vyber funkci a klikni do grafu.</div></div>
- <div id="bottomSplitter" class="bottom-splitter" role="separator" aria-label="Změnit výšku dolního panelu" aria-orientation="horizontal" title="Tažením změnit výšku dolního panelu"></div><div class="bottom"><div class="function-box"><div class="function-header"><h2>Nakreslené funkce <span class="muted" id="curveCount">(0)</span></h2><span class="muted">Vyber kliknutím · Delete smaže</span></div><div class="func-list" id="funcList"><div class="empty">Zatím tu nic není. Zkus nakreslit přímku dvěma body.</div></div><div class="add-formula-area"><button type="button" class="btn add-formula-plus" id="showFormulaInline" title="Přidat funkci předpisem">＋ <span>Zadat předpis funkce</span></button><form id="inlineFormulaForm" hidden><div class="formula-entry"><div class="formula-head"><label for="inlineFormulaInput">Nová funkce y = f(x)</label><button type="submit" class="btn primary small">Přidat</button><button type="button" class="btn small" id="closeFormulaInline" aria-label="Zrušit zadávání">✕</button></div><div class="formula-live empty" id="formulaLive" tabindex="0" role="button" aria-label="Živý matematický zápis, kliknutím upravit">y = …</div><label class="formula-raw-label" for="inlineFormulaInput">Zápis (živý náhled výše)</label><input id="inlineFormulaInput" type="text" autocomplete="off" spellcheck="false" placeholder="Např. 2x + x²/3" aria-label="Předpis funkce"><div class="formula-toolbar" id="formulaToolbar" aria-label="Matematická klávesnice"></div><div class="formula-examples" id="formulaExamples"></div><p class="formula-hint" id="formulaHint" aria-live="polite">Můžeš psát 2x, x², (x+1)(x−1), √x a zlomky jako (x+1)/(x−2). Funkce počítají v radiánech.</p></div></form></div></div><div class="help-box"><div id="inspector" class="empty-selection"><div class="function-header"><h2>Úprava vybrané křivky</h2><span class="muted" id="selectedCount"></span></div><p class="inspector-empty">Klikni na <b>↖ Myš</b> a potom na křivku v grafu nebo na její řádek v seznamu. Pro více křivek podrž <b>Ctrl</b> nebo <b>Shift</b>.</p><div class="inspector-controls"><div class="inspector-row"><label class="inspector-field">Barva<input id="curveColor" type="color" value="#365fdb"></label><label class="inspector-field">Čára<select id="curveDash"><option value="solid">Plná</option><option value="dash">Čárkovaná</option><option value="dot">Tečkovaná</option><option value="dashdot">Čerchovaná</option></select></label><label class="inspector-field">Tloušťka<input id="curveWidth" type="number" min="1" max="12" step="0.5" value="3"></label></div><div id="colorSwatches" class="swatches" aria-label="Rychlý výběr barvy"></div><div class="inspector-row"><label class="inspector-field">Značka bodů<select id="pointStyle"><option value="x">× Křížek</option><option value="plus">+ Křížek</option><option value="slash">/ Šikmá čárka</option><option value="dash">− Vodorovná čárka</option><option value="bar">| Svislá čárka</option><option value="circle">○ Kroužek</option></select></label><label class="inspector-line" id="showPointsRow"><input id="showPoints" type="checkbox" checked> Zobrazit body</label></div><label class="inspector-field single-only">Popisek v grafu<input id="curveLabel" maxlength="70" placeholder="Např. rychlost v čase" autocomplete="off"></label><div class="single-only" id="rangePanel"><label class="inspector-line"><input id="limitOn" type="checkbox"> Omezit zobrazenou část křivky</label><div class="range-inputs" id="rangeInputs"><label class="inspector-field"><span id="rangeFromLabel">Od x</span><input id="rangeFrom" inputmode="decimal" aria-label="Začátek rozsahu"></label><label class="inspector-field"><span id="rangeToLabel">Do x</span><input id="rangeTo" inputmode="decimal" aria-label="Konec rozsahu"></label></div><div class="inspector-note" id="rangeHelp">Rozsah lze upravit také tažením oranžových značek na okraji grafu.</div><div class="inspector-actions"><button class="btn small" id="rangeFromPoints">Rozsah podle bodů</button></div></div><div class="inspector-actions"><button class="btn small danger" id="deleteSelected">Smazat vybrané (Delete)</button></div></div></div></div></div><div class="footer-note">Všechno funguje lokálně, bez internetu a bez knihoven.</div>
+ <div id="bottomSplitter" class="bottom-splitter" role="separator" aria-label="Změnit výšku dolního panelu" aria-orientation="horizontal" title="Tažením změnit výšku dolního panelu"></div><div class="bottom"><div class="function-box"><div class="function-header"><h2>Nakreslené funkce <span class="muted" id="curveCount">(0)</span></h2><span class="muted">Vyber kliknutím · Delete smaže</span></div><div class="func-list" id="funcList"><div class="empty">Zatím tu nic není. Zkus nakreslit přímku dvěma body.</div></div><div class="add-formula-area"><button type="button" class="btn add-formula-plus" id="showFormulaInline" title="Přidat funkci předpisem">＋ <span>Zadat předpis funkce</span></button><form id="inlineFormulaForm" hidden><div class="formula-entry"><div class="formula-head"><label for="inlineFormulaInput">Nová funkce y = f(x)</label><button type="submit" class="btn primary small">Přidat</button><button type="button" class="btn small" id="closeFormulaInline" aria-label="Zrušit zadávání">✕</button></div><div class="formula-live" id="formulaLive"><span class="math-variable">y</span> = <span id="mathEditor" class="math-editable" contenteditable="true" role="textbox" aria-multiline="false" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Napiš předpis přímo v matematickém zápisu"></span></div><input id="inlineFormulaInput" type="hidden" value=""><div class="formula-toolbar" id="formulaToolbar" aria-label="Matematická klávesnice"></div><div class="formula-examples" id="formulaExamples"></div><p class="formula-hint" id="formulaHint" aria-live="polite">Můžeš psát 2x, x², (x+1)(x−1), √x a zlomky jako (x+1)/(x−2). Funkce počítají v radiánech.</p></div></form></div></div><div class="help-box"><div id="inspector" class="empty-selection"><div class="function-header"><h2>Úprava vybrané křivky</h2><span class="muted" id="selectedCount"></span></div><p class="inspector-empty">Klikni na <b>↖ Myš</b> a potom na křivku v grafu nebo na její řádek v seznamu. Pro více křivek podrž <b>Ctrl</b> nebo <b>Shift</b>.</p><div class="inspector-controls"><div class="inspector-row"><label class="inspector-field">Barva<input id="curveColor" type="color" value="#365fdb"></label><label class="inspector-field">Čára<select id="curveDash"><option value="solid">Plná</option><option value="dash">Čárkovaná</option><option value="dot">Tečkovaná</option><option value="dashdot">Čerchovaná</option></select></label><label class="inspector-field">Tloušťka<input id="curveWidth" type="number" min="1" max="12" step="0.5" value="3"></label></div><div id="colorSwatches" class="swatches" aria-label="Rychlý výběr barvy"></div><div class="inspector-row"><label class="inspector-field">Značka bodů<select id="pointStyle"><option value="x">× Křížek</option><option value="plus">+ Křížek</option><option value="slash">/ Šikmá čárka</option><option value="dash">− Vodorovná čárka</option><option value="bar">| Svislá čárka</option><option value="circle">○ Kroužek</option></select></label><label class="inspector-line" id="showPointsRow"><input id="showPoints" type="checkbox" checked> Zobrazit body</label></div><label class="inspector-field single-only">Popisek v grafu<input id="curveLabel" maxlength="70" placeholder="Např. rychlost v čase" autocomplete="off"></label><div class="single-only" id="rangePanel"><label class="inspector-line"><input id="limitOn" type="checkbox"> Omezit zobrazenou část křivky</label><div class="range-inputs" id="rangeInputs"><label class="inspector-field"><span id="rangeFromLabel">Od x</span><input id="rangeFrom" inputmode="decimal" aria-label="Začátek rozsahu"></label><label class="inspector-field"><span id="rangeToLabel">Do x</span><input id="rangeTo" inputmode="decimal" aria-label="Konec rozsahu"></label></div><div class="inspector-note" id="rangeHelp">Rozsah lze upravit také tažením oranžových značek na okraji grafu.</div><div class="inspector-actions"><button class="btn small" id="rangeFromPoints">Rozsah podle bodů</button></div></div><div class="inspector-actions"><button class="btn small danger" id="deleteSelected">Smazat vybrané (Delete)</button></div></div></div></div></div><div class="footer-note">Všechno funguje lokálně, bez internetu a bez knihoven.</div>
 </main></div>
 <div class="notification" id="toast" role="status"></div>
 <dialog class="dialog" id="newPointDialog"><form id="newPointForm"><h3>Zadat bod</h3><p>Vlož souřadnice přímo, bez klikání do grafu. Jednotky odpovídají popiskům os.</p><div class="dialog-grid"><label>x <input id="newPointX" inputmode="decimal" required value="0"></label><label>y <input id="newPointY" inputmode="decimal" required value="0"></label></div><label>Kam bod přidat?<select id="newPointTarget" style="display:block;width:100%;margin:7px 0 15px;padding:9px;border:1px solid #ced9e7;border-radius:9px"><option value="point">Samostatný bod</option><option value="polyline">Do lomené čáry</option></select></label><div class="dialog-buttons"><button type="button" class="btn" id="newPointCancel">Zrušit</button><button class="btn primary" type="submit">Přidat bod</button></div></form></dialog><dialog class="dialog" id="pointDialog"><form method="dialog" id="pointForm"><h3>Upravit bod</h3><p>Zadej přesné souřadnice. Změní se poloha bodu i předpis křivky.</p><div class="dialog-grid"><label>x <input id="pointX" inputmode="decimal" autocomplete="off" required></label><label>y <input id="pointY" inputmode="decimal" autocomplete="off" required></label></div><div class="dialog-buttons"><button class="btn" value="cancel" id="pointCancel">Zrušit</button><button class="btn primary" id="pointSave" value="save">Uložit bod</button></div></form></dialog>
@@ -253,27 +264,107 @@ function mathMarkup(src,depth=0){
   let text=String(src).trim().replace(/−/g,'-').replace(/×/g,'*');
   if(depth===0)text=text.replace(/^\s*(?:y|f\s*\(x\))\s*=\s*/i,'');
   if(!text)return '<span class="math-variable">…</span>';
+  // Kurzor za hotovým výrazem musí zůstat za zlomkem/mocninou, ne skočit dovnitř.
+  if(text.endsWith('\uE400')&&text!=='\uE400'){
+    const before=text.slice(0,-1);let balance=0;for(const ch of before){if(ch==='(')balance++;else if(ch===')')balance--}
+    if(balance===0&&!/[+\-*/^(]$/.test(before))return mathMarkup(before,depth+1)+'\uE400';
+  }
   const full=(t)=>{if(!t.startsWith('(')||!t.endsWith(')'))return false;let dep=0;for(let i=0;i<t.length;i++){if(t[i]==='(')dep++;if(t[i]===')')dep--;if(dep===0&&i<t.length-1)return false}return dep===0};
   // Nejdříve operace s nejnižší prioritou a pouze mimo závorky.
   const op=(set,right=false)=>{let dep=0,indices=[];for(let i=0;i<text.length;i++){let c=text[i];if(c==='(')dep++;else if(c===')')dep--;else if(dep===0&&set.includes(c)){if((c==='+'||c==='-')&&(i===0||'+-*/^('.includes(text[i-1])))continue;indices.push(i)}}return right?indices[0]:indices.at(-1)};
   let k=op('+-');if(k!==undefined)return mathMarkup(text.slice(0,k),depth+1)+' <span class="math-operator">'+esc(text[k])+'</span> '+mathMarkup(text.slice(k+1),depth+1);
   k=op('*/');if(k!==undefined){const left=text.slice(0,k),right=text.slice(k+1),a=mathMarkup(text[k]==='/'&&full(left)?left.slice(1,-1):left,depth+1),b=mathMarkup(text[k]==='/'&&full(right)?right.slice(1,-1):right,depth+1);return text[k]==='/'?'<span class="math-frac"><span class="math-top">'+a+'</span><span class="math-bottom">'+b+'</span></span>':a+' <span class="math-operator">·</span> '+b}
-  k=op('^',true);if(k!==undefined)return mathMarkup(text.slice(0,k),depth+1)+'<sup>'+mathMarkup(text.slice(k+1),depth+1)+'</sup>';
+  k=op('^',true);if(k!==undefined){let exponent=text.slice(k+1);if(full(exponent))exponent=exponent.slice(1,-1);return mathMarkup(text.slice(0,k),depth+1)+'<sup>'+mathMarkup(exponent,depth+1)+'</sup>'}
   const root=text.match(/^(?:sqrt|√)\s*(.*)$/i);
-  if(root){const inside=root[1];const v=full(inside)?inside.slice(1,-1):inside;return '<span class="math-root"><span class="math-root-sign">√</span><span class="math-radicand">'+mathMarkup(v||'□',depth+1)+'</span></span>'}
+  if(root&&!/^sqrt(?:\uE400)?$/i.test(text)){
+   const inside=root[1];let v=inside,tail='';
+   if(inside.startsWith('(')){let dep=0,close=-1;for(let i=0;i<inside.length;i++){if(inside[i]==='(')dep++;else if(inside[i]===')'){dep--;if(dep===0){close=i;break}}}
+    v=inside.slice(1,close>=0?close:undefined);tail=close>=0?inside.slice(close+1):''}
+   return '<span class="math-root"><span class="math-root-sign">√</span><span class="math-radicand">'+mathMarkup(v,depth+1)+'</span></span>'+(tail?mathMarkup(tail,depth+1):'')
+  }
   const fn=text.match(/^(sin|cos|tan|tg|ln|log|abs|exp)\s*(\(.*\))$/i);
-  if(fn&&full(fn[2]))return (fn[1]==='abs'?'|':'<span class="math-function">'+esc(fn[1])+'</span>')+'('+mathMarkup(fn[2].slice(1,-1),depth+1)+')'+(fn[1]==='abs'?'|':'');
+  if(fn&&full(fn[2])){const arg=mathMarkup(fn[2].slice(1,-1),depth+1);if(fn[1]==='abs')return '<span class="math-abs" data-math-fn="abs">|'+arg+'|</span>';return '<span class="math-function">'+esc(fn[1])+'</span>('+arg+')'}
   if(full(text))return '('+mathMarkup(text.slice(1,-1),depth+1)+')';
+  const mixed=text.match(/^(.+?)(sqrt|√|sin|cos|tan|ln|log|abs|exp)\s*(\(.*\))$/i);
+  if(mixed&&full(mixed[3]))return mathMarkup(mixed[1],depth+1)+mathMarkup(mixed[2]+mixed[3],depth+1);
   return esc(text).replace(/\bx\b/g,'<span class="math-variable">x</span>').replace(/π/g,'<span class="math-variable">π</span>').replace(/\bpi\b/gi,'<span class="math-variable">π</span>');
 }
-function updateLiveMath(){const v=$('inlineFormulaInput').value,preview=$('formulaLive');preview.classList.toggle('empty',!v.trim());preview.innerHTML='<span class="math-variable">y</span> = '+mathMarkup(v);}
+// Jediné editační pole: zápis se přímo při psaní mění v matematickou sazbu.
+// Skrytá hodnota je pouze přenosný formát pro stávající výpočetní parser.
+const MATH_MARK='\uE400',MATH_START='\uE401',MATH_END='\uE402';
+let mathHistory=[],mathFuture=[],mathComposing=false,mathLastCaret=0;
+function readMathNode(node){
+ if(node.nodeType===Node.TEXT_NODE)return node.data.replaceAll('…','').replaceAll('\u200B','');
+ if(node.nodeType!==Node.ELEMENT_NODE)return '';
+ if(node.hasAttribute('data-math-caret'))return node.getAttribute('data-math-caret');
+ const cls=node.classList;
+ const child=(n)=>[...n.childNodes].map(readMathNode).join('');
+ if(cls.contains('math-frac'))return '('+child(node.querySelector('.math-top')||node)+')/('+child(node.querySelector('.math-bottom')||node)+')';
+ if(cls.contains('math-root'))return 'sqrt('+child(node.querySelector('.math-radicand')||node)+')';
+ if(cls.contains('math-abs'))return 'abs('+child(node).replace(/^\|/,'').replace(/\|$/,'')+')';
+ if(node.tagName==='SUP')return '^('+child(node)+')';
+ if(cls.contains('math-operator'))return child(node).replaceAll('·','*').replaceAll('−','-');
+ if(cls.contains('math-empty'))return '';
+ if(node.tagName==='BR')return '';
+ return child(node);
+}
+function mathSelectionAsRaw(){
+ const editor=$('mathEditor'),sel=window.getSelection();
+ if(!sel||!sel.rangeCount||!editor.contains(sel.anchorNode)||!editor.contains(sel.focusNode)){
+  const raw=$('inlineFormulaInput').value;const at=clamp(mathLastCaret,0,raw.length);return {raw,start:at,end:at};
+ }
+ const range=sel.getRangeAt(0).cloneRange(),collapsed=range.collapsed;
+ const end=document.createElement('span');end.setAttribute('data-math-caret',MATH_END);
+ const after=range.cloneRange();after.collapse(false);after.insertNode(end);
+ let first=null;
+ if(!collapsed){first=document.createElement('span');first.setAttribute('data-math-caret',MATH_START);const before=range.cloneRange();before.collapse(true);before.insertNode(first)}
+ else{end.setAttribute('data-math-caret',MATH_START)}
+ const marked=readMathNode(editor);
+ end.remove();if(first)first.remove();
+ const pa=marked.indexOf(MATH_START),pb=collapsed?pa:marked.indexOf(MATH_END);
+ const a=pa<0?marked.length:pa,b=pb<0?a:pb;
+ const clean=marked.replaceAll(MATH_START,'').replaceAll(MATH_END,'');
+ return {raw:clean,start:Math.min(a,b)-(pa>a?1:0),end:Math.max(a,b)-(pb>a?1:0)};
+}
+function updateLiveMath(caret=null){
+ const v=$('inlineFormulaInput').value,editor=$('mathEditor'),mark=caret!==null;
+ const idx=mark?clamp(caret,0,v.length):-1;
+ const visible=mark?v.slice(0,idx)+MATH_MARK+v.slice(idx):v;
+ let html=mathMarkup(visible).replaceAll(MATH_MARK,'<span data-math-caret="yes"></span>');
+ if(!v&&caret===null)html='<span class="math-empty">…</span>';
+ editor.innerHTML=html;
+ const pin=editor.querySelector('[data-math-caret="yes"]');
+ if(pin){const range=document.createRange(),sel=window.getSelection();const zero=document.createTextNode('\u200B');pin.replaceWith(zero);range.setStart(zero,1);range.collapse(true);sel.removeAllRanges();sel.addRange(range);mathLastCaret=idx}
+ $('formulaLive').classList.toggle('empty',!v.trim());
+}
+function setMathFormula(value,caret=null){$('inlineFormulaInput').value=value;updateLiveMath(caret);const hint=$('formulaHint');hint.classList.remove('invalid');if(!value.trim()){hint.textContent='Piš přímo do vzorce. Šipkou → opustíš zlomek, exponent nebo odmocninu. Funkce počítají v radiánech.';return}
+ try{compileFormulaExpression(value);hint.textContent='✓ Předpis je srozumitelný. Násobení můžeš psát i bez znaménka.'}
+ catch(err){hint.textContent='⚠ '+err.message;hint.classList.add('invalid')}
+}
+function updateFormulaHint(){setMathFormula($('inlineFormulaInput').value)}
+function mathInputChanged(){if(mathComposing)return;
+ const old=$('inlineFormulaInput').value,selection=mathSelectionAsRaw();
+ let raw=selection.raw.replace(/\u200b/g,''),at=clamp(selection.start,0,raw.length);
+ // Při napsání lomítka se rovnou postav kurzor do jmenovatele.
+ if(raw.endsWith('/')&&at===raw.length){raw+='';at=raw.length}
+ if(raw!==old){mathHistory.push(old);if(mathHistory.length>75)mathHistory.shift();mathFuture=[]}
+ setMathFormula(raw,at);
+}
+function mathInsert(insert,caretDelta=insert.length){
+ const info=mathSelectionAsRaw(),old=$('inlineFormulaInput').value;
+ const begin=clamp(info.start,0,info.raw.length),end=clamp(info.end,begin,info.raw.length);
+ const raw=info.raw.slice(0,begin)+insert+info.raw.slice(end);
+ if(old!==raw){mathHistory.push(old);if(mathHistory.length>75)mathHistory.shift();mathFuture=[]}
+ setMathFormula(raw,begin+caretDelta);$('mathEditor').focus();
+}
+function mathUndo(redo=false){const origin=$('inlineFormulaInput').value,from=redo?mathFuture:mathHistory,to=redo?mathHistory:mathFuture;if(!from.length)return;to.push(origin);const raw=from.pop();setMathFormula(raw,raw.length);$('mathEditor').focus()}
 function initUI(){const el=$('tools');el.innerHTML='<button class="tool select-tool" data-type="select" type="button"><span class="tool-name">↖ Myš · vybrat a upravit</span><span class="tool-sub">Delete maže</span></button>'+types.filter(t=>t.id!=='formula').map(t=>`<button class="tool" data-type="${t.id}" type="button"><span class="tool-name">${esc(t.name)}</span><span class="tool-sub">${t.sym}</span></button>`).join('');el.addEventListener('click',e=>{let t=e.target.closest('[data-type]');if(!t)return;s.type=t.dataset.type;pending=[];preview=null;syncUI();render();save()});
 $('finishPolyline').addEventListener('click',finishPolyline);$('addPointNumeric').addEventListener('click',()=>{$('newPointTarget').value=s.type==='polyline'?'polyline':'point';$('newPointDialog').showModal();$('newPointX').focus()});$('newPointCancel').addEventListener('click',()=>$('newPointDialog').close());$('newPointForm').addEventListener('submit',e=>{e.preventDefault();const x=num($('newPointX').value),y=num($('newPointY').value);if(!Number.isFinite(x)||!Number.isFinite(y)){notify('Souřadnice musí být čísla.');return}const pt={x:sNum(x/s.scaleX),y:sNum(y/s.scaleY)};if(!activeAt(pt.x,pt.y)){notify('Bod je mimo zapnuté kvadranty.');return}if($('newPointTarget').value==='polyline'){if(s.type!=='polyline'){s.type='polyline';pending=[];syncUI()}addPoint(pt)}else{createCurve('point',[pt]);} $('newPointDialog').close()});
-const showInlineFormula=()=>{document.querySelector('.workspace').classList.add('formula-open');$('inlineFormulaForm').hidden=false;$('showFormulaInline').hidden=true;$('inlineFormulaInput').focus();updateFormulaHint()};
- const hideInlineFormula=()=>{document.querySelector('.workspace').classList.remove('formula-open');$('inlineFormulaForm').hidden=true;$('showFormulaInline').hidden=false;$('inlineFormulaInput').value='';updateLiveMath()};
+const showInlineFormula=()=>{document.querySelector('.workspace').classList.add('formula-open');$('inlineFormulaForm').hidden=false;$('showFormulaInline').hidden=true;mathHistory=[];mathFuture=[];setMathFormula('',0);$('mathEditor').focus()};
+ const hideInlineFormula=()=>{document.querySelector('.workspace').classList.remove('formula-open');$('inlineFormulaForm').hidden=true;$('showFormulaInline').hidden=false;mathHistory=[];mathFuture=[];setMathFormula('')};
  const formulaKeys=[
    {name:'x',insert:'x',label:'x'}, {name:'x²',insert:'^2',label:'Na druhou'},
-   {name:'xⁿ',insert:'^()',label:'Obecná mocnina'}, {name:'a/b',insert:'()/()',label:'Zlomek; závorky v čitateli a jmenovateli'},
+   {name:'xⁿ',insert:'^()',label:'Obecná mocnina'}, {name:'a/b',insert:'()/()',label:'Zlomek; čitatel a jmenovatel'},
    {name:'√',insert:'sqrt()',label:'Odmocnina'}, {name:'|x|',insert:'abs()',label:'Absolutní hodnota'},
    {name:'( )',insert:'()',label:'Závorky'}, {name:'π',insert:'π',label:'Číslo pí'},
    {name:'eˣ',insert:'e^(x)',label:'Exponenciála e na x'}, {name:'ln',insert:'ln()',label:'Přirozený logaritmus'},
@@ -283,25 +374,78 @@ const showInlineFormula=()=>{document.querySelector('.workspace').classList.add(
  const examples=[['Přímka','2x+1'],['Parabola','x²-3'],['Kubická','x³'],['Exponenciála','2^x'],['Logaritmus','ln(x)'],['Mocninná','x^4'],['Hyperbola','1/x'],['Odmocnina','√x']];
  $('formulaToolbar').innerHTML=formulaKeys.map((k,i)=>`<button type="button" class="formula-key" data-key="${i}" title="${esc(k.label)}" aria-label="${esc(k.label)}">${esc(k.name)}</button>`).join('');
  $('formulaExamples').innerHTML='<span class="muted">Vzor:</span>'+examples.map(([name,expression],i)=>`<button type="button" class="formula-example" data-example="${i}" title="${esc(expression)}">${esc(name)}</button>`).join('');
- function updateFormulaHint(){updateLiveMath();const v=$('inlineFormulaInput').value.trim(),hint=$('formulaHint');hint.classList.remove('invalid');if(!v){hint.textContent='Zápis 2x, x², (x+1)(x−1), √x nebo zlomky (x+1)/(x−2) funguje přímo. Úhly ve funkcích jsou v radiánech.';return}
-   try{compileFormulaExpression(v);hint.textContent='✓ Předpis je srozumitelný. Násobení můžeš psát i bez znaménka.'}
-   catch(err){hint.textContent='⚠ '+err.message;hint.classList.add('invalid')}}
- function insertMath(text){const el=$('inlineFormulaInput'),a=el.selectionStart??el.value.length,b=el.selectionEnd??a,selected=el.value.slice(a,b);
-   let insert=text,caret=-1;
-   if(text==='()/()'){insert=selected?`(${selected})/()`:'()/()';caret=selected?insert.length-1:1}
-   else if(text==='^()'||text==='^2'){
-     const before=el.value.slice(0,a).trimEnd(), hasBase=/[x0-9eπ)]$/i.test(before);
-     const prefix=selected?`(${selected})`:hasBase?'':'x';
-     insert=prefix+text;caret=text==='^()'?insert.length-1:insert.length;
-   }
-   else if(text==='()'){insert=selected?`(${selected})`:'()';caret=selected?insert.length:1}
-   else if(text==='sqrt()'||text==='abs()'||text==='ln()'||text==='log()'||text==='sin()'||text==='cos()'||text==='tan()'){insert=selected?text.replace('()',`(${selected})`):text;caret=selected?insert.length:insert.length-1}
-   else if(selected){insert=text;caret=insert.length}
-   el.setRangeText(insert,a,b,'end');if(caret>=0)el.setSelectionRange(a+caret,a+caret);el.focus();el.dispatchEvent(new Event('input',{bubbles:true}))}
- $('formulaLive').addEventListener('click',()=>$('inlineFormulaInput').focus());$('formulaLive').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('inlineFormulaInput').focus()}});
+ function insertMath(text){
+  const e=mathSelectionAsRaw(),begin=clamp(e.start,0,e.raw.length),end=clamp(e.end,begin,e.raw.length),selected=e.raw.slice(begin,end);
+  let insert=text,caret=-1;
+  if(text==='()/()'){insert=selected?`(${selected})/()`:'()/()';caret=selected?insert.length-1:1}
+  else if(text==='^()'||text==='^2'){
+   const before=e.raw.slice(0,begin).trimEnd(),hasBase=/[x0-9eπ)]$/i.test(before);
+   const prefix=selected?`(${selected})`:hasBase?'':'x';insert=prefix+text;caret=text==='^()'?insert.length-1:insert.length;
+  }
+  else if(text==='()'){insert=selected?`(${selected})`:'()';caret=selected?insert.length:1}
+  else if(['sqrt()','abs()','ln()','log()','sin()','cos()','tan()'].includes(text)){insert=selected?text.replace('()',`(${selected})`):text;caret=selected?insert.length:insert.length-1}
+  else if(selected){caret=insert.length}
+  mathInsert(insert,caret<0?insert.length:caret);
+ }
+ // Tlačítka nemají při stisknutí sebrat kurzor ze zlomku či exponentu.
+ $('formulaToolbar').addEventListener('pointerdown',e=>{if(e.target.closest('[data-key]'))e.preventDefault()});
  $('formulaToolbar').addEventListener('click',e=>{const btn=e.target.closest('[data-key]');if(btn)insertMath(formulaKeys[Number(btn.dataset.key)].insert)});
- $('formulaExamples').addEventListener('click',e=>{const btn=e.target.closest('[data-example]');if(!btn)return;const input=$('inlineFormulaInput');input.value=examples[Number(btn.dataset.example)][1];input.focus();input.setSelectionRange(input.value.length,input.value.length);updateFormulaHint()});
- $('inlineFormulaInput').addEventListener('input',updateFormulaHint);
+ $('formulaExamples').addEventListener('click',e=>{const btn=e.target.closest('[data-example]');if(!btn)return;const expr=examples[Number(btn.dataset.example)][1];mathHistory.push($('inlineFormulaInput').value);mathFuture=[];setMathFormula(expr,expr.length);$('mathEditor').focus()});
+ $('mathEditor').addEventListener('input',mathInputChanged);
+ $('mathEditor').addEventListener('compositionstart',()=>{mathComposing=true});
+ $('mathEditor').addEventListener('compositionend',()=>{mathComposing=false;mathInputChanged()});
+ $('mathEditor').addEventListener('paste',e=>{e.preventDefault();mathInsert((e.clipboardData?.getData('text/plain')||'').replace(/\s+/g,' ').slice(0,220))});
+ $('mathEditor').addEventListener('keydown',e=>{
+  // Po dokončení mocniny či zlomku se + nebo − zapisuje mimo horní index/jmenovatel.
+  if(['+','-'].includes(e.key)&&!e.ctrlKey&&!e.metaKey){
+   const sel=window.getSelection(),node=sel?.anchorNode;
+   let zone=node?.nodeType===Node.ELEMENT_NODE?node:node?.parentElement;
+   zone=zone?.closest?.('sup');
+   if(zone&&sel.rangeCount&&sel.isCollapsed){
+    const tail=document.createRange();tail.setStart(sel.anchorNode,sel.anchorOffset);tail.setEnd(zone,zone.childNodes.length);
+    if(!tail.toString().replaceAll('\u200B','').trim()){
+     const target=zone.classList.contains('math-bottom')?zone.closest('.math-frac'):zone.classList.contains('math-radicand')?zone.closest('.math-root'):zone;
+     if(target){
+      e.preventDefault();const info=mathSelectionAsRaw();let pos=info.start;
+      // Ve zdrojovém zápisu odpovídá konci daného matematického bloku ')'.
+      if(info.raw[pos]===')')pos++;
+      const old=$('inlineFormulaInput').value,next=info.raw.slice(0,pos)+e.key+info.raw.slice(pos);
+      if(old!==next){mathHistory.push(old);mathFuture=[]}
+      setMathFormula(next,pos+1);$('mathEditor').focus();return;
+     }
+    }
+   }
+  }
+  if(e.key==='ArrowRight'&&!e.shiftKey&&!e.ctrlKey&&!e.metaKey){
+   const sel=window.getSelection(),node=sel?.anchorNode;
+   let zone=node?.nodeType===Node.ELEMENT_NODE?node:node?.parentElement;
+   zone=zone?.closest?.('sup,.math-bottom,.math-radicand');
+   if(zone&&sel.rangeCount&&sel.isCollapsed){
+    const tail=document.createRange();tail.setStart(sel.anchorNode,sel.anchorOffset);tail.setEnd(zone,zone.childNodes.length);
+    if(!tail.toString().replaceAll('\u200B','').trim()){
+     e.preventDefault();const info=mathSelectionAsRaw();let pos=info.start;if(info.raw[pos]===')')pos++;
+     setMathFormula(info.raw,pos);$('mathEditor').focus();return;
+    }
+   }
+  }
+  if(e.key===')'){
+   const sel=window.getSelection(),node=sel?.anchorNode;
+   let zone=node?.nodeType===Node.ELEMENT_NODE?node:node?.parentElement;
+   zone=zone?.closest?.('sup,.math-bottom,.math-radicand');
+   if(zone&&sel.rangeCount&&sel.isCollapsed){
+    const tail=document.createRange();tail.setStart(sel.anchorNode,sel.anchorOffset);tail.setEnd(zone,zone.childNodes.length);
+    if(!tail.toString().replaceAll('\u200B','').trim()){
+     e.preventDefault();const info=mathSelectionAsRaw();let pos=info.start;
+     if(info.raw[pos]===')')pos++;
+     setMathFormula(info.raw,pos);$('mathEditor').focus();return;
+    }
+   }
+  }
+  if(e.key==='Enter'){e.preventDefault();$('inlineFormulaForm').requestSubmit();return}
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();mathUndo(e.shiftKey);return}
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();mathUndo(true);return}
+ });
+ $('formulaLive').addEventListener('click',e=>{if(!e.target.closest('#mathEditor'))$('mathEditor').focus()});
  $('showFormulaInline').addEventListener('click',showInlineFormula);
  $('closeFormulaInline').addEventListener('click',hideInlineFormula);
  $('inlineFormulaForm').addEventListener('submit',e=>{e.preventDefault();const input=$('inlineFormulaInput').value.trim();if(!input){notify('Zadej předpis funkce.');return}try{createFormulaCurve(input);hideInlineFormula();notify('Funkce byla přidána.')}catch(err){notify(err.message,4500)}});
@@ -324,7 +468,7 @@ window.addEventListener('keydown',e=>{
  if(e.key==='Escape'){
    if($('newPointDialog').open)$('newPointDialog').close();
    if($('pointDialog').open)$('pointDialog').close();
-   if(!$('inlineFormulaForm').hidden){document.querySelector('.workspace').classList.remove('formula-open');$('inlineFormulaForm').hidden=true;$('showFormulaInline').hidden=false;$('inlineFormulaInput').value=''}
+   if(!$('inlineFormulaForm').hidden)hideInlineFormula();
    s.type='select';pending=[];preview=null;drag=null;syncUI();render();save();e.preventDefault();return;
  }
  if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)||$('pointDialog').open||$('newPointDialog').open)return;
