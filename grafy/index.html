@@ -358,6 +358,69 @@ function mathInsert(insert,caretDelta=insert.length){
  setMathFormula(raw,begin+caretDelta);$('mathEditor').focus();
 }
 function mathUndo(redo=false){const origin=$('inlineFormulaInput').value,from=redo?mathFuture:mathHistory,to=redo?mathHistory:mathFuture;if(!from.length)return;to.push(origin);const raw=from.pop();setMathFormula(raw,raw.length);$('mathEditor').focus()}
+// Zlomek, odmocnina a exponent jsou v editoru jediný matematický objekt.
+// Backspace za objektem / Delete před objektem odstraní celý blok jedním stiskem.
+// U prázdného bloku lze stisknout kteroukoli z kláves i přímo uvnitř.
+function mathAtomicRawRange(node){
+ const editor=$('mathEditor');
+ const before=document.createElement('span'),after=document.createElement('span');
+ before.setAttribute('data-math-caret',MATH_START);
+ after.setAttribute('data-math-caret',MATH_END);
+ node.before(before);node.after(after);
+ let marked='';try{marked=readMathNode(editor)}finally{before.remove();after.remove()}
+ const start=marked.indexOf(MATH_START),end=marked.indexOf(MATH_END);
+ if(start<0||end<0)return null;
+ return {start,end:end-1,raw:marked.replaceAll(MATH_START,'').replaceAll(MATH_END,'')};
+}
+function mathDeleteAtomic(direction){
+ const sel=window.getSelection(),editor=$('mathEditor');
+ if(!sel?.rangeCount||!sel.isCollapsed||!editor.contains(sel.anchorNode))return false;
+ const info=mathSelectionAsRaw(),pos=info.start;
+ // Nejvnitřnější blok má přednost před okolní mocninou nebo zlomkem.
+ const choices=[];
+ for(const node of editor.querySelectorAll('.math-root,.math-frac,.math-abs,sup')){
+  const range=mathAtomicRawRange(node);if(!range||range.raw!==info.raw)continue;
+  const raw=range.raw.slice(range.start,range.end);
+  const empty=raw==='sqrt()'||raw==='()/()'||raw==='abs()'||raw==='^()';
+  let remove=(direction==='back'&&pos===range.end)||(direction==='forward'&&pos===range.start);
+  // Prázdná šablona (například nově vložené √): nemažeme šest písmen sqrt().
+  if(empty&&pos>=range.start&&pos<=range.end)remove=true;
+  // Backspace na úplném začátku odmocniny, resp. exponentu, mažeme jako jeden celek.
+  if(direction==='back'&&node.classList.contains('math-root')&&pos===range.start+5)remove=true;
+  if(direction==='back'&&node.tagName==='SUP'&&pos===range.start+2)remove=true;
+  if(remove)choices.push({...range,length:range.end-range.start});
+ }
+ if(!choices.length)return false;
+ choices.sort((a,b)=>a.length-b.length);
+ const chosen=choices[0];
+ const source=chosen.raw,next=source.slice(0,chosen.start)+source.slice(chosen.end);
+ if(next!==source){mathHistory.push($('inlineFormulaInput').value);if(mathHistory.length>75)mathHistory.shift();mathFuture=[]}
+ setMathFormula(next,chosen.start);editor.focus();return true;
+}
+// Nativní Backspace často maže pouze neviditelný znak držící kurzor.
+// Běžná písmena proto mažeme ze skutečného zápisu a matematické bloky atomicky.
+function mathDeleteOne(direction){
+ const info=mathSelectionAsRaw(),raw=info.raw;
+ let start=clamp(info.start,0,raw.length),end=clamp(info.end,start,raw.length);
+ if(start===end){
+  if(direction==='back'){
+   // Mezery kolem + a − vkládá sama sazba; nejsou samostatnou položkou k mazání.
+   while(start>0&&/\s/.test(raw[start-1]))start--;
+   if(start===0)return;
+   start--;if(start>0&&/[\uDC00-\uDFFF]/.test(raw[start]))start--;
+  }else{
+   while(end<raw.length&&/\s/.test(raw[end]))end++;
+   if(end===raw.length)return;
+   end++;if(end<raw.length&&/[\uDC00-\uDFFF]/.test(raw[end]))end++;
+  }
+ }
+ const left=raw.slice(0,start).replace(/\s+$/,''),right=raw.slice(end).replace(/^\s+/,'');
+ const next=left+right;
+ if(next===raw)return;
+ mathHistory.push($('inlineFormulaInput').value);if(mathHistory.length>75)mathHistory.shift();mathFuture=[];
+ setMathFormula(next,left.length);$('mathEditor').focus();
+}
+
 function initUI(){const el=$('tools');el.innerHTML='<button class="tool select-tool" data-type="select" type="button"><span class="tool-name">↖ Myš · vybrat a upravit</span><span class="tool-sub">Delete maže</span></button>'+types.filter(t=>t.id!=='formula').map(t=>`<button class="tool" data-type="${t.id}" type="button"><span class="tool-name">${esc(t.name)}</span><span class="tool-sub">${t.sym}</span></button>`).join('');el.addEventListener('click',e=>{let t=e.target.closest('[data-type]');if(!t)return;s.type=t.dataset.type;pending=[];preview=null;syncUI();render();save()});
 $('finishPolyline').addEventListener('click',finishPolyline);$('addPointNumeric').addEventListener('click',()=>{$('newPointTarget').value=s.type==='polyline'?'polyline':'point';$('newPointDialog').showModal();$('newPointX').focus()});$('newPointCancel').addEventListener('click',()=>$('newPointDialog').close());$('newPointForm').addEventListener('submit',e=>{e.preventDefault();const x=num($('newPointX').value),y=num($('newPointY').value);if(!Number.isFinite(x)||!Number.isFinite(y)){notify('Souřadnice musí být čísla.');return}const pt={x:sNum(x/s.scaleX),y:sNum(y/s.scaleY)};if(!activeAt(pt.x,pt.y)){notify('Bod je mimo zapnuté kvadranty.');return}if($('newPointTarget').value==='polyline'){if(s.type!=='polyline'){s.type='polyline';pending=[];syncUI()}addPoint(pt)}else{createCurve('point',[pt]);} $('newPointDialog').close()});
 const showInlineFormula=()=>{document.querySelector('.workspace').classList.add('formula-open');$('inlineFormulaForm').hidden=false;$('showFormulaInline').hidden=true;mathHistory=[];mathFuture=[];setMathFormula('',0);$('mathEditor').focus()};
@@ -396,6 +459,10 @@ const showInlineFormula=()=>{document.querySelector('.workspace').classList.add(
  $('mathEditor').addEventListener('compositionend',()=>{mathComposing=false;mathInputChanged()});
  $('mathEditor').addEventListener('paste',e=>{e.preventDefault();mathInsert((e.clipboardData?.getData('text/plain')||'').replace(/\s+/g,' ').slice(0,220))});
  $('mathEditor').addEventListener('keydown',e=>{
+  if(!mathComposing&&!e.isComposing&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&(e.key==='Backspace'||e.key==='Delete')){
+   e.preventDefault();const direction=e.key==='Backspace'?'back':'forward';
+   if(!mathDeleteAtomic(direction))mathDeleteOne(direction);return;
+  }
   // Po dokončení mocniny či zlomku se + nebo − zapisuje mimo horní index/jmenovatel.
   if(['+','-'].includes(e.key)&&!e.ctrlKey&&!e.metaKey){
    const sel=window.getSelection(),node=sel?.anchorNode;
