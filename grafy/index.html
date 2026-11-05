@@ -99,7 +99,7 @@ h2{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#64758b;marg
   <details class="section accordion"><summary class="accordion-summary"><h2>Kvadranty</h2><span class="muted">zapni podle potřeby</span><span class="accordion-arrow" aria-hidden="true">⌄</span></summary><div class="accordion-body"><div class="quadrants" id="quadrants"></div><p class="subtext">I = vpravo nahoře. Můžeš zapnout libovolnou kombinaci.</p></div></details>
   <details class="section accordion"><summary class="accordion-summary"><h2>Měřítko os</h2><span class="muted">jednotek / dílek</span><span class="accordion-arrow" aria-hidden="true">⌄</span></summary><div class="accordion-body"><div class="scale-grid"><label><span class="scale-label">Osa x</span><div class="num-wrapper"><span>x</span><input id="scaleX" inputmode="decimal" aria-label="Jednotky na dílek osy x" value="1"></div></label><label><span class="scale-label">Osa y</span><div class="num-wrapper"><span>y</span><input id="scaleY" inputmode="decimal" aria-label="Jednotky na dílek osy y" value="1"></div></label></div><div class="scale-grid" style="margin-top:11px"><label><span class="scale-label">Konec osy x (max.)</span><div class="num-wrapper"><span>x</span><input id="xMax" inputmode="decimal" placeholder="auto" aria-label="Nejvyšší hodnota osy x"></div></label><label><span class="scale-label">Konec osy y (max.)</span><div class="num-wrapper"><span>y</span><input id="yMax" inputmode="decimal" placeholder="auto" aria-label="Nejvyšší hodnota osy y"></div></label><label><span class="scale-label">Záporná osa x (min.)</span><div class="num-wrapper"><span>x</span><input id="xMin" inputmode="decimal" placeholder="auto" aria-label="Nejnižší hodnota osy x"></div></label><label><span class="scale-label">Záporná osa y (min.)</span><div class="num-wrapper"><span>y</span><input id="yMin" inputmode="decimal" placeholder="auto" aria-label="Nejnižší hodnota osy y"></div></label></div><p class="mini-hint">Prázdné = automaticky. Šipka osy mění rozsah; tažením okraje mřížky upravíš pouze dílky příslušné osy.</p><div class="presets" id="presets"><span class="muted" style="align-self:center">Obě osy:</span><button class="preset" data-step="1">1</button><button class="preset" data-step="2">2</button><button class="preset" data-step="3">3</button><button class="preset" data-step="5">5</button><button class="preset" data-step="10">10</button></div><p class="subtext">Lze také kliknout přímo na číslo u osy a přepsat jej. Ostatní čísla i rovnice se přepočítají.</p></div></details>
  </div>
- <details class="section accordion"><summary class="accordion-summary"><h2>Zobrazení</h2><span class="accordion-arrow" aria-hidden="true">⌄</span></summary><div class="accordion-body"><label class="toggle-row">Mřížka<input class="toggle" id="gridOn" type="checkbox" checked></label><label class="toggle-row">Přichytávat k mřížce<input class="toggle" id="snapOn" type="checkbox" checked></label><label class="toggle-row">Čísla na osách<input class="toggle" id="numbersOn" type="checkbox" checked></label><label class="toggle-row">Zobrazit body<input class="toggle" id="allPointsOn" type="checkbox" checked></label><div class="toggle-row font-size-row"><label for="graphFontSize">Velikost písma v grafu</label><div class="font-size-controls"><input id="graphFontSize" type="range" min="10" max="28" step="1" value="12" aria-label="Velikost písma popisků os, číslic a křivek"><output id="graphFontValue" for="graphFontSize">12 px</output></div></div><label class="toggle-row">Tučné popisky<input class="toggle" id="graphFontBold" type="checkbox"></label><div class="toggle-row"><span>Velikost dílků</span><div class="actions"><button class="btn icononly" id="zoomOut" title="Zmenšit dílky" aria-label="Zmenšit dílky">−</button><button class="btn icononly" id="zoomIn" title="Zvětšit dílky" aria-label="Zvětšit dílky">+</button></div></div><button class="btn" type="button" id="equalGridPitch" style="width:100%;margin-top:7px">⤢ Sjednotit dílky X = Y</button><p class="subtext">Kolečko upravuje přiblížení dílků; Ctrl + kolečko zvětšuje či zmenšuje celý graf. Na okraji mřížky se kurzor změní na oboustrannou šipku. Svislý okraj upravuje jen dílky X, vodorovný jen dílky Y. Konec osy měníš tažením šipky osy. Kliknutím na popisek osy jej upravíš; <b>Enter</b> vloží další řádek, <b>Ctrl + Enter</b> uloží. Tažením popisek přesuneš. Hotové grafy lze upravit tažením barevných bodů.</p></div></details>
+ <details class="section accordion"><summary class="accordion-summary"><h2>Zobrazení</h2><span class="accordion-arrow" aria-hidden="true">⌄</span></summary><div class="accordion-body"><label class="toggle-row">Mřížka<input class="toggle" id="gridOn" type="checkbox" checked></label><label class="toggle-row">Přichytávat k mřížce<input class="toggle" id="snapOn" type="checkbox" checked></label><label class="toggle-row">Čísla na osách<input class="toggle" id="numbersOn" type="checkbox" checked></label><label class="toggle-row">Zobrazit body<input class="toggle" id="allPointsOn" type="checkbox" checked></label><div class="toggle-row font-size-row"><label for="graphFontSize">Velikost písma v grafu</label><div class="font-size-controls"><input id="graphFontSize" type="range" min="10" max="28" step="1" value="12" aria-label="Velikost písma popisků os, číslic a křivek"><output id="graphFontValue" for="graphFontSize">12 px</output></div></div><label class="toggle-row">Tučné popisky<input class="toggle" id="graphFontBold" type="checkbox"></label><div class="toggle-row"><span>Velikost dílků</span><div class="actions"><button class="btn icononly" id="zoomOut" title="Zmenšit dílky" aria-label="Zmenšit dílky">−</button><button class="btn icononly" id="zoomIn" title="Zvětšit dílky" aria-label="Zvětšit dílky">+</button></div></div><button class="btn" type="button" id="equalGridPitch" style="width:100%;margin-top:7px">⤢ Sjednotit dílky X = Y</button><p class="subtext">Kolečko přibližuje k místu pod kurzorem; Ctrl + kolečko zvětšuje či zmenšuje celý graf. Na okraji mřížky se kurzor změní na oboustrannou šipku. Svislý okraj upravuje jen dílky X, vodorovný jen dílky Y. Konec osy měníš tažením šipky osy. Kliknutím na popisek osy jej upravíš; <b>Enter</b> vloží další řádek, <b>Ctrl + Enter</b> uloží. Tažením popisek přesuneš. Hotové grafy lze upravit tažením barevných bodů.</p></div></details>
  <details class="section accordion"><summary class="accordion-summary"><h2>Soubor a export</h2><span class="accordion-arrow" aria-hidden="true">⌄</span></summary><div class="accordion-body"><div style="display:flex;flex-wrap:wrap;gap:6px"><button class="btn small" id="saveSvg">Uložit SVG</button><button class="btn small" id="savePng">Uložit PNG</button><button class="btn small" id="saveJson">Uložit projekt</button><button class="btn small" id="loadJson">Načíst projekt</button></div><input id="fileInput" type="file" accept=".json,application/json" hidden><p class="subtext">Průběžně se ukládá v tomto prohlížeči. Funkce lze exportovat jako obrázek nebo později upravit.</p></div></details>
 </aside><div id="sidebarSplitter" class="sidebar-splitter" role="separator" aria-label="Změnit šířku levého panelu" aria-orientation="vertical" title="Tažením změnit šířku levého panelu"></div>
 <main class="workspace"><div class="topbar"><div class="page-title">Souřadnicová soustava <span class="muted" id="saveStatus">• připraveno</span></div><div class="actions"><button class="btn" id="undoBtn">↶ Zpět</button><button class="btn danger" id="clearBtn">Vymazat</button></div></div>
@@ -113,11 +113,11 @@ h2{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#64758b;marg
 const $=id=>document.getElementById(id);
 const svg=$('plot'),shell=$('shell');
 const types=[
-{id:'point',name:'Bod',sym:'1 bod',desc:'Klikni do grafu a vlož bod. Přesnou polohu lze zadat tlačítkem Zadat bod.',n:1},
+{id:'point',name:'Bod',sym:'1 bod',desc:'Klikni do grafu a vlož bod. U průsečíků funkcí a os se objeví zvýraznění a bod se přesně přichytí. Přesnou polohu lze zadat i souřadnicemi.',n:1},
  {id:'polyline',name:'Lomená čára',sym:'více bodů',desc:'Klikáním přidávej vrcholy. Dokonči tlačítkem, dvojklikem nebo Enter. Později můžeš pomocné body skrýt.',n:Infinity},
  {id:'line',name:'Přímka',sym:'2 body',desc:'Klikni na dva body nebo tažením nakresli přímku. Pro svislé body vznikne rovnice x = konstanta.',n:2},
 {id:'formula',name:'Předpis',sym:'text',desc:'Vlož předpis funkce tlačítkem ＋ Zadat předpis. Hodí se pro rychlé zadání známé rovnice.',n:0},
-{id:'quadratic',name:'Parabola',sym:'3 body',desc:'Tři body s různými souřadnicemi x určují právě jednu kvadratickou funkci.',n:3},
+{id:'quadratic',name:'Parabola',sym:'3 body / tah',desc:'Klikni na tři body, nebo jedním tahem načrtni parabolu. Program ji co nejpřesněji proloží kvadratickou funkcí.',n:3},
 {id:'cubic',name:'Kubická',sym:'4 body',desc:'Čtyři body s různými x určují polynom nejvýše 3. stupně.',n:4},
 {id:'exp',name:'Exponenciála',sym:'2 body',desc:'Dva body pro funkci y = a · bˣ. Souřadnice y musejí mít stejné nenulové znaménko.',n:2},
 {id:'log',name:'Logaritmus',sym:'2 body',desc:'Dva body pro y = a · ln(x) + b. Vybírej jen x > 0.',n:2},
@@ -129,6 +129,7 @@ const colors=['#365fdb','#e15e52','#138c86','#9b55cb','#e39b23','#277fbd','#c34b
 const palette=['#1e293b','#365fdb','#1672d8','#e53935','#128a48','#f59e0b','#8b5cf6','#d946a5','#0d9488','#92400e','#64748b','#ffffff'];
 const defaultState=()=>({lineSegment:true,type:'line',quads:[true,false,false,false],scaleX:1,scaleY:1,axisX:'x',axisY:'y',zoom:47,zoomX:47,zoomY:47,xMax:null,yMax:null,xMin:null,yMin:null,drawColor:'#365fdb',grid:true,snap:true,numbers:true,globalShowPoints:true,fontSize:12,fontBold:false,wholeZoom:false,panX:0,panY:0,axisLabelOffsets:{x:{x:0,y:0},y:{x:0,y:0}},sidebarWidth:344,bottomHeight:235,curves:[],nextId:1});
 let s=defaultState(),pending=[],preview=null,drag=null,layout=null,toastTimer=null,editMeta=null,pointEdit=null,selected=new Set();
+let intersectionCache={key:null,points:[]},intersectionHover=null;
 const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function num(v){const n=Number(String(v).trim().replace(/\s/g,'').replace(',','.'));return Number.isFinite(n)?n:NaN}
@@ -242,7 +243,7 @@ function updateAutoRange(c){if(c.autoRange&&c.range)c.range=pointBounds(c)}
 function validRange(r){return r&&Number.isFinite(r.from)&&Number.isFinite(r.to)&&r.to>r.from}
 const validDashes=['solid','dash','dot','dashdot'];
 function normalizedParams(names,values={}){const out={};for(const name of names){const v=Number(values?.[name]);out[name]=Number.isFinite(v)?v:1}return out}
-function normalizeCurve(c){c.pointStyle=['x','plus','slash','dash','bar','circle'].includes(c.pointStyle)?c.pointStyle:'x';c.showPoints=c.type==='point'?true:c.showPoints!==false;c.dash=validDashes.includes(c.dash)?c.dash:'solid';c.width=clamp(Number(c.width)||3,1,12);c.label=String(c.label||'').slice(0,70);c.color=/^#[0-9a-fA-F]{6}$/.test(c.color||'')?c.color:colors[(c.id-1)%colors.length];c.expr=String(c.expr||'');if(c.type==='formula'){try{c.params=normalizedParams(compileFormulaExpression(c.expr).paramNames,c.params)}catch{c.params={}}}if(!validRange(c.range))c.range=null;c.autoRange=c.autoRange===true&&!!c.range}
+function normalizeCurve(c){c.pointStyle=['x','plus','slash','dash','bar','circle'].includes(c.pointStyle)?c.pointStyle:'x';c.showPoints=c.type==='point'?true:c.showPoints!==false;c.dash=validDashes.includes(c.dash)?c.dash:'solid';c.width=clamp(Number(c.width)||3,1,12);c.label=String(c.label||'').slice(0,70);c.color=/^#[0-9a-fA-F]{6}$/.test(c.color||'')?c.color:colors[(c.id-1)%colors.length];c.expr=String(c.expr||'');const lo=c.labelOffset||{};c.labelOffset={x:clamp(Number(lo.x)||0,-2000,2000),y:clamp(Number(lo.y)||0,-2000,2000)};if(c.type==='formula'){try{c.params=normalizedParams(compileFormulaExpression(c.expr).paramNames,c.params)}catch{c.params={}}}if(!validRange(c.range))c.range=null;c.autoRange=c.autoRange===true&&!!c.range}
 function initInspector(){
  $('deleteSelected').addEventListener('click',removeSelected);
  const swatchHtml=palette.map(c=>`<button type="button" class="swatch" data-color="${c}" style="background:${c}" title="Barva ${c}" aria-label="Barva ${c}"></button>`).join('');$('colorSwatches').innerHTML=swatchHtml;$('drawSwatches').innerHTML=swatchHtml;
@@ -530,7 +531,7 @@ for(const [id,key] of [['gridOn','grid'],['snapOn','snap'],['numbersOn','numbers
 $('graphFontSize').addEventListener('input',e=>{s.fontSize=clamp(Number(e.target.value)||12,10,28);$('graphFontValue').textContent=s.fontSize+' px';render();save()});$('graphFontBold').addEventListener('change',e=>{s.fontBold=e.target.checked;render();save()});
 $('zoomOut').addEventListener('click',()=>changeZoom(1/1.17));$('zoomIn').addEventListener('click',()=>changeZoom(1.17));$('equalGridPitch').addEventListener('click',equalGridPitch);
 // Nad samotnou kreslicí plochou kolečko mění přiblížení, nikoli posun stránky.
-svg.addEventListener('wheel',e=>{e.preventDefault();const magnitude=e.deltaMode===1?e.deltaY*20:e.deltaMode===2?e.deltaY*600:e.deltaY;const factor=Math.exp(-clamp(magnitude,-400,400)*.0015);if(e.ctrlKey)changeWholeGraphZoom(factor);else changeZoom(factor)},{passive:false});
+svg.addEventListener('wheel',e=>{e.preventDefault();const magnitude=e.deltaMode===1?e.deltaY*20:e.deltaMode===2?e.deltaY*600:e.deltaY;const factor=Math.exp(-clamp(magnitude,-400,400)*.0015);if(e.ctrlKey)changeWholeGraphZoom(factor);else changeZoom(factor,pixelToWorld(e))},{passive:false});
 $('undoBtn').addEventListener('click',undo);$('clearBtn').addEventListener('click',()=>{if(!s.curves.length&&!pending.length)return;if(confirm('Opravdu smazat všechny nakreslené funkce a rozpracované body?')){s.curves=[];selected.clear();pending=[];render();save();notify('Grafy byly vymazány.')}});
 // Při posouvání je důležité nevytvářet znovu seznam: zůstane stejný uchopený posuvník.
 $('funcList').addEventListener('input',e=>{
@@ -578,9 +579,11 @@ function initSplitters(){
   bind(sidebar,'sidebar');bind(bottom,'bottom');
 }
 function syncUI(){document.querySelectorAll('[data-type]').forEach(b=>b.classList.toggle('active',b.dataset.type===s.type));document.querySelectorAll('[data-q]').forEach(b=>{const selected=s.quads[+b.dataset.q];b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected))});$('needed').textContent=tool().sym;$('toolDesc').textContent=tool().desc;$('lineSegmentRow').style.display=s.type==='line'?'flex':'none';$('lineSegment').checked=s.lineSegment!==false;$('scaleX').value=String(s.scaleX);$('scaleY').value=String(s.scaleY);for(const k of ['xMax','yMax','xMin','yMin'])if(document.activeElement!==$(k))$(k).value=s[k]??'';document.querySelectorAll('#drawSwatches .swatch').forEach(el=>el.classList.toggle('active',el.dataset.color.toLowerCase()===String(s.drawColor).toLowerCase()));$('finishPolyline').hidden=s.type!=='polyline'||pending.length<2;$('gridOn').checked=s.grid;$('snapOn').checked=s.snap;$('numbersOn').checked=s.numbers;$('graphFontSize').value=s.fontSize;$('graphFontValue').textContent=s.fontSize+' px';$('graphFontBold').checked=s.fontBold;$('allPointsOn').checked=s.globalShowPoints!==false;updateHint()}
-function updateHint(){if(s.type==='polyline'){$('hint').textContent=`Lomená čára: ${pending.length} bodů. Klikáním přidávej, pak stiskni Dokončit nebo Enter.`;$('finishPolyline').hidden=pending.length<2;$('undoBtn').disabled=!s.curves.length&&!pending.length;$('clearBtn').disabled=!s.curves.length&&!pending.length;return}if(s.type==='select'){$('hint').textContent=selected.size?`Vybráno: ${selected.size}. Barvu, čáru, popisek a rozsah uprav dole. Delete smaže.`:'Myš: tažením volné plochy posouváš graf; kliknutím na křivku ji vybereš.';$('undoBtn').disabled=!s.curves.length&&!pending.length;$('clearBtn').disabled=!s.curves.length&&!pending.length;return}if(s.type==='formula'){$('hint').textContent='Předpis funkce vložíš tlačítkem ＋ Zadat předpis.';$('undoBtn').disabled=!s.curves.length&&!pending.length;$('clearBtn').disabled=!s.curves.length&&!pending.length;return}const remain=tool().n-pending.length;let text;if(!pending.length)text=`${tool().name}: ${tool().n} body. ${s.type==='line'?'Můžeš i táhnout myší.':'Klikni do mřížky.'}`;else text=`${tool().name}: vyber ještě ${remain} ${remain===1?'bod':remain<5?'body':'bodů'} (Esc ruší).`;$('hint').textContent=text;$('undoBtn').disabled=!s.curves.length&&!pending.length;$('clearBtn').disabled=!s.curves.length&&!pending.length}
-function changeZoom(factor){
+function updateHint(){if(s.type==='polyline'){$('hint').textContent=`Lomená čára: ${pending.length} bodů. Klikáním přidávej, pak stiskni Dokončit nebo Enter.`;$('finishPolyline').hidden=pending.length<2;$('undoBtn').disabled=!s.curves.length&&!pending.length;$('clearBtn').disabled=!s.curves.length&&!pending.length;return}if(s.type==='select'){$('hint').textContent=selected.size?`Vybráno: ${selected.size}. Barvu, čáru, popisek a rozsah uprav dole. Delete smaže.`:'Myš: tažením volné plochy posouváš graf; kliknutím na křivku ji vybereš.';$('undoBtn').disabled=!s.curves.length&&!pending.length;$('clearBtn').disabled=!s.curves.length&&!pending.length;return}if(s.type==='formula'){$('hint').textContent='Předpis funkce vložíš tlačítkem ＋ Zadat předpis.';$('undoBtn').disabled=!s.curves.length&&!pending.length;$('clearBtn').disabled=!s.curves.length&&!pending.length;return}const remain=tool().n-pending.length;let text;if(!pending.length)text=`${tool().name}: ${tool().n} body. ${s.type==='line'?'Můžeš i táhnout myší.':s.type==='quadratic'?'Nebo ji zkus nakreslit jedním tahem.':'Klikni do mřížky.'}`;else text=`${tool().name}: vyber ještě ${remain} ${remain===1?'bod':remain<5?'body':'bodů'} (Esc ruší).`;$('hint').textContent=text;$('undoBtn').disabled=!s.curves.length&&!pending.length;$('clearBtn').disabled=!s.curves.length&&!pending.length}
+function changeZoom(factor,mouseAnchor=null){
  if(!Number.isFinite(factor)||factor<=0)return;
+ // U kolečka zachovej souřadnice pod myší na stejném místě obrazovky.
+ const anchored=mouseAnchor&&layout?fromPixel(mouseAnchor.x,mouseAnchor.y):null;
  const oldX=s.zoomX,oldY=s.zoomY;
  const nextX=clamp(oldX*factor,10,220),nextY=clamp(oldY*factor,10,220);
  const ax=nextX/oldX,ay=nextY/oldY;
@@ -589,6 +592,7 @@ function changeZoom(factor){
  // Kolečko mění přiblížení obou směrů a přepočítává konce stejně jako dosud.
  for(const key of ['xMax','xMin'])if(s[key]!==null)s[key]=sNum(s[key]/ax);
  for(const key of ['yMax','yMin'])if(s[key]!==null)s[key]=sNum(s[key]/ay);
+ if(anchored){const L=computeLayout();s.panX=clamp((s.panX||0)+mouseAnchor.x-(L.x0+anchored.x*L.pitchX),-2000,2000);s.panY=clamp((s.panY||0)+mouseAnchor.y-(L.y0-anchored.y*L.pitchY),-2000,2000)}
  syncUI();render();save();
 }
 function lockVisibleGridBounds(exact=false){
@@ -633,7 +637,96 @@ function toPixel(x,y){return {x:layout.x0+x*layout.pitchX,y:layout.y0-y*layout.p
 function pixelToWorld(e){const r=svg.getBoundingClientRect(),x=(e.clientX-r.left)*(layout.w/r.width),y=(e.clientY-r.top)*(layout.h/r.height);return {x,y}}
 function inPlot(px,py){return px>=layout.left-1&&px<=layout.right+1&&py>=layout.top-1&&py<=layout.bottom+1}
 function activeAt(gx,gy){const eps=1e-6;return s.quads.some((v,i)=>v&&((i===0||i===3)?gx>=-eps:gx<=eps)&&((i===0||i===1)?gy>=-eps:gy<=eps))}
-function gridPoint(px,py){let p=fromPixel(px,py);if(s.snap){p.x=Math.round(p.x);p.y=Math.round(p.y)}return {x:sNum(p.x),y:sNum(p.y)}}
+// Přichytávání průsečíků má přednost před pravidelnou mřížkou.
+// Průsečíky se vypočítají z viditelných částí křivek a os pouze při změně grafu.
+function intersectionGeometry(){
+ const L=layout;if(!L||!s.curves.some(c=>c.visible!==false&&c.type!=='point'))return [];
+ const key=JSON.stringify([L.w,L.h,L.x0,L.y0,L.left,L.right,L.top,L.bottom,L.pitchX,L.pitchY,s.scaleX,s.scaleY,s.quads,s.curves.map(c=>[c.id,c.type,c.visible,c.pts,c.expr,c.params,c.range])]);
+ if(intersectionCache.key===key)return intersectionCache.points;
+ const segments=[],padding=2;
+ const add=(ax,ay,bx,by,id,kind,func=null)=>{
+  if(![ax,ay,bx,by].every(Number.isFinite)||Math.hypot(bx-ax,by-ay)<1e-7)return;
+  if(Math.max(ax,bx)<L.left-padding||Math.min(ax,bx)>L.right+padding||Math.max(ay,by)<L.top-padding||Math.min(ay,by)>L.bottom+padding)return;
+  segments.push({ax,ay,bx,by,id,kind,func});
+ };
+ // Osy se berou jako samostatné objekty. Jejich vzájemný průsečík není potřeba.
+ if(L.y0>=L.top-1&&L.y0<=L.bottom+1)add(L.left,L.y0,L.right,L.y0,'axisX','axis');
+ if(L.x0>=L.left-1&&L.x0<=L.right+1)add(L.x0,L.top,L.x0,L.bottom,'axisY','axis');
+ const spacing=5;
+ for(const c of s.curves){
+  if(c.visible===false||c.type==='point')continue;
+  if(c.type==='polyline'){
+   for(let j=1;j<c.pts.length;j++){
+    const a=c.pts[j-1],b=c.pts[j],pa=toPixel(a.x,a.y),pb=toPixel(b.x,b.y);
+    // Nástroj lomená čára umí vést linii přes hranici kvadrantů jen v jejich povolené části.
+    if(activeAt(a.x,a.y)&&activeAt(b.x,b.y))add(pa.x,pa.y,pb.x,pb.y,c.id,'polyline');
+   }continue
+  }
+  let result;try{result=fitCurve(c)}catch(e){continue}
+  if(result.vertical!==undefined){const gx=result.vertical/s.scaleX,x=L.x0+gx*L.pitchX;
+   const from=c.range?.from??(L.y0-L.bottom)/L.pitchY,to=c.range?.to??(L.y0-L.top)/L.pitchY;
+   add(x,L.y0-from*L.pitchY,x,L.y0-to*L.pitchY,c.id,'vertical');continue
+  }
+  const from=Math.max(L.left,L.x0+(c.range?.from??-1e8)*L.pitchX),to=Math.min(L.right,L.x0+(c.range?.to??1e8)*L.pitchX);
+  if(to<=from)continue;
+  let last=null;
+  const steps=Math.max(1,Math.ceil((to-from)/spacing));
+  for(let i=0;i<=steps;i++){
+   const px=from+(to-from)*i/steps,gx=(px-L.x0)/L.pitchX,wy=result.f(gx*s.scaleX),gy=wy/s.scaleY,py=L.y0-gy*L.pitchY;
+   const ok=Number.isFinite(py)&&Math.abs(py)<1e6;
+   if(ok&&last&&Math.abs(py-last.py)<L.h*.55)add(last.px,last.py,px,py,c.id,'function',result.f);
+   last=ok?{px,py}:null;
+  }
+ }
+ // Prostorový index: testují se jen úsečky ze stejných malých oblastí grafu.
+ const cell=42,buckets=new Map(),points=[];
+ const crosses=(a,b)=>{
+  const rx=a.bx-a.ax,ry=a.by-a.ay,sx=b.bx-b.ax,sy=b.by-b.ay,den=rx*sy-ry*sx;
+  if(Math.abs(den)<1e-8)return null;
+  const qx=b.ax-a.ax,qy=b.ay-a.ay,u=(qx*ry-qy*rx)/den,v=(qx*sy-qy*sx)/den;
+  if(v<-.0001||v>1.0001||u<-.0001||u>1.0001)return null;
+  let px=a.ax+v*rx,py=a.ay+v*ry;
+  // Přesnost při protnutí dvou funkcí / funkce a osy zpřesní bisekce.
+  const f=a.kind==='function'?a.func:a.kind==='axis'&&a.id==='axisX'?(()=>0):null;
+  const g=b.kind==='function'?b.func:b.kind==='axis'&&b.id==='axisX'?(()=>0):null;
+  if(f&&g){
+   let xa=Math.max(Math.min(a.ax,a.bx),Math.min(b.ax,b.bx)),xb=Math.min(Math.max(a.ax,a.bx),Math.max(b.ax,b.bx));
+   const diff=x=>{const wx=(x-L.x0)/L.pitchX*s.scaleX;return (f(wx)-g(wx))/s.scaleY};
+   let fa=diff(xa),fb=diff(xb);
+   if(Number.isFinite(fa)&&Number.isFinite(fb)&&fa*fb<=0){for(let i=0;i<26;i++){const mid=(xa+xb)/2,fm=diff(mid);if(!Number.isFinite(fm))break;if(fa*fm<=0){xb=mid;fb=fm}else{xa=mid;fa=fm}}px=(xa+xb)/2;py=L.y0-f((px-L.x0)/L.pitchX*s.scaleX)/s.scaleY*L.pitchY}
+  }
+  if(px<L.left-1||px>L.right+1||py<L.top-1||py>L.bottom+1)return null;
+  const world=fromPixel(px,py);if(!activeAt(world.x,world.y))return null;
+  return {x:sNum(world.x),y:sNum(world.y),px,py};
+ };
+ for(let i=0;i<segments.length;i++){
+  const a=segments[i],ix0=Math.floor(Math.max(0,Math.min(a.ax,a.bx))/cell),ix1=Math.floor(Math.min(L.w,Math.max(a.ax,a.bx))/cell),iy0=Math.floor(Math.max(0,Math.min(a.ay,a.by))/cell),iy1=Math.floor(Math.min(L.h,Math.max(a.ay,a.by))/cell);
+  if(ix1<ix0||iy1<iy0)continue;
+  const inspected=new Set();
+  for(let ix=ix0;ix<=ix1;ix++)for(let iy=iy0;iy<=iy1;iy++){
+   const key=ix+','+iy,items=buckets.get(key)||[];
+   for(const j of items){if(inspected.has(j))continue;inspected.add(j);const b=segments[j];if(a.id===b.id||a.kind==='axis'&&b.kind==='axis')continue;
+    const hit=crosses(a,b);if(hit&&!points.some(p=>Math.hypot(p.px-hit.px,p.py-hit.py)<1.5))points.push(hit);
+   }
+   if(!buckets.has(key))buckets.set(key,[]);buckets.get(key).push(i);
+  }
+ }
+ intersectionCache={key,points};return points;
+}
+function nearbyIntersection(px,py){
+ if(!s.curves.some(c=>c.visible!==false&&c.type!=='point'))return null;
+ let closest=null,min=17*17;
+ for(const hit of intersectionGeometry()){
+  const d=(hit.px-px)**2+(hit.py-py)**2;
+  if(d<min){closest=hit;min=d}
+ }return closest;
+}
+function gridPoint(px,py){
+ if(s.type!=='select'||drag?.kind==='point'){
+  const hit=nearbyIntersection(px,py);if(hit)return {x:hit.x,y:hit.y};
+ }
+ let p=fromPixel(px,py);if(s.snap){p.x=Math.round(p.x);p.y=Math.round(p.y)}return {x:sNum(p.x),y:sNum(p.y)}
+}
 function line(x1,y1,x2,y2,stroke,width=1,extra=''){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${width}" ${extra}/>`}
 function rect(x,y,w,h,fill,extra=''){return `<rect x="${x}" y="${y}" width="${Math.max(0,w)}" height="${Math.max(0,h)}" fill="${fill}" ${extra}/>`}
 function circle(x,y,r,fill,extra=''){return `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" ${extra}/>`}
@@ -644,6 +737,7 @@ html+=rect(0,0,L.w,L.h,'#fff');html+=rect(L.left,L.top,L.right-L.left,L.bottom-L
 if(s.grid){html+='<g clip-path="url(#activeClip)">';const xlo=Math.ceil((L.left-L.x0)/L.pitchX),xhi=Math.floor((L.right-L.x0)/L.pitchX),ylo=Math.ceil((L.y0-L.bottom)/L.pitchY),yhi=Math.floor((L.y0-L.top)/L.pitchY);for(let i=xlo,step=Math.max(1,Math.ceil((xhi-xlo)/450));i<=xhi;i+=step){const x=L.x0+i*L.pitchX;html+=line(x,L.top,x,L.bottom,i===0?'#b2bfd2':'#e5eaf2',i===0?1.2:1)}for(let j=ylo,step=Math.max(1,Math.ceil((yhi-ylo)/450));j<=yhi;j+=step){const y=L.y0-j*L.pitchY;html+=line(L.left,y,L.right,y,j===0?'#b2bfd2':'#e5eaf2',j===0?1.2:1)}html+='</g>'}
 html+='<g clip-path="url(#areaClip)">';for(const c of s.curves){if(c.visible===false)continue;try{const result=fitCurve(c);html+=drawCurve(result,c)}catch(e){}}
 if(pending.length&&preview){if(s.type==='polyline'){const pp=pending.concat(preview);html+=`<path d="${pp.map((p,i)=>{const q=toPixel(p.x,p.y);return `${i?'L':'M'}${q.x},${q.y}`}).join(' ')}" fill="none" stroke="${s.drawColor}" stroke-width="2" stroke-dasharray="6 5" opacity=".65"/>`}else if(s.type==='line'&&pending.length===1){const a=toPixel(pending[0].x,pending[0].y),b=toPixel(preview.x,preview.y);html+=line(a.x,a.y,b.x,b.y,'#5278e9',2,'stroke-dasharray="6 5" opacity=".55"')}else if(pending.length>1){let path=pending.concat(preview).map((p,i)=>{const q=toPixel(p.x,p.y);return `${i?'L':'M'}${q.x},${q.y}`}).join(' ');html+=`<path d="${path}" fill="none" stroke="#5278e9" stroke-dasharray="5 5" stroke-width="1.8" opacity=".52"/>`}}
+if(drag?.kind==='draw'&&drag.quadSketch&&drag.sketch?.length>1){const d=drag.sketch.map((p,i)=>`${i?'L':'M'}${p.px.toFixed(1)} ${p.py.toFixed(1)}`).join(' ');html+=`<path d="${d}" fill="none" stroke="${s.drawColor}" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 4" opacity=".72" pointer-events="none"/>`}
 html+='</g>';
 // Osy jsou záměrně vykresleny i při vypnuté mřížce.
 html+=line(L.left,L.y0,L.right+13,L.y0,'#1f304c',2.2,'stroke-linecap="round"');html+=`<path d="M ${L.right+14} ${L.y0} l -9 -5 v 10 z" fill="#1f304c"/>`;
@@ -667,8 +761,11 @@ if(s.type==='select'){for(const c of getSelected()){if(c.visible===false||!c.ran
 // Body kreslíme navrch, aby byly vždy uchopitelné prstem i myší.
 for(const c of s.curves){if(c.visible===false||c.type==='formula')continue;for(let i=0;i<c.pts.length;i++){if(c.showPoints===false&&c.type!=='point')continue;const p=toPixel(c.pts[i].x,c.pts[i].y);if(!inPlot(p.x,p.y))continue;html+=circle(p.x,p.y,10,'transparent',`data-point-id="${c.id}" data-index="${i}"`);if(c.type!=='point')html+=mark(c,p.x,p.y);}}
 for(const p0 of pending){const p=toPixel(p0.x,p0.y);html+=mark({color:'#5278e9',pointStyle:'x',width:2.5},p.x,p.y)}
+if(intersectionHover&&s.type!=='select'&&inPlot(intersectionHover.px,intersectionHover.py))html+=`<g pointer-events="none"><circle cx="${intersectionHover.px}" cy="${intersectionHover.py}" r="9" stroke="#f4a340" stroke-width="3" fill="#fff" fill-opacity=".78"/><circle cx="${intersectionHover.px}" cy="${intersectionHover.py}" r="2.5" fill="#dd8032"/><title>Průsečík (${fmt(intersectionHover.x*s.scaleX,4)}; ${fmt(intersectionHover.y*s.scaleY,4)})</title></g>`;
 if(preview&&s.snap&&activeAt(preview.x,preview.y)&&s.type!=='select'){const p=toPixel(preview.x,preview.y);if(inPlot(p.x,p.y))html+=`<path d="M${p.x-6} ${p.y}h12 M${p.x} ${p.y-6}v12" stroke="#4b73d6" stroke-width="1.2" opacity=".57" pointer-events="none"/>`}
 html+=drawGridEdgeHandles();
+// Popisky jsou nad všemi křivkami a mimo ořez mřížky, aby se daly volně přesouvat.
+for(const c of s.curves){if(c.visible===false||!c.label)continue;try{html+=curveAnnotation(c,fitCurve(c))}catch(e){}}
 svg.innerHTML=html;svg.classList.toggle('pan-ready',s.type==='select'&&!selected.size&&!drag);svg.classList.toggle('pan-active',drag?.kind==='pan');if(!skipList)renderList();renderInspector();updateHint()}
 function drawGridEdgeHandles(){
  const L=layout;let out='';
@@ -687,7 +784,14 @@ function drawGridEdgeHandles(){
 }
 
 function mark(c,x,y){const sty=c.pointStyle||'x',r=5.5,w=Math.max(2,Math.min(4,c.width||3)),color=c.color||'#365fdb';let d=sty==='plus'?`M${x-r} ${y}H${x+r} M${x} ${y-r}V${y+r}`:sty==='slash'?`M${x-r} ${y+r}L${x+r} ${y-r}`:sty==='dash'?`M${x-r} ${y}H${x+r}`:sty==='bar'?`M${x} ${y-r}V${y+r}`:`M${x-r} ${y-r}L${x+r} ${y+r} M${x-r} ${y+r}L${x+r} ${y-r}`;if(sty==='circle')return circle(x,y,r,'white',`stroke="${color}" stroke-width="${w}" pointer-events="none"`);return `<path d="${d}" fill="none" stroke="white" stroke-width="${w+2.4}" stroke-linecap="round" pointer-events="none"/><path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round" pointer-events="none"/>`}
-function simpleLabel(c,x,y){if(!c.label||!inPlot(x,y))return '';const name=c.label.slice(0,70),fs=s.fontSize||12,h=fs+13,w=clamp(name.length*fs*.62+16,35,Math.min(380,layout.w-15)),bx=clamp(x+10,5,layout.w-w-5),by=clamp(y-h-7,5,layout.h-h-4);return `<g class="curve-annotation" pointer-events="none">${rect(bx,by,w,h,'#fff',`rx="6" stroke="${c.color}" stroke-opacity=".35"`)}<text x="${bx+7}" y="${by+fs+4}" fill="${c.color}" font-size="${fs}" font-weight="${s.fontBold?'750':'500'}"${name.length*fs*.62+16>w?` textLength="${w-14}" lengthAdjust="spacingAndGlyphs"`:''}>${esc(name)}</text></g>`}
+function movableAnnotation(c,bx,by,w,h,txt){
+ const off=c.labelOffset||{x:0,y:0},L=layout;
+ const x=clamp(bx+off.x,4,Math.max(4,L.w-w-4)),y=clamp(by+off.y,4,Math.max(4,L.h-h-4));
+ const size=s.fontSize||12,color=c.color||'#365fdb';
+ return `<g class="curve-annotation" data-curve-label="${c.id}" style="cursor:move;touch-action:none"><title>Tažením přesuň popisek funkce</title><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#fff" fill-opacity=".95" stroke="${color}" stroke-opacity=".28" pointer-events="none"/><text x="${x+7}" y="${y+size+4}" fill="${color}" font-size="${size}" font-family="Inter,system-ui,Arial,sans-serif" font-weight="${s.fontBold?'750':'500'}" pointer-events="none"${txt.length*size*.62+16>w?` textLength="${w-14}" lengthAdjust="spacingAndGlyphs"`:''}>${esc(txt)}</text><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="transparent" pointer-events="all" data-label-hit="${c.id}"/></g>`;
+}
+function simpleLabel(c,x,y){if(!c.label||!inPlot(x,y))return '';const name=c.label.slice(0,70),fs=s.fontSize||12,h=fs+13,w=clamp(name.length*fs*.62+16,35,Math.min(380,layout.w-15)),bx=clamp(x+10,5,layout.w-w-5),by=clamp(y-h-7,5,layout.h-h-4);return movableAnnotation(c,bx,by,w,h,name)}
+function curveAnnotation(c,result){if(c.type==='point'||c.type==='polyline'){const p=c.pts[c.type==='point'?0:c.pts.length-1],q=toPixel(p.x,p.y);return simpleLabel(c,q.x,q.y)}return curveLabel(c,result)}
 function dashArray(c){switch(c.dash){case 'dash':return '11 7';case 'dot':return '1 7';case 'dashdot':return '12 5 2 5';default:return ''}}
 function strokePath(d,c,clip='activeClip'){
  const color=c.color||'#365fdb',width=clamp(Number(c.width)||3,1,12),dash=dashArray(c),extra=dash?` stroke-dasharray="${dash}"`:'';
@@ -696,16 +800,19 @@ function strokePath(d,c,clip='activeClip'){
  if(s.type==='select')out+=`<path d="${d}" fill="none" stroke="transparent" stroke-width="${Math.max(17,width+12)}" stroke-linecap="round" clip-path="url(#${clip})" data-curve-id="${c.id}" style="cursor:pointer" pointer-events="stroke"/>`;
  return out
 }
-function curveLabel(c,result){if(!c.label)return '';const L=layout,vertical=result.vertical!==undefined;let px,py;if(vertical){px=L.x0+result.vertical/s.scaleX*L.pitchX;const lo=c.range?.from??(L.y0-L.bottom)/L.pitchY,hi=c.range?.to??(L.y0-L.top)/L.pitchY;const mid=clamp((lo+hi)/2,(L.y0-L.bottom)/L.pitchY,(L.y0-L.top)/L.pitchY);py=L.y0-mid*L.pitchY}else{const min=(L.left-L.x0)/L.pitchX,max=(L.right-L.x0)/L.pitchX;const lo=Math.max(min,c.range?.from??min),hi=Math.min(max,c.range?.to??max);if(!(hi>=lo))return '';let found=false;for(let t=.8;t>=0;t-=.1){const gx=lo+(hi-lo)*t,wx=gx*s.scaleX,wy=result.f(wx);if(Number.isFinite(wy)){let gy=wy/s.scaleY;if(gy>=(L.y0-L.bottom)/L.pitchY&&gy<=(L.y0-L.top)/L.pitchY&&activeAt(gx,gy)){px=L.x0+gx*L.pitchX;py=L.y0-gy*L.pitchY;found=true;break}}}if(!found)return ''}
- if(!inPlot(px,py)||!activeAt((px-L.x0)/L.pitchX,(L.y0-py)/L.pitchY))return '';
- const size=s.fontSize||12,h=size+13,txt=c.label.slice(0,70),w=clamp(txt.length*size*.62+16,35,Math.min(380,L.w-16));const bx=clamp(px+9,7,L.w-w-7),by=clamp(py-h-7,5,L.h-h-4);return `<g class="curve-annotation" pointer-events="none"><rect x="${bx}" y="${by}" width="${w}" height="${h}" rx="6" fill="white" opacity=".94" stroke="${c.color||'#365fdb'}" stroke-opacity=".28"/><text x="${bx+7}" y="${by+size+4}" fill="${c.color||'#365fdb'}" font-size="${size}" font-family="Inter,system-ui,Arial,sans-serif" font-weight="${s.fontBold?'750':'500'}"${txt.length*size*.62+16>w?` textLength="${w-14}" lengthAdjust="spacingAndGlyphs"`:''}>${esc(txt)}</text></g>`;
+function curveLabel(c,result){if(!c.label)return '';const L=layout,vertical=result.vertical!==undefined;let px,py;
+ if(vertical){px=L.x0+result.vertical/s.scaleX*L.pitchX;const lo=c.range?.from??(L.y0-L.bottom)/L.pitchY,hi=c.range?.to??(L.y0-L.top)/L.pitchY;py=L.y0-clamp((lo+hi)/2,(L.y0-L.bottom)/L.pitchY,(L.y0-L.top)/L.pitchY)*L.pitchY}
+ else{const min=(L.left-L.x0)/L.pitchX,max=(L.right-L.x0)/L.pitchX,lo=Math.max(min,c.range?.from??min),hi=Math.min(max,c.range?.to??max);if(!(hi>=lo))return '';let found=false;
+  for(let t=.8;t>=-.001;t-=.1){const gx=lo+(hi-lo)*t,wy=result.f(gx*s.scaleX),gy=wy/s.scaleY;if(Number.isFinite(gy)&&gy>=(L.y0-L.bottom)/L.pitchY&&gy<=(L.y0-L.top)/L.pitchY&&activeAt(gx,gy)){px=L.x0+gx*L.pitchX;py=L.y0-gy*L.pitchY;found=true;break}}if(!found)return ''}
+ if(!inPlot(px,py))return '';const size=s.fontSize||12,h=size+13,txt=c.label.slice(0,70),w=clamp(txt.length*size*.62+16,35,Math.min(380,L.w-16)),bx=clamp(px+9,7,L.w-w-7),by=clamp(py-h-7,5,L.h-h-4);
+ return movableAnnotation(c,bx,by,w,h,txt);
 }
 function drawCurve(result,c){const L=layout;let path='';
- if(c.type==='point'){const p=toPixel(c.pts[0].x,c.pts[0].y);return inPlot(p.x,p.y)&&activeAt(c.pts[0].x,c.pts[0].y)?mark(c,p.x,p.y)+simpleLabel(c,p.x,p.y):''}
- if(c.type==='polyline'){let connected=false;for(const pt of c.pts){const p=toPixel(pt.x,pt.y);if(!activeAt(pt.x,pt.y)){connected=false;continue}path+=`${connected?'L':'M'}${p.x.toFixed(2)},${p.y.toFixed(2)} `;connected=true}const last=c.pts[c.pts.length-1],p=toPixel(last.x,last.y);return strokePath(path,c)+simpleLabel(c,p.x,p.y)}if(result.vertical!==undefined){const gx=result.vertical/s.scaleX,x=L.x0+gx*L.pitchX;if(x<L.left||x>L.right)return '';const low=c.range?.from??(L.y0-L.bottom)/L.pitchY,high=c.range?.to??(L.y0-L.top)/L.pitchY;const y1=L.y0-low*L.pitchY,y2=L.y0-high*L.pitchY;path=`M${x.toFixed(2)},${y1.toFixed(2)} L${x.toFixed(2)},${y2.toFixed(2)}`;return strokePath(path,c)+curveLabel(c,result)}
+ if(c.type==='point'){const p=toPixel(c.pts[0].x,c.pts[0].y);return inPlot(p.x,p.y)&&activeAt(c.pts[0].x,c.pts[0].y)?mark(c,p.x,p.y):''}
+ if(c.type==='polyline'){let connected=false;for(const pt of c.pts){const p=toPixel(pt.x,pt.y);if(!activeAt(pt.x,pt.y)){connected=false;continue}path+=`${connected?'L':'M'}${p.x.toFixed(2)},${p.y.toFixed(2)} `;connected=true}const last=c.pts[c.pts.length-1],p=toPixel(last.x,last.y);return strokePath(path,c)}if(result.vertical!==undefined){const gx=result.vertical/s.scaleX,x=L.x0+gx*L.pitchX;if(x<L.left||x>L.right)return '';const low=c.range?.from??(L.y0-L.bottom)/L.pitchY,high=c.range?.to??(L.y0-L.top)/L.pitchY;const y1=L.y0-low*L.pitchY,y2=L.y0-high*L.pitchY;path=`M${x.toFixed(2)},${y1.toFixed(2)} L${x.toFixed(2)},${y2.toFixed(2)}`;return strokePath(path,c)}
  const from=Math.max(L.left,L.x0+(c.range?.from??-1e8)*L.pitchX),to=Math.min(L.right,L.x0+(c.range?.to??1e8)*L.pitchX);if(from>to)return '';let started=false,lastPxY=0;const step=2.6;for(let px=from;px<=to+.01;px+=step){if(px>to)px=to;const gx=(px-L.x0)/L.pitchX,wx=gx*s.scaleX,fy=result.f(wx);const gy=fy/s.scaleY,py=L.y0-gy*L.pitchY;const valid=Number.isFinite(py)&&py>=L.top&&py<=L.bottom&&activeAt(gx,gy);
  if(!valid||started&&Math.abs(py-lastPxY)>L.h*.65){started=false}else if(!started){path+=`M${px.toFixed(2)},${py.toFixed(2)}`;started=true}else{path+=`L${px.toFixed(2)},${py.toFixed(2)}`}lastPxY=py;if(px===to)break}
- return (path?strokePath(path,c):'')+curveLabel(c,result)}
+ return path?strokePath(path,c):''}
 function rangeMarker(c){const L=layout,vertical=rangeIsY(c);let out='';for(const side of ['from','to']){const v=c.range[side],u=vertical?L.y0-v*L.pitchY:L.x0+v*L.pitchX;if(vertical&&(u<L.top||u>L.bottom)||!vertical&&(u<L.left||u>L.right))continue;
  if(vertical){out+=line(L.left,u,L.right,u,'#d98e1d',1.2,'stroke-dasharray="4 6" opacity=".55" pointer-events="none"');out+=`<rect x="${L.left+3}" y="${u-8}" width="20" height="16" rx="5" fill="#f8ac2b" stroke="#fff" stroke-width="2" data-range-handle="${side}" data-range-id="${c.id}" style="cursor:ns-resize"/>`}
  else{out+=line(u,L.top,u,L.bottom,'#d98e1d',1.2,'stroke-dasharray="4 6" opacity=".55" pointer-events="none"');out+=`<rect x="${u-10}" y="${L.top+2}" width="20" height="17" rx="5" fill="#f8ac2b" stroke="#fff" stroke-width="2" data-range-handle="${side}" data-range-id="${c.id}" style="cursor:ew-resize"/>`}
@@ -725,11 +832,30 @@ function createCurve(type,pts){const c={id:s.nextId,type,pts:pts.map(p=>({...p})
 function createFormulaCurve(expr){const c={id:s.nextId,type:'formula',pts:[],expr:String(expr||'').trim(),color:s.drawColor||colors[0],visible:true,dash:'solid',width:3,label:'',range:null,autoRange:false,pointStyle:'x',showPoints:s.globalShowPoints!==false,params:{}};const result=fitCurve(c);c.params=normalizedParams(result.paramNames);++s.nextId;s.curves.push(c);selected.clear();render();save();return true}
 function tryFinish(){if(s.type==='polyline'||pending.length!==tool().n)return;if(createCurve(s.type,pending)){pending=[];preview=null;render()}else pending.pop()}
 function finishPolyline(){if(s.type!=='polyline'||pending.length<2){notify('Lomená čára potřebuje alespoň dva body.');return}if(createCurve('polyline',pending)){pending=[];preview=null;syncUI();render()}}
+// Nejmenší čtverce: čára nakreslená jedním tahem se proloží parabolou y = a x² + b x + c.
+// Souřadnice x nejprve normalizujeme, aby výpočet fungoval i pro malé výřezy a velká měřítka.
+function fitQuadraticSketch(samples){
+ if(!Array.isArray(samples)||samples.length<7)throw Error('Nakresli delší část paraboly jedním tahem.');
+ const p=samples.filter(v=>Number.isFinite(v.x)&&Number.isFinite(v.y));const xs=p.map(v=>v.x),mn=Math.min(...xs),mx=Math.max(...xs),span=mx-mn;
+ if(span*layout.pitchX<28)throw Error('Pro rozpoznání paraboly potřebuje kresba větší šířku na ose X.');
+ let distance=0;for(let i=1;i<samples.length;i++)distance+=Math.hypot(samples[i].px-samples[i-1].px,samples[i].py-samples[i-1].py);
+ if(distance<65)throw Error('Načrtni delší část paraboly.');
+ const center=(mn+mx)/2,half=span/2;
+ let s0=0,s1=0,s2=0,s3=0,s4=0,t0=0,t1=0,t2=0;
+ for(const v of p){const u=(v.x-center)/half,u2=u*u;s0++;s1+=u;s2+=u2;s3+=u2*u;s4+=u2*u2;t0+=v.y;t1+=u*v.y;t2+=u2*v.y}
+ const [c,b,a]=solve([[s0,s1,s2],[s1,s2,s3],[s2,s3,s4]],[t0,t1,t2]);
+ if(![a,b,c].every(Number.isFinite))throw Error('Z tohoto tahu nešlo určit parabolu.');
+ return [-1,0,1].map(u=>({x:sNum(center+half*u),y:sNum(a*u*u+b*u+c)}));
+}
+function finishQuadraticSketch(samples){
+ try{const pts=fitQuadraticSketch(samples);if(createCurve('quadratic',pts)){const curve=s.curves[s.curves.length-1];curve.showPoints=false;render();save();notify('Náčrt byl nahrazen kvadratickou funkcí.')} }catch(e){notify(e.message,5000);render()}
+}
 function addPoint(p){if(!activeAt(p.x,p.y)){notify('Bod je mimo zapnuté kvadranty.');return}pending.push(p);tryFinish();render()}
 function undo(){if(pending.length)pending.pop();else if(s.curves.length){const rem=s.curves.pop();selected.delete(rem.id)}preview=null;render();syncUI();save()}
 function showCoords(p){$('coords').textContent=`x: ${fmt(p.x*s.scaleX,4)} · y: ${fmt(p.y*s.scaleY,4)}`}
 
 function onDown(e){if(e.button!==0&&e.pointerType!=='touch')return;
+ const curveLabelTarget=e.target.closest('[data-curve-label]');if(curveLabelTarget){const c=s.curves.find(c=>String(c.id)===curveLabelTarget.dataset.curveLabel);if(c){drag={kind:'curve-label',pointerId:e.pointerId,id:c.id,startX:e.clientX,startY:e.clientY,old:{...(c.labelOffset||{x:0,y:0})},moved:false};svg.setPointerCapture(e.pointerId);e.preventDefault()}return}
  const edit=e.target.closest('[data-edit]');if(edit){if(edit.dataset.edit==='axis'){drag={kind:'axis-label',pointerId:e.pointerId,axis:edit.dataset.axis,startX:e.clientX,startY:e.clientY,old:{...(s.axisLabelOffsets[edit.dataset.axis]||{x:0,y:0})},moved:false};svg.setPointerCapture(e.pointerId);e.preventDefault();return}e.preventDefault();beginEdit(edit);return}
  const edge=e.target.closest('[data-grid-edge]');if(edge){
   const key=edge.dataset.gridEdge,L=layout;
@@ -750,20 +876,24 @@ function onDown(e){if(e.button!==0&&e.pointerType!=='touch')return;
  const curve=e.target.closest('[data-curve-id]');if(curve&&s.type==='select'){selectCurve(Number(curve.dataset.curveId),e.ctrlKey||e.metaKey||e.shiftKey);e.preventDefault();return}
  if(s.type==='select'){if(!(e.ctrlKey||e.metaKey||e.shiftKey)){if(selected.size){selected.clear();render()}else{drag={kind:'pan',pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,oldX:s.panX||0,oldY:s.panY||0};svg.setPointerCapture(e.pointerId);e.preventDefault()}}return}
  if(s.type==='formula'){s.type='select';syncUI();render();save();return}
- const pt=pixelToWorld(e);if(!inPlot(pt.x,pt.y))return;const p=gridPoint(pt.x,pt.y);if(!activeAt(p.x,p.y)){notify('Tento kvadrant není zapnutý.');return}drag={kind:'draw',pointerId:e.pointerId,start:p,initial:{x:e.clientX,y:e.clientY},moved:false};svg.setPointerCapture(e.pointerId);e.preventDefault()}
-function onMove(e){const px=pixelToWorld(e);if(inPlot(px.x,px.y))showCoords(gridPoint(px.x,px.y));
- if(drag&&drag.pointerId===e.pointerId){if(drag.kind==='pan'){const k=layout.w/svg.getBoundingClientRect().width;s.panX=clamp(drag.oldX+(e.clientX-drag.startX)*k,-2000,2000);s.panY=clamp(drag.oldY+(e.clientY-drag.startY)*k,-2000,2000);render();return}if(drag.kind==='axis-label'){const k=layout.w/svg.getBoundingClientRect().width,dx=(e.clientX-drag.startX)*k,dy=(e.clientY-drag.startY)*k;drag.moved=drag.moved||Math.hypot(dx,dy)>5;if(drag.moved){s.axisLabelOffsets[drag.axis]={x:clamp(drag.old.x+dx,-1600,1600),y:clamp(drag.old.y+dy,-1600,1600)};render()}return}if(drag.kind==='axis'){const L=layout,key=drag.key,base=key==='xMax'||key==='xMin'?(px.x-L.x0)/drag.pitch*s.scaleX:(L.y0-px.y)/drag.pitch*s.scaleY;const unit=key.startsWith('x')?s.scaleX:s.scaleY;const raw=key.endsWith('Max')?Math.max(unit*.25,base):Math.min(-unit*.25,base);let step=key.startsWith('x')?s.scaleX:s.scaleY;let val=Math.round(raw/step)*step;if(key.endsWith('Max'))val=Math.max(step*.5,val);else val=Math.min(-step*.5,val);s[key]=sNum(val);render();syncUI();return}if(drag.kind==='grid-edge'){
+ const pt=pixelToWorld(e);if(!inPlot(pt.x,pt.y))return;const p=gridPoint(pt.x,pt.y);if(!activeAt(p.x,p.y)){notify('Tento kvadrant není zapnutý.');return}drag={kind:'draw',pointerId:e.pointerId,start:p,initial:{x:e.clientX,y:e.clientY},moved:false,sketch:s.type==='quadratic'&&!pending.length?[{...fromPixel(pt.x,pt.y),px:pt.x,py:pt.y}]:null,quadSketch:false};svg.setPointerCapture(e.pointerId);e.preventDefault()}
+function onMove(e){const px=pixelToWorld(e);
+ if(s.type!=='select'&&inPlot(px.x,px.y)&&drag?.kind!=='grid-edge'&&drag?.kind!=='axis'){const hit=nearbyIntersection(px.x,px.y);intersectionHover=hit?{...hit}:null}else intersectionHover=null;
+ if(inPlot(px.x,px.y))showCoords(gridPoint(px.x,px.y));
+ if(drag&&drag.pointerId===e.pointerId){if(drag.kind==='pan'){const k=layout.w/svg.getBoundingClientRect().width;s.panX=clamp(drag.oldX+(e.clientX-drag.startX)*k,-2000,2000);s.panY=clamp(drag.oldY+(e.clientY-drag.startY)*k,-2000,2000);render();return}if(drag.kind==='curve-label'){const c=s.curves.find(c=>c.id===drag.id);if(!c)return;const k=layout.w/svg.getBoundingClientRect().width,dx=(e.clientX-drag.startX)*k,dy=(e.clientY-drag.startY)*k;drag.moved=drag.moved||Math.hypot(dx,dy)>4;if(drag.moved){c.labelOffset={x:clamp(drag.old.x+dx,-2000,2000),y:clamp(drag.old.y+dy,-2000,2000)};render({skipList:true})}return}if(drag.kind==='axis-label'){const k=layout.w/svg.getBoundingClientRect().width,dx=(e.clientX-drag.startX)*k,dy=(e.clientY-drag.startY)*k;drag.moved=drag.moved||Math.hypot(dx,dy)>5;if(drag.moved){s.axisLabelOffsets[drag.axis]={x:clamp(drag.old.x+dx,-1600,1600),y:clamp(drag.old.y+dy,-1600,1600)};render()}return}if(drag.kind==='axis'){const L=layout,key=drag.key,base=key==='xMax'||key==='xMin'?(px.x-L.x0)/drag.pitch*s.scaleX:(L.y0-px.y)/drag.pitch*s.scaleY;const unit=key.startsWith('x')?s.scaleX:s.scaleY;const raw=key.endsWith('Max')?Math.max(unit*.25,base):Math.min(-unit*.25,base);let step=key.startsWith('x')?s.scaleX:s.scaleY;let val=Math.round(raw/step)*step;if(key.endsWith('Max'))val=Math.max(step*.5,val);else val=Math.min(-step*.5,val);s[key]=sNum(val);render();syncUI();return}if(drag.kind==='grid-edge'){
   const pos=drag.key.startsWith('x')?px.x:px.y;
   const requested=drag.startPitch+(pos-drag.startPosition)*drag.sign/drag.divisions;
   if(drag.key.startsWith('x'))s.zoomX=clamp(requested,10,220);else s.zoomY=clamp(requested,10,220);s.zoom=s.zoomX;
   render();syncUI();return
  }if(drag.kind==='range'){const c=s.curves.find(c=>c.id===drag.id);if(!c||!c.range)return;const p=gridPoint(px.x,px.y),value=rangeIsY(c)?p.y:p.x;const r={...c.range,[drag.side]:value};if(validRange(r)){c.range=r;c.autoRange=false;render()}return}
  if(drag.kind==='point'){const c=s.curves.find(c=>c.id===drag.id);if(!c)return;drag.moved=drag.moved||Math.hypot(e.clientX-drag.initial.x,e.clientY-drag.initial.y)>6;if(drag.moved&&inPlot(px.x,px.y)){const p=gridPoint(px.x,px.y);if(activeAt(p.x,p.y)){c.pts[drag.index]=p;updateAutoRange(c);render()}}return}
- if(drag.kind==='draw'){drag.moved=Math.hypot(e.clientX-drag.initial.x,e.clientY-drag.initial.y)>7;if(inPlot(px.x,px.y)){const p=gridPoint(px.x,px.y);if(activeAt(p.x,p.y))preview=p}render();return}}
- if(preview){preview=null;render()}}
+ if(drag.kind==='draw'){drag.moved=Math.hypot(e.clientX-drag.initial.x,e.clientY-drag.initial.y)>7;if(drag.sketch){if(Math.hypot(e.clientX-drag.initial.x,e.clientY-drag.initial.y)>14)drag.quadSketch=true;if(drag.quadSketch&&inPlot(px.x,px.y)){const last=drag.sketch[drag.sketch.length-1];if(drag.sketch.length<500&&Math.hypot(px.x-last.px,px.y-last.py)>3.5)drag.sketch.push({...fromPixel(px.x,px.y),px:px.x,py:px.y})}if(drag.quadSketch){render({skipList:true});return}}if(inPlot(px.x,px.y)){const p=gridPoint(px.x,px.y);if(activeAt(p.x,p.y))preview=p}render();return}}
+ if(preview){preview=null;render();return}
+ if(s.type!=='select')render({skipList:true})}
 function onUp(e){if(!drag||drag.pointerId!==e.pointerId)return;const d=drag;drag=null;
- if(d.kind==='pan'){render();save();return}if(d.kind==='axis-label'){if(!d.moved){const el=svg.querySelector(`[data-edit="axis"][data-axis="${d.axis}"]`);if(el)beginEdit(el)}else{render();save()}return}if(d.kind==='axis'||d.kind==='grid-edge'){syncUI();render();save();return}if(d.kind==='range'){render();save();return}
+ if(d.kind==='curve-label'){if(!d.moved&&s.type==='select')selectCurve(d.id,e.ctrlKey||e.metaKey||e.shiftKey);else{render();save()}return}if(d.kind==='pan'){render();save();return}if(d.kind==='axis-label'){if(!d.moved){const el=svg.querySelector(`[data-edit="axis"][data-axis="${d.axis}"]`);if(el)beginEdit(el)}else{render();save()}return}if(d.kind==='axis'||d.kind==='grid-edge'){syncUI();render();save();return}if(d.kind==='range'){render();save();return}
  if(d.kind==='point'){const c=s.curves.find(c=>c.id===d.id);if(c){if(!d.moved){if(s.type==='select')selectCurve(c.id,e.ctrlKey||e.metaKey||e.shiftKey);else addPoint(d.old);return}try{fitCurve(c)}catch(err){c.pts[d.index]=d.old;c.range=d.oldRange;notify('Bod nelze přesunout: '+err.message,4700)}render();save()}return}
+ if(d.kind==='draw'&&d.quadSketch){const end=pixelToWorld(e);if(inPlot(end.x,end.y)){const last=d.sketch[d.sketch.length-1];if(Math.hypot(end.x-last.px,end.y-last.py)>1)d.sketch.push({...fromPixel(end.x,end.y),px:end.x,py:end.y})}preview=null;finishQuadraticSketch(d.sketch);return}
  const end=pixelToWorld(e);if(!inPlot(end.x,end.y))return;const p=gridPoint(end.x,end.y);if(!activeAt(p.x,p.y))return;
  if(s.type==='line'&&d.moved&&pending.length===0){if(Math.hypot(d.start.x-p.x,d.start.y-p.y)<1e-10){addPoint(d.start)}else{pending=[d.start,p];tryFinish();render()}return}addPoint(p)}
 function beginEdit(target){const kind=target.getAttribute('data-edit'),axis=target.getAttribute('data-axis');if(kind==='tick'&&target.getAttribute('data-index')==='0')return;
@@ -777,12 +907,12 @@ $('inlineEdit').addEventListener('blur',commitEdit);
 function openPoint(c,index){pointEdit={id:c.id,index};const p=physical(c.pts[index]);$('pointX').value=String(sNum(p.x));$('pointY').value=String(sNum(p.y));$('pointDialog').showModal()}
 function savePoint(){if(!pointEdit)return;const x=num($('pointX').value),y=num($('pointY').value);if(!Number.isFinite(x)||!Number.isFinite(y)){notify('Zadej dvě platné souřadnice.');return}const p={x:sNum(x/s.scaleX),y:sNum(y/s.scaleY)};if(!activeAt(p.x,p.y)){notify('Bod je mimo vybrané kvadranty.');return}const c=s.curves.find(c=>c.id===pointEdit.id);if(!c)return;const old=c.pts[pointEdit.index];c.pts[pointEdit.index]=p;const oldRange=c.range?{...c.range}:null;updateAutoRange(c);try{fitCurve(c)}catch(err){c.pts[pointEdit.index]=old;c.range=oldRange;notify(err.message,4500);return}$('pointDialog').close();render();save()}
 function download(blob,filename){const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
-function exportBounds(){const L=layout;const maxLabelW=Math.min(L.w-14,470),fs=s.fontSize||12;const xw=clamp(String(s.axisX||'x').length*fs*.66+21,30,maxLabelW),yw=clamp(String(s.axisY||'y').length*fs*.66+21,30,maxLabelW);let left=L.left-18,right=L.right+20,top=L.top-20,bottom=L.bottom+22;left=Math.min(left,L.x0-Math.max(58,yw+18));right=Math.max(right,L.right+Math.max(18,xw/2+24));top=Math.min(top,L.top-42);bottom=Math.max(bottom,L.y0+42);for(const el of svg.querySelectorAll('[data-edit="axis"]')){try{const box=el.getBBox();left=Math.min(left,box.x-8);top=Math.min(top,box.y-8);right=Math.max(right,box.x+box.width+8);bottom=Math.max(bottom,box.y+box.height+8)}catch(e){}}return {x:Math.max(0,Math.floor(left)),y:Math.max(0,Math.floor(top)),w:Math.max(20,Math.ceil(Math.min(L.w,right))-Math.max(0,Math.floor(left))),h:Math.max(20,Math.ceil(Math.min(L.h,bottom))-Math.max(0,Math.floor(top)))} }
-function svgText(crop=true){const clone=svg.cloneNode(true);clone.setAttribute('xmlns','http://www.w3.org/2000/svg');const box=crop?exportBounds():{x:0,y:0,w:layout.w,h:layout.h};clone.setAttribute('viewBox',`${box.x} ${box.y} ${box.w} ${box.h}`);clone.setAttribute('width',String(Math.round(box.w*2)));clone.setAttribute('height',String(Math.round(box.h*2)));clone.querySelectorAll('[data-point-id],[data-axis-handle],[data-grid-edge],.selection-helper,[data-curve-id],.selection-glow').forEach(el=>el.remove());return new XMLSerializer().serializeToString(clone)}
+function exportBounds(){const L=layout;const maxLabelW=Math.min(L.w-14,470),fs=s.fontSize||12;const xw=clamp(String(s.axisX||'x').length*fs*.66+21,30,maxLabelW),yw=clamp(String(s.axisY||'y').length*fs*.66+21,30,maxLabelW);let left=L.left-18,right=L.right+20,top=L.top-20,bottom=L.bottom+22;left=Math.min(left,L.x0-Math.max(58,yw+18));right=Math.max(right,L.right+Math.max(18,xw/2+24));top=Math.min(top,L.top-42);bottom=Math.max(bottom,L.y0+42);for(const el of svg.querySelectorAll('[data-edit="axis"],[data-curve-label]')){try{const box=el.getBBox();left=Math.min(left,box.x-8);top=Math.min(top,box.y-8);right=Math.max(right,box.x+box.width+8);bottom=Math.max(bottom,box.y+box.height+8)}catch(e){}}return {x:Math.max(0,Math.floor(left)),y:Math.max(0,Math.floor(top)),w:Math.max(20,Math.ceil(Math.min(L.w,right))-Math.max(0,Math.floor(left))),h:Math.max(20,Math.ceil(Math.min(L.h,bottom))-Math.max(0,Math.floor(top)))} }
+function svgText(crop=true){const clone=svg.cloneNode(true);clone.setAttribute('xmlns','http://www.w3.org/2000/svg');const box=crop?exportBounds():{x:0,y:0,w:layout.w,h:layout.h};clone.setAttribute('viewBox',`${box.x} ${box.y} ${box.w} ${box.h}`);clone.setAttribute('width',String(Math.round(box.w*2)));clone.setAttribute('height',String(Math.round(box.h*2)));clone.querySelectorAll('[data-point-id],[data-axis-handle],[data-grid-edge],.selection-helper,[data-curve-id],.selection-glow,[data-label-hit]').forEach(el=>el.remove());return new XMLSerializer().serializeToString(clone)}
 function exportSvg(){download(new Blob([svgText(true)],{type:'image/svg+xml;charset=utf-8'}),'grafy.svg')}
 function exportPng(){const box=exportBounds(),text=svgText(true),src=URL.createObjectURL(new Blob([text],{type:'image/svg+xml;charset=utf-8'})),img=new Image();img.onload=()=>{const cn=document.createElement('canvas');cn.width=Math.round(box.w*2);cn.height=Math.round(box.h*2);const ctx=cn.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cn.width,cn.height);ctx.drawImage(img,0,0,cn.width,cn.height);URL.revokeObjectURL(src);cn.toBlob(b=>b?download(b,'grafy.png'):notify('PNG se nepodařilo vytvořit.'),'image/png')};img.onerror=()=>{URL.revokeObjectURL(src);notify('Export PNG není v tomto prohlížeči dostupný.')};img.src=src}
 async function importJson(e){const file=e.target.files?.[0];e.target.value='';if(!file)return;try{const data=JSON.parse(await file.text());if(!Array.isArray(data.curves)||!Array.isArray(data.quads))throw Error('Soubor není platným projektem Grafy.');const fresh=defaultState();const old=s;s={...fresh,...data};s.scaleX=validStep(s.scaleX)?+s.scaleX:1;s.scaleY=validStep(s.scaleY)?+s.scaleY:1;s.zoom=clamp(+s.zoom||47,10,220);s.zoomX=clamp(Number(data.zoomX??data.zoom)||47,10,220);s.zoomY=clamp(Number(data.zoomY??data.zoom)||47,10,220);normalizeBounds();s.quads=s.quads.length===4&&s.quads.some(Boolean)?s.quads.map(Boolean):fresh.quads;s.type=s.type==='formula'?'select':(s.type==='select'||types.some(t=>t.id===s.type))?s.type:'line';s.globalShowPoints=s.globalShowPoints!==false;s.fontSize=clamp(Number(s.fontSize)||12,10,28);s.fontBold=s.fontBold===true;s.wholeZoom=s.wholeZoom===true;s.axisX=String(s.axisX||'x').slice(0,160);s.axisY=String(s.axisY||'y').slice(0,160);s.panX=clamp(Number(s.panX)||0,-2000,2000);s.panY=clamp(Number(s.panY)||0,-2000,2000);s.sidebarWidth=clamp(Number(s.sidebarWidth)||344,220,540);s.bottomHeight=clamp(Number(s.bottomHeight)||235,118,520);if(!s.axisLabelOffsets||typeof s.axisLabelOffsets!=='object')s.axisLabelOffsets={};for(const a of ['x','y']){const o=s.axisLabelOffsets[a]||{};s.axisLabelOffsets[a]={x:clamp(Number(o.x)||0,-1600,1600),y:clamp(Number(o.y)||0,-1600,1600)}}s.curves=s.curves.filter(validCurve).slice(0,200);s.curves.forEach(normalizeCurve);s.nextId=Math.max(...s.curves.map(c=>+c.id||0),0)+1;selected.clear();pending=[];preview=null;syncUI();render();save();notify('Projekt byl načten.')}catch(err){notify('Projekt se nepodařilo načíst: '+err.message,5000)}}
-svg.addEventListener('dblclick',e=>{if(s.type==='polyline'&&pending.length>=2){e.preventDefault();finishPolyline()}});svg.addEventListener('pointerdown',onDown);svg.addEventListener('pointermove',onMove);svg.addEventListener('pointerup',onUp);svg.addEventListener('pointercancel',()=>{if(drag?.kind==='axis-label'){s.axisLabelOffsets[drag.axis]=drag.old}else if(drag?.kind==='pan'){s.panX=drag.oldX;s.panY=drag.oldY}else if(drag?.kind==='point'){const c=s.curves.find(c=>c.id===drag.id);if(c){c.pts[drag.index]=drag.old;c.range=drag.oldRange}}else if(drag?.kind==='axis'){s[drag.key]=drag.original;syncUI()}else if(drag?.kind==='grid-edge'){s.zoom=drag.was.zoom;s.zoomX=drag.was.zoomX;s.zoomY=drag.was.zoomY;s.wholeZoom=drag.was.wholeZoom;Object.assign(s,drag.was.bounds);syncUI()}else if(drag?.kind==='range'){const c=s.curves.find(c=>c.id===drag.id);if(c)c.range=drag.old}drag=null;preview=null;render()});svg.addEventListener('pointerleave',()=>{if(!drag){preview=null;render()}});
+svg.addEventListener('dblclick',e=>{if(s.type==='polyline'&&pending.length>=2){e.preventDefault();finishPolyline()}});svg.addEventListener('pointerdown',onDown);svg.addEventListener('pointermove',onMove);svg.addEventListener('pointerup',onUp);svg.addEventListener('pointercancel',()=>{if(drag?.kind==='curve-label'){const c=s.curves.find(c=>c.id===drag.id);if(c)c.labelOffset=drag.old}else if(drag?.kind==='axis-label'){s.axisLabelOffsets[drag.axis]=drag.old}else if(drag?.kind==='pan'){s.panX=drag.oldX;s.panY=drag.oldY}else if(drag?.kind==='point'){const c=s.curves.find(c=>c.id===drag.id);if(c){c.pts[drag.index]=drag.old;c.range=drag.oldRange}}else if(drag?.kind==='axis'){s[drag.key]=drag.original;syncUI()}else if(drag?.kind==='grid-edge'){s.zoom=drag.was.zoom;s.zoomX=drag.was.zoomX;s.zoomY=drag.was.zoomY;s.wholeZoom=drag.was.wholeZoom;Object.assign(s,drag.was.bounds);syncUI()}else if(drag?.kind==='range'){const c=s.curves.find(c=>c.id===drag.id);if(c)c.range=drag.old}drag=null;preview=null;render()});svg.addEventListener('pointerleave',()=>{if(!drag){preview=null;intersectionHover=null;render()}});
 load();initUI();initSplitters();render();new ResizeObserver(()=>render()).observe(shell);
 })();
 </script>
