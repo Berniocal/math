@@ -1,0 +1,4245 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Matematický editor – test dopočtu</title>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},svg:{fontCache:'global'}};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Calculus.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Solve.js"></script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:#f3f3f3;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#111}
+.top{padding:18px 16px 8px;font-size:34px;font-weight:900}
+.editorWrap{padding:12px}
+.editor{background:white;border-radius:28px;min-height:230px;padding:22px;font-size:34px;line-height:1.7;display:flex;flex-wrap:wrap;align-items:center;align-content:flex-start;gap:2px;box-shadow:0 2px 12px #0001;cursor:text}
+.editor.empty:after{content:"Klikni sem a napiš rovnici";color:#999;font-size:24px}.lineBreak{flex-basis:100%;height:0}
+.cur{width:2px;height:44px;background:#111;animation:blink 1s step-end infinite;margin:0 2px;display:inline-block;vertical-align:middle}.sup .cur,.sub .cur{height:24px;min-width:2px}@keyframes blink{50%{opacity:0}}
+.tok{display:inline-flex;align-items:center;justify-content:center}.box{min-width:36px;min-height:34px;border:2px dotted #888;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;padding:2px 4px;margin:1px}.box.active{border-color:#2563eb;background:#eaf1ff}
+.frac{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;vertical-align:middle;margin:0 6px}.ft,.fb{min-width:42px;min-height:28px;display:flex;align-items:center;justify-content:center}.fl{width:100%;min-width:46px;height:2px;background:#111}
+.sqrt{display:inline-flex;align-items:center;gap:2px;margin:0 4px}.sqrtSym{font-size:46px;line-height:.8}.sqrtBody{border-top:2px solid #111;min-width:40px;padding-top:2px}.supw,.subw{display:inline-flex;align-items:center}.sup,.sub{font-size:.6em;min-width:26px;min-height:24px}.sup{transform:translateY(-14px)}.sub{transform:translateY(14px)}.par{font-size:1.3em}
+.panel{margin:12px;background:white;border-radius:24px;padding:14px;box-shadow:0 2px 12px #0001;display:grid;gap:12px}.title{font-weight:900;font-size:22px}.row{display:grid;grid-template-columns:1fr auto;gap:8px}.row3{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}.targetGrid{display:flex;flex-wrap:wrap;gap:8px}.coeffGrid{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.labeledInput{display:flex;align-items:center;gap:6px;background:#f7f7f7;border:1px solid #ddd;border-radius:16px;padding:6px 8px}.labeledInput label{font-weight:900;white-space:nowrap}.labeledInput input{min-width:90px;flex:1}.editorActions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}input,select,button{border:1px solid #ccc;background:#f9f9f9;border-radius:14px;padding:11px 12px;font-size:16px;font-weight:750}button{cursor:pointer;transition:transform .08s,background .12s}.keepNumberBtn.active{background:#fee2e2!important;border-color:#dc2626;color:#b91c1c}.keepNum{color:#dc2626;font-weight:900}button:active{transform:scale(.94);background:#dfe8ff!important}.out{min-height:60px;background:#f7f7f7;border:1px solid #ddd;border-radius:16px;padding:12px;font-size:18px;overflow:auto}.muted{color:#777;font-size:14px}.small{font-size:13px;color:#777;word-break:break-all}
+.keyboard{position:fixed;left:0;right:0;bottom:0;background:#f7f7f7;border-top-left-radius:28px;border-top-right-radius:28px;box-shadow:0 -8px 30px #0002;transform:translateY(110%);transition:.25s;z-index:20}.keyboard.show{transform:translateY(0)}
+.kTop{display:grid;grid-template-columns:repeat(6,1fr);padding:10px;gap:8px}.kTop button{border:0;background:none;font-size:28px}.pills{display:flex;gap:10px;overflow:auto;padding:0 10px 10px}.pill{min-width:120px;border-radius:999px;border:2px solid #ccc;background:white;font-size:18px;line-height:1.15;padding:10px 18px}.pill.active{background:#000;color:#fff;border-color:#000}.keys{display:grid;grid-template-columns:repeat(6,1fr)}.key{height:68px;border:1px solid #ddd;border-radius:0;background:#f8f8f8;font-size:28px;display:flex;align-items:center;justify-content:center;position:relative}.key.dark{background:#ececec}.key.small{font-size:21px}.key.tiny{font-size:16px;line-height:1.05}.dot:after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:#d10038;bottom:10px;right:12px}
+.popover{position:fixed;display:none;background:#fff;border:1px solid #ddd;border-radius:10px;box-shadow:0 4px 16px #0002;z-index:50;overflow:hidden}
+.popover.show{display:flex}
+.popOpt{min-width:76px;height:68px;display:flex;align-items:center;justify-content:center;font-size:27px;border-right:1px solid #eee;background:#fff}
+.popOpt:last-child{border-right:0}.popOpt.active{background:#eee}
+@media(max-width:700px){.row,.row3{grid-template-columns:1fr}.editorActions{grid-template-columns:1fr 1fr}.editor{min-height:220px;font-size:30px}.key{height:66px;font-size:24px}.top{font-size:32px}}
+</style>
+</head>
+<body>
+<div class="top">Matematický editor <span style="font-size:16px;color:#1d4ed8">TEST DOPOČTU</span></div>
+<div style="margin:0 16px 8px;font-size:15px;line-height:1.5">Testovací verze sestavuje rovnice od zadaného výsledku. Část čísel vybere a zbývající dopočítá. <a href="./">Běžná verze</a></div>
+<div class="editorWrap"><div id="editor" class="editor empty" tabindex="0" onclick="focusRoot()"></div>
+  <div class="editorActions"><button onclick="solveEquation()">Spočítat</button><button id="keepNumberBtn" class="keepNumberBtn" onclick="toggleKeepNumberMode()">Zachovat číslo</button><button onclick="copyEditorLink()">Zkopírovat odkaz</button><button onclick="copyEditorLatex()">Kopírovat LaTeX</button></div>
+  <div id="result" class="out" style="margin-top:10px"></div>
+  <div id="editorLinkStatus" class="small"></div>
+  <input id="vars" value="x,y,z" style="display:none">
+  <div class="small" id="debugCalc" style="display:none"></div>
+</div>
+
+<section class="panel">
+  <div class="title">Generátor podobného příkladu</div>
+  <label for="backsolveMode">Způsob generování: <select id="backsolveMode" style="font:inherit;padding:8px;max-width:100%"><option value="direct">Přímý dopočet (test)</option><option value="original">Původní generátor</option></select></label>
+  <div class="muted">Dopočet zachová členy na jejich místech. Nemění mocniny, základy logaritmů ani čísla označená „Zachovat“. Samostatnou nulu na straně rovnice ponechá. Měněná čísla jsou celá; výsledek může být i zlomek.</div>
+  <details><summary>Vyzkoušet na ukázce</summary><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">
+    <button onclick="loadBacksolveExample('linear')">Lineární</button><button onclick="loadBacksolveExample('quadratic')">Kvadratická</button><button onclick="loadBacksolveExample('fraction')">Zlomek</button><button onclick="loadBacksolveExample('logarithm')">Logaritmus</button><button onclick="loadBacksolveExample('absolute')">Absolutní hodnota</button><button onclick="loadBacksolveExample('radical')">Odmocnina</button><button onclick="loadBacksolveExample('system')">Soustava</button>
+  </div></details>
+  <div class="muted" id="targetHint">Generátor automaticky pozná počet výsledků podle zadání v editoru.</div>
+  <div id="targetBox" class="targetGrid"></div>
+  <div class="coeffGrid">
+    <div class="labeledInput"><label for="minCoeff">Min. |koeficient|:</label><input id="minCoeff" type="number" value="1" min="0" max="999" placeholder="Min. |koeficient|"></div>
+    <div class="labeledInput"><label for="maxCoeff">Max. |koeficient|:</label><input id="maxCoeff" type="number" value="20" min="1" max="999" placeholder="Max. |koeficient|"></div>
+  </div>
+  <div><button id="generateButton" onclick="generateSimilar()">Vytvořit</button></div>
+  <div id="backsolveStatus" class="small" role="status" aria-live="polite"></div>
+  <div id="generated" class="out"><div class="muted">U soustav zadáš hodnoty x, y, z; u kvadratické rovnice kořeny x₁, x₂.</div></div>
+  <button onclick="copyLatex()">Kopírovat LaTeX do Wordu</button>
+  <div class="small" id="debugLatex" style="display:none"></div>
+</section>
+
+<div id="keyPopover" class="popover"></div>
+<div id="keyboard" class="keyboard">
+  <div class="kTop">
+    <button onclick="hideKb()">⌄</button><button onclick="undo()">↶</button><button onclick="move(-1)">←</button><button onclick="move(1)">→</button><button onclick="smartEnter()">↵</button><button onclick="backspaceKey()">⌫</button>
+  </div>
+  <div class="pills">
+    <button class="pill active" onclick="setPanel('basic',this)">+ −<br>× ÷</button>
+    <button class="pill" onclick="setPanel('abc',this)">abc<br>xyz</button>
+    <button class="pill" onclick="setPanel('func',this)">f(x) e<br>log ln</button>
+    <button class="pill" onclick="setPanel('trig',this)">sin cos<br>tan cot</button>
+    <button class="pill" onclick="setPanel('extra',this)">lim dx<br>∫ Σ ∞</button>
+  </div>
+  <div id="keys" class="keys"></div>
+</div>
+
+<script>
+let root=[],path=[],cursor=0,history=[],panel='basic',lastGeneratedCalc='',lastGeneratedLatex='',keepNumberMode=false;
+let generatorRecentBySignature={};
+let generatorRecentFullBySignature={};
+const panels={
+basic:[
+["(□)",()=>insParen(),"dot",[["(□)",()=>insParen()],["[□]",()=>insBracket("square")],["{□}",()=>insBracket("curly")],["|□|",()=>insAbs()]]],
+[">",">","dot",[[">",">"],["≥",">="],["<","<"],["≤","<="]]],
+["7","7","dark"],["8","8","dark"],["9","9","dark"],[":","/"],
+
+["□/□",()=>insFrac(),"tiny dot",[
+  ["□/□",()=>insFrac()],
+  ["□ □/□",()=>insMixedNumber()]
+]],
+["√□",()=>insSqrt(),"small dot",[
+  ["√□",()=>insSqrt()],
+  ["³√□",()=>insRoot("3")],
+  ["□√□",()=>insNRoot()]
+]],
+["4","4","dark"],["5","5","dark"],["6","6","dark"],["×","*"],
+
+["□²",()=>insPow("2"),"dot",[
+  ["□²",()=>insPow("2")],
+  ["□³",()=>insPow("3")],
+  ["□ⁿ",()=>insPow("")],
+  ["□ₙ",()=>insSub("")]
+]],
+["x","x","dot",[
+  ["x","x"],["y","y"],["z","z"]
+]],
+["1","1","dark"],["2","2","dark"],["3","3","dark"],["−","-"],
+
+["π","pi","dot",[
+  ["π","pi"],
+  ["π/2",()=>insFracText("pi","2")],
+  ["π/3",()=>insFracText("pi","3")]
+]],
+["📋",()=>pasteClipboard(),"dot"],["0","0","dark"],[",",".","dark"],["=","="],["+","+"]
+],
+abc:[
+["a","a"],["b","b"],["c","c"],["d","d"],["e","e"],["f","f"],["g","g"],["h","h"],["i","i"],["j","j"],["k","k"],["l","l"],["m","m"],["n","n"],["p","p"],["q","q"],["r","r"],["s","s"],["t","t"],["u",()=>insPow(""),"dot"],["v","v"],["x","x"],["y","y"],["z","z"]
+],
+func:[
+["sin",()=>insFunc("sin"),"small"],["cos",()=>insFunc("cos"),"small"],["tan",()=>insFunc("tan"),"small"],["log",()=>insLogBase(),"small"],["ln",()=>insFunc("ln"),"small"],["eˣ",()=>insExp(),"small"],
+["x²",()=>insPow("2"),"small"],["xⁿ",()=>insPow(""),"small"],["x₁",()=>insSub("1"),"small"],["a/b",()=>insFrac(),"small"],["(","("],[")",")"],
+["≤","<="],["≥",">="],["≠","!="],["⇒","=>"],["∞","Infinity"],["π","pi"],["α","alpha"],["β","beta"],["γ","gamma"],["Δ","Delta"],["φ","phi"],["ω","omega"]
+],
+trig:[
+["sin",()=>insFunc("sin"),"small"],["cos",()=>insFunc("cos"),"small"],["tan",()=>insFunc("tan"),"small"],["cot",()=>insFunc("cot"),"small"],["30°","30"],["45°","45"],
+["60°","60"],["90°","90"],["π/2",()=>insFracText("pi","2"),"small"],["π/3",()=>insFracText("pi","3"),"small"],["π/4",()=>insFracText("pi","4"),"small"],["π/6",()=>insFracText("pi","6"),"small"],
+["x","x"],["y","y"],["z","z"],["+","+"],["-","-"],["=","="],["√",()=>insSqrt()],["□²",()=>insPow("2")],["/","/"],["*","*"],["1","1"],["2","2"]
+],
+extra:[
+["lim","lim"],["∑","sum"],["∫","integral"],["dx","dx"],["∞","Infinity"],["→","->"],["{","{"],["}","}"],["[","["],["]","]"],["±","+-"],["∈","in"],
+["∪","cup"],["∩","cap"],["√",()=>insSqrt()],["frac",()=>insFrac(),"small"],["x","x"],["=","="],["+","+"],["-","-"],["a","a"],["b","b"],["c","c"],["n","n"]
+]
+};
+function arr(){let a=root;for(const p of path){if(p==='top')a=a.top;else if(p==='bottom')a=a.bottom;else if(p==='body')a=a.body;
+    else if(p==='whole')a=a.whole;
+    else if(p==='index')a=a.index;else if(p==='base')a=a.base;else if(p==='sup')a=a.sup;else if(p==='sub')a=a.sub;else if(p==='children')a=a.children;
+    else if(p==='frac')a=a.frac;else a=a[p]}return a}
+function save(){history.push(JSON.stringify({root,path,cursor}));if(history.length>100)history.shift()}
+function undo(){const s=history.pop();if(!s)return;({root,path,cursor}=JSON.parse(s));render();updateDebug()}
+function insNode(n){save();arr().splice(cursor,0,n);cursor++;render();updateDebug()}
+function insText(t){insNode({type:'text',v:String(t)})}
+function smartEnter(){ if(path.length){exitBox(); return;} insNode({type:'newline'}); }
+function enter(k){path.push(cursor-1,k);cursor=0;render();updateDebug()}
+function insFrac(){insNode({type:'frac',top:[],bottom:[]});enter('top')}
+function insFracText(a,b){insNode({type:'frac',top:[{type:'text',v:a}],bottom:[{type:'text',v:b}]})}
+function insSqrt(){insNode({type:'sqrt',body:[]});enter('body')}
+
+function isTextNodeWithValue(n,v){return n&&n.type==='text'&&String(n.v)===v}
+function isLogLikeNode(n){return n&&(n.type==='logbase'||(n.type==='func'&&(n.name==='log'||n.name==='ln')))}
+function nodesAreSimpleNumericCoeff(nodes){
+  if(!nodes||!nodes.length)return false;
+  const txt=nodes.map(n=>(n&&n.type==='text')?String(n.v):'').join('');
+  return /^[-+]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(txt);
+}
+function splitCoeffTimesLogFromBaseNodes(baseNodes){
+  if(!Array.isArray(baseNodes)||baseNodes.length!==1)return null;
+  const outer=baseNodes[0];
+  const body=(outer&&outer.type==='paren')?outer.body:baseNodes;
+  if(!Array.isArray(body)||body.length<3)return null;
+  const logNode=body[body.length-1];
+  if(!isLogLikeNode(logNode))return null;
+  const mul=body[body.length-2];
+  if(!isTextNodeWithValue(mul,'*'))return null;
+  const coeffNodes=body.slice(0,body.length-2);
+  if(!nodesAreSimpleNumericCoeff(coeffNodes))return null;
+  return {coeffNodes:JSON.parse(JSON.stringify(coeffNodes)),logNode:JSON.parse(JSON.stringify(logNode))};
+}
+function splitPowBaseNodeIfCoeffTimesLog(node){
+  const split=splitCoeffTimesLogFromBaseNodes([node]);
+  if(!split)return null;
+  return split;
+}
+
+function insPow(v){
+ save();
+ const a=arr();
+ if(cursor>0){
+   // Mocnina musí respektovat skutečný zápis v editoru.
+   // Pokud uživatel umocní závorku (např. 2·log_5(x)), umocní se celá závorka.
+   // Pokud chce umocnit jen logaritmus, musí být mocnina přímo na logaritmu.
+   const base=a.splice(cursor-1,1)[0];
+   a.splice(cursor-1,0,{type:'sup',base:[base],sup:v?[{type:'text',v}]:[]});
+   cursor=cursor;
+ }else{
+   a.splice(cursor,0,{type:'sup',base:[],sup:v?[{type:'text',v}]:[]});
+   cursor++;
+ }
+ render();updateDebug();
+}
+function insSub(v){
+ save();
+ const a=arr();
+ if(cursor>0){
+   const base=a.splice(cursor-1,1)[0];
+   a.splice(cursor-1,0,{type:'sub',base:[base],sub:v?[{type:'text',v}]:[]});
+   cursor=cursor;
+ }else{
+   a.splice(cursor,0,{type:'sub',base:[],sub:v?[{type:'text',v}]:[]});
+   cursor++;
+ }
+ render();updateDebug();
+}
+function insParen(){insNode({type:'paren',body:[]});enter('body')}
+function insAbs(){insNode({type:'abs',body:[]});enter('body')}
+
+function insBracket(kind){
+  insNode({type:'bracket',kind:kind,body:[]});
+  enter('body');
+}
+function insMixedNumber(){
+  save();
+  const a=arr();
+  const node={
+    type:'mixed',
+    whole:[],
+    frac:{type:'frac',top:[],bottom:[]}
+  };
+  a.splice(cursor,0,node);
+  path.push(cursor,'whole');
+  cursor=0;
+  render();
+  updateDebug();
+}
+function insRoot(indexText){
+  insNode({
+    type:'root',
+    index:indexText?[{type:'text',v:indexText}]:[],
+    body:[]
+  });
+  path.push(cursor-1,'body');
+  cursor=0;
+  render();
+  updateDebug();
+}
+function insNRoot(){
+  insNode({
+    type:'root',
+    index:[],
+    body:[]
+  });
+  path.push(cursor-1,'index');
+  cursor=0;
+  render();
+  updateDebug();
+}
+
+function insFunc(name){insNode({type:'func',name,body:[]});enter('body')}
+function insLogBase(){
+  save();
+  const a=arr();
+  const node={type:'logbase',base:[],body:[]};
+  a.splice(cursor,0,node);
+  path.push(cursor,'base');
+  cursor=0;
+  render();
+  updateDebug();
+}
+function insExp(){insNode({type:'exp',body:[]});enter('body')}
+
+function collectCursorStopsInArray(a, p, stops){
+  // pozice před každým prvkem a za posledním prvkem
+  for(let i=0;i<=a.length;i++){
+    stops.push({path:p.slice(), cursor:i});
+
+    if(i<a.length){
+      const n=a[i];
+      const np=p.concat(i);
+
+      if(n.type==='frac'){
+        collectCursorStopsInArray(n.top, np.concat('top'), stops);
+        collectCursorStopsInArray(n.bottom, np.concat('bottom'), stops);
+      }else if(n.type==='sqrt'){
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='bracket'){
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='mixed'){
+        collectCursorStopsInArray(n.whole, np.concat('whole'), stops);
+        collectCursorStopsInArray(n.frac.top, np.concat('frac','top'), stops);
+        collectCursorStopsInArray(n.frac.bottom, np.concat('frac','bottom'), stops);
+      }else if(n.type==='root'){
+        collectCursorStopsInArray(n.index, np.concat('index'), stops);
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='sup'){
+        collectCursorStopsInArray(n.base, np.concat('base'), stops);
+        collectCursorStopsInArray(n.sup, np.concat('sup'), stops);
+      }else if(n.type==='sub'){
+        collectCursorStopsInArray(n.base, np.concat('base'), stops);
+        collectCursorStopsInArray(n.sub, np.concat('sub'), stops);
+      }else if(n.type==='paren'){
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='abs'){
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='func'){
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='logbase'){
+        collectCursorStopsInArray(n.base, np.concat('base'), stops);
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='exp'){
+        collectCursorStopsInArray(n.body, np.concat('body'), stops);
+      }else if(n.type==='box'){
+        collectCursorStopsInArray(n.children, np.concat('children'), stops);
+      }
+    }
+  }
+}
+
+function allCursorStops(){
+  const stops=[];
+  collectCursorStopsInArray(root, [], stops);
+
+  // odstranění duplicit, ale zachování pořadí
+  const seen=new Set();
+  return stops.filter(s=>{
+    const k=JSON.stringify(s.path)+'|'+s.cursor;
+    if(seen.has(k))return false;
+    seen.add(k);
+    return true;
+  });
+}
+
+function smartMove(direction){
+  const stops=allCursorStops();
+  if(!stops.length)return;
+
+  const key=JSON.stringify(path)+'|'+cursor;
+  let idx=stops.findIndex(s=>JSON.stringify(s.path)+'|'+s.cursor===key);
+
+  if(idx<0){
+    idx=0;
+  }else{
+    idx+=direction;
+  }
+
+  idx=Math.max(0,Math.min(stops.length-1,idx));
+  path=stops[idx].path.slice();
+  cursor=stops[idx].cursor;
+  render();
+}
+
+function move(d){smartMove(d)}
+
+function exitBox(){if(!path.length)return;while(path.length&&typeof path.at(-1)!=='number')path.pop();if(path.length){cursor=path.pop()+1}else cursor=root.length;render()}
+function backspaceKey(){const a=arr();if(cursor>0){save();a.splice(cursor-1,1);cursor--;render();updateDebug();return}exitBox()}
+
+function isNumberTextNode(n){return n&&n.type==='text'&&/^[-+]?\d*(?:\.\d*)?$/.test(String(n.v))&&String(n.v)!==''&&String(n.v)!=='-'&&String(n.v)!=='+'}
+function isNumberPartNode(n){return n&&n.type==='text'&&/^[0-9.]$/.test(String(n.v))}
+function toggleKeepNumberMode(){
+  keepNumberMode=!keepNumberMode;
+  const btn=document.getElementById('keepNumberBtn');
+  if(btn)btn.classList.toggle('active',keepNumberMode);
+  if(!keepNumberMode)render();
+}
+function toggleKeepNumberAtPath(p){
+  const parentPath=p.slice(0,-1);
+  const idx=p[p.length-1];
+  const oldPath=path.slice(),oldCursor=cursor;
+  path=parentPath;cursor=0;
+  const a=arr();
+  path=oldPath;cursor=oldCursor;
+  if(!a[idx]||!isNumberPartNode(a[idx]))return false;
+  let l=idx,r=idx;
+  while(l>0&&isNumberPartNode(a[l-1]))l--;
+  while(r+1<a.length&&isNumberPartNode(a[r+1]))r++;
+  if(l>0&&a[l-1]&&a[l-1].type==='text'&&a[l-1].v==='-'&&(l-1===0 || (a[l-2]&&a[l-2].type==='text'&&/[=+\-*/(<>{\[]/.test(a[l-2].v)))) l--;
+  const shouldKeep=!a.slice(l,r+1).some(n=>n.keep);
+  save();
+  for(let i=l;i<=r;i++) if(a[i]&&a[i].type==='text') a[i].keep=shouldKeep;
+  render();updateDebug();
+  return true;
+}
+function markedConcat(parts){
+  return parts.reduce((acc,p)=>({s:acc.s+p.s,keep:acc.keep.concat(p.keep)}),{s:'',keep:[]});
+}
+function markedLiteral(txt,keep=false){txt=String(txt);return {s:txt,keep:Array(txt.length).fill(!!keep)}}
+function calcMarkedA(a){return markedConcat(a.map(calcMarked))}
+function calcMarked(n){
+ if(n.type==='newline')return markedLiteral('\n');
+ if(n.type==='menuText')return markedLiteral(n.calc);
+ if(n.type==='text')return markedLiteral(n.v,!!n.keep);
+ if(n.type==='box')return calcMarkedA(n.children);
+ if(n.type==='frac')return markedConcat([markedLiteral('(('),calcMarkedA(n.top),markedLiteral(')/('),calcMarkedA(n.bottom),markedLiteral('))')]);
+ if(n.type==='bracket')return markedConcat([markedLiteral('('),calcMarkedA(n.body),markedLiteral(')')]);
+ if(n.type==='mixed')return markedConcat([markedLiteral('('),calcMarkedA(n.whole),markedLiteral('+(('),calcMarkedA(n.frac.top),markedLiteral(')/('),calcMarkedA(n.frac.bottom),markedLiteral(')))')]);
+ if(n.type==='root')return markedConcat([markedLiteral('('),calcMarkedA(n.body),markedLiteral(')^(1/('),calcMarkedA(n.index),markedLiteral('))')]);
+ if(n.type==='sqrt')return markedConcat([markedLiteral('sqrt('),calcMarkedA(n.body),markedLiteral(')')]);
+ if(n.type==='sup')return markedConcat([markedLiteral('('),calcMarkedA(n.base),markedLiteral(')^('),calcMarkedA(n.sup),markedLiteral(')')]);
+ if(n.type==='sub')return markedConcat([calcMarkedA(n.base),markedLiteral('_'),calcMarkedA(n.sub)]);
+ if(n.type==='paren')return markedConcat([markedLiteral('('),calcMarkedA(n.body),markedLiteral(')')]);
+ if(n.type==='abs')return markedConcat([markedLiteral('abs('),calcMarkedA(n.body),markedLiteral(')')]);
+ if(n.type==='func')return markedConcat([markedLiteral(n.name+'('),calcMarkedA(n.body),markedLiteral(')')]);
+ if(n.type==='logbase')return markedConcat([markedLiteral('logbase('),calcMarkedA(n.base),markedLiteral(','),calcMarkedA(n.body),markedLiteral(')')]);
+ if(n.type==='exp')return markedConcat([markedLiteral('e^('),calcMarkedA(n.body),markedLiteral(')')]);
+ return markedLiteral('');
+}
+function preservedTokenIndexesForRaw(raw){
+  const marked=calcMarkedA(root);
+  if(marked.s!==String(raw))return new Set();
+  const out=new Set(),re=/-?\d+(?:\.\d+)?/g;
+  let m,idx=0;
+  while((m=re.exec(raw))){
+    const bef=raw.slice(Math.max(0,m.index-3),m.index);
+    if(bef.includes('^')){idx++;continue;}
+    for(let i=m.index;i<m.index+m[0].length;i++){
+      if(marked.keep[i]){out.add(idx);break;}
+    }
+    idx++;
+  }
+  return out;
+}
+
+function focusRoot(){showKb();path=[];cursor=root.length;render()}function showKb(){document.getElementById('keyboard').classList.add('show')}function hideKb(){document.getElementById('keyboard').classList.remove('show')}
+function insertPastedTextIntoEditor(txt){
+  txt=String(txt||'');
+  if(!txt.trim()) return;
+
+  save();
+
+  let nodes;
+  const looksLatex=/\\frac|\\sqrt|\\left|\\right|\\cdot|\\times|\\le|\\ge|\\pi|\^|_\{/.test(txt);
+  if(looksLatex && typeof latexToCalcText==='function'){
+    nodes=calcTextToNodes(latexToCalcText(txt));
+  }else{
+    nodes=calcTextToNodes(txt);
+  }
+
+  arr().splice(cursor,0,...nodes);
+  cursor += nodes.length;
+  render();
+  updateDebug();
+  showKb();
+}
+
+function openManualPasteBox(){
+  const old=document.getElementById('pasteOverlay');
+  if(old) old.remove();
+
+  const overlay=document.createElement('div');
+  overlay.id='pasteOverlay';
+  overlay.style.position='fixed';
+  overlay.style.inset='0';
+  overlay.style.background='rgba(0,0,0,.45)';
+  overlay.style.zIndex='999';
+  overlay.style.display='flex';
+  overlay.style.alignItems='center';
+  overlay.style.justifyContent='center';
+  overlay.style.padding='18px';
+
+  const box=document.createElement('div');
+  box.style.background='#fff';
+  box.style.borderRadius='24px';
+  box.style.padding='16px';
+  box.style.width='min(560px,100%)';
+  box.style.boxShadow='0 12px 35px rgba(0,0,0,.25)';
+  box.style.display='grid';
+  box.style.gap='10px';
+
+  const title=document.createElement('div');
+  title.textContent='Vlož obsah schránky';
+  title.style.fontWeight='900';
+  title.style.fontSize='22px';
+
+  const hint=document.createElement('div');
+  hint.textContent='Prohlížeč tady nedovolil přečíst schránku automaticky. Klepni do pole, vlož text/LaTeX a potvrď.';
+  hint.style.color='#666';
+  hint.style.fontSize='14px';
+
+  const ta=document.createElement('textarea');
+  ta.rows=5;
+  ta.style.width='100%';
+  ta.style.fontSize='18px';
+  ta.style.border='1px solid #ccc';
+  ta.style.borderRadius='14px';
+  ta.style.padding='10px';
+
+  const row=document.createElement('div');
+  row.style.display='grid';
+  row.style.gridTemplateColumns='1fr 1fr';
+  row.style.gap='8px';
+
+  const cancel=document.createElement('button');
+  cancel.textContent='Zrušit';
+  cancel.onclick=()=>overlay.remove();
+
+  const ok=document.createElement('button');
+  ok.textContent='Vložit';
+  ok.onclick=()=>{
+    insertPastedTextIntoEditor(ta.value);
+    overlay.remove();
+  };
+
+  row.append(cancel,ok);
+  box.append(title,hint,ta,row);
+  overlay.append(box);
+  document.body.appendChild(overlay);
+  setTimeout(()=>ta.focus(),50);
+}
+
+async function pasteClipboard(){
+ try{
+   if(navigator.clipboard && window.isSecureContext){
+     const txt = await navigator.clipboard.readText();
+     if(txt){
+       insertPastedTextIntoEditor(txt);
+       return;
+     }
+   }
+ }catch(e){}
+ openManualPasteBox();
+}
+
+function render(){const ed=document.getElementById('editor');ed.innerHTML='';ed.classList.toggle('empty',root.length===0);renderArr(root,ed,[])}
+function renderArr(a,parent,p){for(let i=0;i<=a.length;i++){if(JSON.stringify(p)===JSON.stringify(path)&&i===cursor){const c=document.createElement('span');c.className='cur';parent.appendChild(c)}if(i===a.length)break;parent.appendChild(nodeEl(a[i],p.concat(i)))}}
+function click(el,p){el.onclick=e=>{e.stopPropagation();if(keepNumberMode&&toggleKeepNumberAtPath(p))return;showKb();path=p.slice(0,-1);cursor=p.at(-1)+1;render()};return el}
+function nodeEl(n,p){
+if(n.type==='newline'){const br=document.createElement('span');br.className='lineBreak';return br}
+if(n.type==='menuText'){const s=document.createElement('span');s.className='tok';s.textContent=n.show;return click(s,p)}
+if(n.type==='text'){const s=document.createElement('span');s.className='tok'+(n.keep?' keepNum':'');s.textContent=display(n.v);return click(s,p)}
+if(n.type==='box'){const s=document.createElement('span');s.className='box'+(eq(path,p.concat('children'))?' active':'');s.onclick=e=>{e.stopPropagation();showKb();path=p.concat('children');cursor=n.children.length;render()};renderArr(n.children,s,p.concat('children'));return s}
+if(n.type==='frac'){const w=document.createElement('span');w.className='frac tok';const t=document.createElement('span');t.className='ft box'+(eq(path,p.concat('top'))?' active':'');t.onclick=e=>{e.stopPropagation();showKb();path=p.concat('top');cursor=n.top.length;render()};renderArr(n.top,t,p.concat('top'));const l=document.createElement('span');l.className='fl';const b=document.createElement('span');b.className='fb box'+(eq(path,p.concat('bottom'))?' active':'');b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('bottom');cursor=n.bottom.length;render()};renderArr(n.bottom,b,p.concat('bottom'));w.append(t,l,b);return w}
+if(n.type==='sqrt'){const w=document.createElement('span');w.className='sqrt tok';const s=document.createElement('span');s.className='sqrtSym';s.textContent='√';const b=document.createElement('span');b.className='sqrtBody box'+(eq(path,p.concat('body'))?' active':'');b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};renderArr(n.body,b,p.concat('body'));w.append(s,b);return w}
+
+if(n.type==='bracket'){
+ const w=document.createElement('span');w.className='tok';
+ const l=document.createElement('span'),r=document.createElement('span');
+ l.className=r.className='par';
+ l.textContent=n.kind==='square'?'[':'{';
+ r.textContent=n.kind==='square'?']':'}';
+ const b=document.createElement('span');
+ b.className='box'+(eq(path,p.concat('body'))?' active':'');
+ b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};
+ renderArr(n.body,b,p.concat('body'));
+ w.append(l,b,r);return w
+}
+if(n.type==='mixed'){
+ const w=document.createElement('span');w.className='tok';
+ const whole=document.createElement('span');
+ whole.className='box'+(eq(path,p.concat('whole'))?' active':'');
+ whole.onclick=e=>{e.stopPropagation();showKb();path=p.concat('whole');cursor=n.whole.length;render()};
+ renderArr(n.whole,whole,p.concat('whole'));
+ const fr=n.frac;
+ const fw=document.createElement('span');fw.className='frac tok';
+ const t=document.createElement('span');t.className='ft box'+(eq(path,p.concat('frac','top'))?' active':'');
+ t.onclick=e=>{e.stopPropagation();showKb();path=p.concat('frac','top');cursor=fr.top.length;render()};
+ renderArr(fr.top,t,p.concat('frac','top'));
+ const l=document.createElement('span');l.className='fl';
+ const b=document.createElement('span');b.className='fb box'+(eq(path,p.concat('frac','bottom'))?' active':'');
+ b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('frac','bottom');cursor=fr.bottom.length;render()};
+ renderArr(fr.bottom,b,p.concat('frac','bottom'));
+ fw.append(t,l,b);w.append(whole,fw);return w
+}
+if(n.type==='root'){
+ const w=document.createElement('span');w.className='sqrt tok';
+ const idx=document.createElement('span');
+ idx.className='sup box'+(eq(path,p.concat('index'))?' active':'');
+ idx.onclick=e=>{e.stopPropagation();showKb();path=p.concat('index');cursor=n.index.length;render()};
+ renderArr(n.index,idx,p.concat('index'));
+ const sy=document.createElement('span');sy.className='sqrtSym';sy.textContent='√';
+ const b=document.createElement('span');b.className='sqrtBody box'+(eq(path,p.concat('body'))?' active':'');
+ b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};
+ renderArr(n.body,b,p.concat('body'));
+ w.append(idx,sy,b);return w
+}
+if(n.type==='sup'||n.type==='sub'){
+ const w=document.createElement('span');w.className=(n.type==='sup'?'supWrap':'subWrap')+' tok';
+ const baseWrap=document.createElement('span');
+ if(n.base.length){
+   renderArr(n.base,baseWrap,p.concat('base'));
+ }else{
+   baseWrap.className='box'+(eq(path,p.concat('base'))?' active':'');
+   baseWrap.onclick=e=>{e.stopPropagation();showKb();path=p.concat('base');cursor=n.base.length;render()};
+   renderArr(n.base,baseWrap,p.concat('base'));
+ }
+ const sm=document.createElement('span');
+ sm.className=(n.type==='sup'?'sup':'sub')+' box'+(eq(path,p.concat(n.type))?' active':'');
+ sm.onclick=e=>{e.stopPropagation();showKb();path=p.concat(n.type);cursor=n[n.type].length;render()};
+ renderArr(n[n.type],sm,p.concat(n.type));
+ w.append(baseWrap,sm);return w}
+if(n.type==='paren'){const w=document.createElement('span');w.className='tok';const l=document.createElement('span'),r=document.createElement('span');l.className=r.className='par';l.textContent='(';r.textContent=')';const b=document.createElement('span');b.className='box'+(eq(path,p.concat('body'))?' active':'');b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};renderArr(n.body,b,p.concat('body'));w.append(l,b,r);return w}
+if(n.type==='abs'){const w=document.createElement('span');w.className='tok';const l=document.createElement('span'),r=document.createElement('span');l.className=r.className='par';l.textContent='|';r.textContent='|';const b=document.createElement('span');b.className='box'+(eq(path,p.concat('body'))?' active':'');b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};renderArr(n.body,b,p.concat('body'));w.append(l,b,r);return w}
+if(n.type==='func'){const w=document.createElement('span');w.className='tok';const nm=document.createElement('span');nm.textContent=n.name;const l=document.createElement('span'),r=document.createElement('span');l.className=r.className='par';l.textContent='(';r.textContent=')';const b=document.createElement('span');b.className='box'+(eq(path,p.concat('body'))?' active':'');b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};renderArr(n.body,b,p.concat('body'));w.append(nm,l,b,r);return w}
+if(n.type==='logbase'){
+ const w=document.createElement('span');w.className='tok';
+ const nm=document.createElement('span');nm.textContent='log';
+ const base=document.createElement('span');base.className='sub box'+(eq(path,p.concat('base'))?' active':'');
+ base.onclick=e=>{e.stopPropagation();showKb();path=p.concat('base');cursor=n.base.length;render()};
+ renderArr(n.base,base,p.concat('base'));
+ const l=document.createElement('span'),r=document.createElement('span');l.className=r.className='par';l.textContent='(';r.textContent=')';
+ const b=document.createElement('span');b.className='box'+(eq(path,p.concat('body'))?' active':'');
+ b.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};
+ renderArr(n.body,b,p.concat('body'));
+ w.append(nm,base,l,b,r);return w
+}
+if(n.type==='exp'){const w=document.createElement('span');w.className='tok';w.textContent='e';const s=document.createElement('span');s.className='sup box'+(eq(path,p.concat('body'))?' active':'');s.onclick=e=>{e.stopPropagation();showKb();path=p.concat('body');cursor=n.body.length;render()};renderArr(n.body,s,p.concat('body'));w.append(s);return w}
+}
+function eq(a,b){return JSON.stringify(a)===JSON.stringify(b)}
+function display(v){return prettifyUnitCoefficientsCalc(String(v)).replaceAll('*','×').replaceAll('/',':').replaceAll('-','−').replaceAll('pi','π').replaceAll('Infinity','∞').replaceAll('<=','≤').replaceAll('>=','≥').replaceAll('!=','≠')}
+
+function calcA(a){return a.map(calc).join('')}
+function calc(n){
+ if(n.type==='newline')return '\n';
+ if(n.type==='menuText')return n.calc;
+ if(n.type==='text')return n.v;
+ if(n.type==='box')return calcA(n.children)||'';
+ if(n.type==='frac')return '(('+calcA(n.top)+')/('+calcA(n.bottom)+'))';
+ if(n.type==='bracket')return '('+calcA(n.body)+')';
+ if(n.type==='mixed')return '('+calcA(n.whole)+'+(('+calcA(n.frac.top)+')/('+calcA(n.frac.bottom)+')))';
+ if(n.type==='root')return '('+calcA(n.body)+')^(1/('+calcA(n.index)+'))';
+ if(n.type==='sqrt')return 'sqrt('+calcA(n.body)+')';
+ if(n.type==='sup'){
+  const split=splitCoeffTimesLogFromBaseNodes(n.base);
+  if(split) return calcA(split.coeffNodes)+'*(('+calc(split.logNode)+')^('+calcA(n.sup)+'))';
+  return '('+calcA(n.base)+')^('+calcA(n.sup)+')';
+ }
+ if(n.type==='sub')return calcA(n.base)+'_'+calcA(n.sub);
+ if(n.type==='paren')return '('+calcA(n.body)+')';
+ if(n.type==='abs')return 'abs('+calcA(n.body)+')';
+ if(n.type==='func')return n.name+'('+calcA(n.body)+')';
+ if(n.type==='logbase')return 'logbase('+calcA(n.base)+','+calcA(n.body)+')';
+ if(n.type==='exp')return 'e^('+calcA(n.body)+')';
+ return '';
+}
+function latexA(a){return a.map(latexN).join('')}
+function latexN(n){
+ if(n.type==='newline')return '\\\\';
+ if(n.type==='menuText')return n.latex;
+ if(n.type==='text')return textToLatex(n.v);
+ if(n.type==='box')return latexA(n.children)||'\\square';
+ if(n.type==='frac')return '\\frac{'+(latexA(n.top)||'\\square')+'}{'+(latexA(n.bottom)||'\\square')+'}';
+ if(n.type==='bracket')return (n.kind==='square'?'\\left[':'\\left\\{')+latexA(n.body)+(n.kind==='square'?'\\right]':'\\right\\}');
+ if(n.type==='mixed')return (latexA(n.whole)||'\\square')+'\\frac{'+(latexA(n.frac.top)||'\\square')+'}{'+(latexA(n.frac.bottom)||'\\square')+'}';
+ if(n.type==='root')return '\\sqrt['+(latexA(n.index)||'\\square')+']{'+(latexA(n.body)||'\\square')+'}';
+ if(n.type==='sqrt')return '\\sqrt{'+(latexA(n.body)||'\\square')+'}';
+ if(n.type==='sup'){
+ const b=(latexA(n.base)||'\\square');
+ const needsParens=/^[\+\-]/.test(b)||/[\+\-=]/.test(b.slice(1));
+ const outBase=needsParens?'('+b+')':b;
+ return outBase+'^{'+(latexA(n.sup)||'\\square')+'}';
+}
+ if(n.type==='sub')return '{'+(latexA(n.base)||'\\square')+'}_{'+(latexA(n.sub)||'\\square')+'}';
+ if(n.type==='abs')return '\\left| '+latexA(n.body)+' \\right|';
+ if(n.type==='paren'){
+  const bodyLatex=latexA(n.body);
+  const simple=/^[a-zA-Z0-9+\-*/.,\s]+$/.test(bodyLatex);
+  return simple ? '('+bodyLatex+')' : '\\left('+bodyLatex+'\\right)';
+}
+ if(n.type==='func')return '\\'+n.name+'\\left('+latexA(n.body)+'\\right)';
+ if(n.type==='logbase')return '\\log_{'+(latexA(n.base)||'\\square')+'}\\left('+latexA(n.body)+'\\right)';
+ if(n.type==='exp')return 'e^{'+(latexA(n.body)||'\\square')+'}';
+ return '';
+}
+function textToLatex(s){return String(s).replaceAll('*','\\cdot ').replaceAll('/','\\div ').replaceAll('pi','\\pi ').replaceAll('Infinity','\\infty ').replaceAll('<=','\\le ').replaceAll('>=','\\ge ').replaceAll('!=','\\ne ')}
+
+function readTwoArgsInParens(str,openIndex){
+  if(str[openIndex]!=='(') return null;
+  let depth=1, comma=-1, j=openIndex+1;
+  while(j<str.length){
+    const c=str[j];
+    if(c==='(') depth++;
+    else if(c===')'){
+      depth--;
+      if(depth===0) break;
+    }else if(c===',' && depth===1){
+      comma=j;
+    }
+    j++;
+  }
+  if(j>=str.length || comma<0) return null;
+  return {a:str.slice(openIndex+1,comma), b:str.slice(comma+1,j), end:j};
+}
+function calcTextToNodes(s){
+  s=String(s||'');
+  const nodes=[];
+  for(let i=0;i<s.length;i++){
+    const ch=s[i];
+    if(ch==='\n'){nodes.push({type:'newline'});continue;}
+    if(ch===' ') continue;
+
+    // internal fraction pattern: ((top)/(bottom))
+    if(s.slice(i,i+2)==='(('){
+      let j=i+2, depth=1, top='';
+      while(j<s.length){
+        const c=s[j];
+        if(c==='(') depth++;
+        if(c===')') depth--;
+        if(depth===0 && s[j+1]==='/' && s[j+2]==='(') break;
+        top+=c; j++;
+      }
+      if(j<s.length && s[j+1]==='/' && s[j+2]==='('){
+        j+=3; depth=1; let bot='';
+        while(j<s.length){
+          const c=s[j];
+          if(c==='(') depth++;
+          if(c===')') depth--;
+          if(depth===0 && s[j+1]===')') break;
+          bot+=c; j++;
+        }
+        if(j<s.length){
+          nodes.push({type:'frac',top:calcTextToNodes(top),bottom:calcTextToNodes(bot)});
+          i=j+1;
+          continue;
+        }
+      }
+    }
+
+    if(ch==='^'){
+      const base=nodes.length? [nodes.pop()] : [];
+      let exp='';
+      if(s[i+1]==='('){
+        let j=i+2, depth=1;
+        while(j<s.length){
+          const c=s[j];
+          if(c==='(') depth++;
+          if(c===')') depth--;
+          if(depth===0) break;
+          exp+=c; j++;
+        }
+        i=j;
+      }else{
+        exp=s[i+1]||'';
+        i++;
+      }
+      nodes.push({type:'sup',base,sup:calcTextToNodes(exp)});
+      continue;
+    }
+
+    if(ch==='('){
+      let j=i+1, depth=1, body='';
+      while(j<s.length){
+        const c=s[j];
+        if(c==='(') depth++;
+        if(c===')') depth--;
+        if(depth===0) break;
+        body+=c; j++;
+      }
+      if(j<s.length){
+        nodes.push({type:'paren',body:calcTextToNodes(body)});
+        i=j;
+        continue;
+      }
+    }
+
+
+    if(s.slice(i,i+4)==='abs('){
+      let j=i+4, depth=1, body='';
+      while(j<s.length){
+        const c=s[j];
+        if(c==='(') depth++;
+        if(c===')') depth--;
+        if(depth===0) break;
+        body+=c; j++;
+      }
+      nodes.push({type:'abs',body:calcTextToNodes(body)});
+      i=j;
+      continue;
+    }
+
+    if(s.slice(i,i+5)==='sqrt('){
+      let j=i+5, depth=1, body='';
+      while(j<s.length){
+        const c=s[j];
+        if(c==='(') depth++;
+        if(c===')') depth--;
+        if(depth===0) break;
+        body+=c; j++;
+      }
+      nodes.push({type:'sqrt',body:calcTextToNodes(body)});
+      i=j;
+      continue;
+    }
+
+    if(s.slice(i,i+8)==='logbase('){
+      const parsed=readTwoArgsInParens(s,i+7);
+      if(parsed){
+        nodes.push({type:'logbase',base:calcTextToNodes(parsed.a),body:calcTextToNodes(parsed.b)});
+        i=parsed.end;
+        continue;
+      }
+    }
+
+    if(/[a-zA-Z]/.test(ch)){
+      let name=ch; let j=i+1;
+      while(j<s.length && /[a-zA-Z]/.test(s[j])){name+=s[j];j++;}
+      if(['sin','cos','tan','cot','log','ln'].includes(name) && s[j]==='('){
+        let k=j+1, depth=1, body='';
+        while(k<s.length){
+          const c=s[k];
+          if(c==='(') depth++;
+          if(c===')') depth--;
+          if(depth===0) break;
+          body+=c;k++;
+        }
+        nodes.push({type:'func',name,body:calcTextToNodes(body)});
+        i=k;continue;
+      }
+      for(const letter of name) nodes.push({type:'text',v:letter});
+      i=j-1;continue;
+    }
+
+    nodes.push({type:'text',v:ch});
+  }
+  return nodes;
+}
+
+function denominatorsAtZero(expr,x){
+  const dens=[];
+  const re=/\/\(([^()]+)\)/g;
+  let m;
+  while((m=re.exec(expr))!==null){
+    try{dens.push(evalJS(m[1],x))}catch(e){}
+  }
+  return dens.some(v=>!Number.isFinite(v)||Math.abs(v)<1e-9);
+}
+
+function isValidRootForEquation(l,r,x){
+  if(denominatorsAtZero(l,x)||denominatorsAtZero(r,x)) return false;
+  let lv,rv;
+  try{lv=evalJS(l,x);rv=evalJS(r,x)}catch(e){return false}
+  return Number.isFinite(lv)&&Number.isFinite(rv)&&Math.abs(lv-rv)<1e-7;
+}
+
+let targetRefreshTimer=null;
+function scheduleGeneratorTargetRefresh(force=false){
+  clearTimeout(targetRefreshTimer);
+  targetRefreshTimer=setTimeout(()=>refreshGeneratorTargets(force),220);
+}
+function updateDebug(){
+  document.getElementById('debugCalc').textContent='výpočetní zápis: '+calcA(root);
+  document.getElementById('debugLatex').textContent='LaTeX: '+latexA(root);
+  scheduleGeneratorTargetRefresh(false);
+  syncEditorToUrl();
+}
+function normalizeExpr(s){
+  s=String(s||'');
+  s=s.replace(/−/g,'-').replace(/[·⋅×]/g,'*');
+  s=s.replace(/[\[{]/g,'(').replace(/[\]}]/g,')');
+  s=s.replace(/(\d)([a-zA-Z])/g,'$1*$2')
+     .replace(/([a-zA-Z])(\d)/g,'$1*$2')
+     .replace(/(\d)\(/g,'$1*(')
+     .replace(/(^|[^a-zA-Z])([a-zA-Z])\(/g,'$1$2*(')
+     .replace(/\)([a-zA-Z0-9])/g,')*$1')
+     .replace(/\)\(/g,')*(');
+  return s;
+}
+
+function getEquationLinesFromCalc(){
+  return calcA(root)
+    .split(/\n|;/)
+    .map(s=>s.trim())
+    .filter(s=>s.includes('='));
+}
+
+function parseLinearEquationCoeffs(eq, vars){
+  const idx=eq.indexOf('=');
+  const left=eq.slice(0,idx);
+  const right=eq.slice(idx+1);
+
+  // Linear coefficients by evaluating f = left - right at 0 and unit vectors.
+  function valueAt(values){
+    let expr=normalizeExpr('('+left+')-('+right+')');
+    vars.forEach((v,i)=>{
+      const re=new RegExp('\\b'+v+'\\b','g');
+      expr=expr.replace(re,'('+values[i]+')');
+    });
+    return Function('return ('+expr+')')();
+  }
+
+  const zero=Array(vars.length).fill(0);
+  const c=valueAt(zero);
+  const coeffs=[];
+  for(let i=0;i<vars.length;i++){
+    const e=Array(vars.length).fill(0);
+    e[i]=1;
+    coeffs.push(valueAt(e)-c);
+  }
+  // equation is coeffs·vars + c = 0 => coeffs·vars = -c
+  return {coeffs, rhs:-c};
+}
+
+function solveLinearSystemFallback(eqs, vars){
+  const n=eqs.length;
+  const A=[];
+  const b=[];
+  for(let i=0;i<n;i++){
+    const row=parseLinearEquationCoeffs(eqs[i], vars);
+    A.push(row.coeffs);
+    b.push(row.rhs);
+  }
+
+  // Gaussian elimination
+  const M=A.map((row,i)=>row.concat([b[i]]));
+  for(let col=0; col<n; col++){
+    let pivot=col;
+    for(let r=col+1;r<n;r++){
+      if(Math.abs(M[r][col])>Math.abs(M[pivot][col])) pivot=r;
+    }
+    if(Math.abs(M[pivot][col])<1e-12) throw Error('singular');
+    [M[col],M[pivot]]=[M[pivot],M[col]];
+
+    const div=M[col][col];
+    for(let j=col;j<=n;j++) M[col][j]/=div;
+
+    for(let r=0;r<n;r++){
+      if(r===col) continue;
+      const factor=M[r][col];
+      for(let j=col;j<=n;j++) M[r][j]-=factor*M[col][j];
+    }
+  }
+
+  return M.map(row=>row[n]);
+}
+
+
+function isEquationLinearInVars(eq, vars){
+  // Ověří linearitu numericky: lineární rovnice musí sedět nejen v bodech 0 a jednotkových
+  // vektorech, ale i v několika kombinacích hodnot. Tím se kvadratická soustava omylem
+  // nepošle do lineárního Gaussova řešení.
+  let row;
+  try{ row=parseLinearEquationCoeffs(eq, vars); }catch(e){ return false; }
+  const tests=[];
+  if(vars.length===2){
+    [-2,-1,0,1,2].forEach(x=>[-2,-1,0,1,2].forEach(y=>tests.push([x,y])));
+  }else{
+    tests.push(Array(vars.length).fill(0));
+    for(let i=0;i<vars.length;i++){
+      const a=Array(vars.length).fill(0); a[i]=2; tests.push(a);
+      const b=Array(vars.length).fill(1); b[i]=-1; tests.push(b);
+    }
+    tests.push(Array(vars.length).fill(2),Array(vars.length).fill(-1));
+  }
+  for(const values of tests){
+    let actual;
+    try{ actual=equationLineValueAt(eq, vars, values); }catch(e){ return false; }
+    const predicted=row.coeffs.reduce((s,c,i)=>s+c*values[i],0)-row.rhs;
+    if(!Number.isFinite(actual) || Math.abs(actual-predicted)>1e-7)return false;
+  }
+  return true;
+}
+
+function uniqueSystemSolutions(solutions){
+  const out=[];
+  (solutions||[]).forEach(sol=>{
+    if(!Array.isArray(sol) || !sol.every(Number.isFinite))return;
+    if(!out.some(o=>o.length===sol.length && o.every((v,i)=>Math.abs(v-sol[i])<1e-7)))out.push(sol);
+  });
+  return out.sort((a,b)=>{
+    for(let i=0;i<Math.min(a.length,b.length);i++){
+      if(Math.abs(a[i]-b[i])>1e-7)return a[i]-b[i];
+    }
+    return a.length-b.length;
+  });
+}
+
+function systemSolutionIsValid(eqs, vars, values){
+  try{
+    return eqs.every(eq=>Math.abs(equationLineValueAt(eq,vars,values))<1e-7);
+  }catch(e){ return false; }
+}
+
+function solveLinearQuadratic2System(eqs, vars){
+  if(eqs.length!==2 || vars.length!==2)return null;
+  const linearIndexes=[];
+  for(let i=0;i<2;i++) if(isEquationLinearInVars(eqs[i],vars)) linearIndexes.push(i);
+  if(linearIndexes.length!==1)return null;
+
+  const li=linearIndexes[0], qi=1-li;
+  const row=parseLinearEquationCoeffs(eqs[li],vars);
+  const a=row.coeffs[0], b=row.coeffs[1], rhs=row.rhs;
+  if(Math.abs(a)<1e-12 && Math.abs(b)<1e-12)return null;
+
+  const solutions=[];
+  const solveByFreeVariable=(freeIndex)=>{
+    const depIndex=1-freeIndex;
+    const depCoeff=row.coeffs[depIndex];
+    if(Math.abs(depCoeff)<1e-12)return;
+    const freeCoeff=row.coeffs[freeIndex];
+    const valuesFromFree=t=>{
+      const vals=[0,0];
+      vals[freeIndex]=t;
+      vals[depIndex]=(rhs-freeCoeff*t)/depCoeff;
+      return vals;
+    };
+    const g=t=>equationLineValueAt(eqs[qi],vars,valuesFromFree(t));
+    let c,y1,y2;
+    try{ c=g(0); y1=g(1); y2=g(2); }catch(e){ return; }
+    if(![c,y1,y2].every(Number.isFinite))return;
+    const A=(y2-2*y1+c)/2;
+    const B=y1-c-A;
+    const roots=[];
+    if(Math.abs(A)<1e-10){
+      if(Math.abs(B)>1e-10)roots.push(-c/B);
+    }else{
+      const D=B*B-4*A*c;
+      if(D>=-1e-9){
+        if(Math.abs(D)<1e-9)roots.push(-B/(2*A));
+        else{
+          const s=Math.sqrt(D);
+          roots.push((-B-s)/(2*A),(-B+s)/(2*A));
+        }
+      }
+    }
+    roots.forEach(t=>{
+      const vals=valuesFromFree(t);
+      if(systemSolutionIsValid(eqs,vars,vals))solutions.push(vals);
+    });
+  };
+
+  // Vyzkoušíme obě vyjádření; druhé je pojistka pro svislou/vodorovnou přímku.
+  solveByFreeVariable(0);
+  solveByFreeVariable(1);
+  return uniqueSystemSolutions(solutions);
+}
+
+function solveNonlinearSystemNumeric(eqs, vars){
+  const n=eqs.length;
+  if(n<2 || n>3)return null;
+  const solutions=[];
+
+  function residual(values){
+    return eqs.map(eq=>equationLineValueAt(eq,vars,values));
+  }
+
+  // Bezpečný hrubý fallback: najde všechna celá řešení v rozsahu -10..10, ne jen první.
+  const range=[];
+  for(let i=-10;i<=10;i++)range.push(i);
+
+  if(n===2){
+    for(const x of range){
+      for(const y of range){
+        const vals=[x,y];
+        const res=residual(vals);
+        if(res.every(v=>Math.abs(v)<1e-8))solutions.push(vals);
+      }
+    }
+  }
+
+  if(n===3){
+    for(const x of range){
+      for(const y of range){
+        for(const z of range){
+          const vals=[x,y,z];
+          const res=residual(vals);
+          if(res.every(v=>Math.abs(v)<1e-8))solutions.push(vals);
+        }
+      }
+    }
+  }
+
+  const out=uniqueSystemSolutions(solutions);
+  return out.length?out:null;
+}
+
+function solveSystemAll(eqs, vars){
+  if(!eqs || eqs.length<2)return null;
+  const usedVars=vars.slice(0,eqs.length);
+
+  // 1) Lineární soustavy řešíme lineárně, ale jen když jsou všechny řádky opravdu lineární.
+  if(eqs.every(eq=>isEquationLinearInVars(eq,usedVars))){
+    try{
+      const values=solveLinearSystemFallback(eqs,usedVars);
+      if(systemSolutionIsValid(eqs,usedVars,values))return [values];
+    }catch(e){}
+  }
+
+  // 2) Typický školní případ: jedna lineární a jedna kvadratická rovnice o dvou neznámých.
+  try{
+    const lq=solveLinearQuadratic2System(eqs,usedVars);
+    if(lq && lq.length)return lq;
+  }catch(e){}
+
+  // 3) Nerdamer může vrátit symbolické řešení; bereme ho jen po kontrole dosazením.
+  try{
+    if(window.nerdamer){
+      const used=eqs.slice(0,3).map(eq=>{
+        const idx=eq.indexOf('=');
+        const l=eq.slice(0,idx), r=eq.slice(idx+1);
+        return normalizeExpr('('+l+')-('+r+')');
+      });
+      const res=nerdamer.solveEquations(used,usedVars);
+      const sols=[];
+      if(Array.isArray(res) && res.length){
+        // Nerdamer často vrací jedno řešení jako [[x,val],[y,val]].
+        if(res.every(item=>Array.isArray(item) && item.length>=2 && typeof item[0]==='string')){
+          const vals=usedVars.map(v=>{
+            const item=res.find(x=>x[0]===v);
+            return item?numericValueFromNerdamer(String(item[1])):NaN;
+          });
+          if(systemSolutionIsValid(eqs,usedVars,vals))sols.push(vals);
+        }else{
+          res.forEach(sol=>{
+            if(Array.isArray(sol)){
+              const vals=usedVars.map(v=>{
+                const item=sol.find && sol.find(x=>Array.isArray(x)&&x[0]===v);
+                return item?numericValueFromNerdamer(String(item[1])):NaN;
+              });
+              if(systemSolutionIsValid(eqs,usedVars,vals))sols.push(vals);
+            }
+          });
+        }
+      }
+      const out=uniqueSystemSolutions(sols);
+      if(out.length)return out;
+    }
+  }catch(e){}
+
+  // 4) Poslední pojistka: celočíselná řešení v rozumném rozsahu.
+  return solveNonlinearSystemNumeric(eqs,usedVars);
+}
+
+function systemSolutionsToLatex(vars, solutions){
+  solutions=uniqueSystemSolutions(solutions);
+  if(!solutions.length)return '';
+
+  // Výsledky soustav zapisujeme jako dvojice/trojice:
+  // [x_1; y_1]=[1; 2] \quad [x_2; y_2]=[-3; 5]
+  return solutions.map((sol,si)=>{
+    const k=si+1;
+    const left='\\left['+vars.map(v=>`${v}_{${k}}`).join(';\\;')+'\\right]';
+    const right='\\left['+sol.map(v=>fmtLatexNumber(v)).join(';\\;')+'\\right]';
+    return left+'='+right;
+  }).join('\\quad ');
+}
+
+async function renderSystemResult(box, vars, values){
+  const solutions=Array.isArray(values) && Array.isArray(values[0]) ? values : [values];
+  box.innerHTML='\\['+systemSolutionsToLatex(vars,solutions)+'\\]';
+  if(window.MathJax) await MathJax.typesetPromise([box]);
+}
+
+
+
+function dedupeRoots(roots){
+ const out=[];
+ roots.forEach(r=>{
+  if(Number.isFinite(r) && !out.some(x=>Math.abs(x-r)<1e-6)) out.push(r);
+ });
+ return out.sort((a,b)=>a-b);
+}
+
+function fmtLatexNumber(n){
+ const r=Math.round(n*1e9)/1e9;
+ if(Math.abs(r-Math.round(r))<1e-9) return String(Math.round(r));
+ return String(r).replace(".",",");
+}
+
+function formatRootList(variable, roots){
+ roots=dedupeRoots(roots);
+ if(!roots.length) return null;
+ if(roots.length===1) return `\\[${variable}=${fmtLatexNumber(roots[0])}\\]`;
+ return "\\[" + roots.map((r,i)=>`${variable}_{${i+1}}=${fmtLatexNumber(r)}`).join("\\quad ") + "\\]";
+}
+
+
+function rationalApproxSmall(x,maxDen=12,tol=1e-8){
+  if(!Number.isFinite(x)) return null;
+  const sign=x<0?-1:1;
+  x=Math.abs(x);
+  let best=null,bestErr=Infinity;
+  for(let q=1;q<=maxDen;q++){
+    const p=Math.round(x*q);
+    const err=Math.abs(x-p/q);
+    if(err<bestErr){bestErr=err;best=[sign*p,q];}
+  }
+  if(!best || bestErr>tol) return null;
+  if(best[0]===0) return [0,1];
+  const g=gcdInt(Math.abs(best[0]),best[1]);
+  return [best[0]/g,best[1]/g];
+}
+function gcdInt(a,b){while(b){const t=a%b;a=b;b=t;}return a||1;}
+function latexRationalExponent(n){
+  const r=rationalApproxSmall(n,24,1e-7);
+  if(!r) return fmtLatexNumber(n);
+  const p=r[0], q=r[1];
+  if(q===1) return String(p);
+  if(p<0) return '-\\frac{'+Math.abs(p)+'}{'+q+'}';
+  return '\\frac{'+p+'}{'+q+'}';
+}
+function logPowerLatex(baseText,u){
+  const exp=latexRationalExponent(u);
+  const base=calcToLatexSimple(String(baseText||'').trim());
+  if(exp==='0') return '1';
+  if(exp==='1') return base;
+  return base+'^{'+exp+'}';
+}
+function evalExprAtX(expr,x,variable='x'){
+  let e=normalizeExpr(expr);
+  const re=new RegExp('\\b'+variable+'\\b','g');
+  e=e.replace(re,'('+x+')');
+  return evalJS(e,x);
+}
+function linearCoeffOfArg(expr,variable='x'){
+  let y0,y1,y2;
+  try{y0=evalExprAtX(expr,0,variable);y1=evalExprAtX(expr,1,variable);y2=evalExprAtX(expr,2,variable);}catch(e){return null;}
+  if(![y0,y1,y2].every(Number.isFinite)) return null;
+  const a=y1-y0, b=y0;
+  if(Math.abs((y2-y1)-a)>1e-7) return null;
+  if(Math.abs(a)<1e-12) return null;
+  return {a,b};
+}
+function symbolicXFromLinearArg(argText,powLatex,variable='x'){
+  const lin=linearCoeffOfArg(argText,variable);
+  if(!lin) return null;
+  let a=lin.a, b=lin.b;
+  const ar=rationalApproxSmall(a,12,1e-8);
+  const br=rationalApproxSmall(b,12,1e-8);
+  if(!ar || !br) return null;
+  a=ar[0]/ar[1]; b=br[0]/br[1];
+  if(Math.abs(a-1)<1e-9 && Math.abs(b)<1e-9) return powLatex;
+  if(Math.abs(b)<1e-9){
+    if(Math.abs(a-1)<1e-9) return powLatex;
+    if(Math.abs(a+1)<1e-9) return '-'+powLatex;
+    return '\\frac{'+powLatex+'}{'+fmtLatexNumber(a)+'}';
+  }
+  const bLatex=fmtLatexNumber(Math.abs(b));
+  const inside = b>0 ? powLatex+'-'+bLatex : powLatex+'+'+bLatex;
+  if(Math.abs(a-1)<1e-9) return inside;
+  return '\\frac{'+inside+'}{'+fmtLatexNumber(a)+'}';
+}
+function logSymbolicRootLatex(left,right,x,variable='x'){
+  try{
+    const equation='('+left+')-('+right+')';
+    const ranges=logbaseCallRanges(equation);
+    if(!ranges.length) return null;
+    const first=ranges[0];
+    const baseText=equation.slice(first.baseStart,first.baseEnd).trim();
+    const argText=equation.slice(first.argStart,first.argEnd).trim();
+    if(!ranges.every(r=>almostSameLogCall(equation,r,baseText,argText))) return null;
+    const baseValue=evalJS(baseText,x);
+    const argValue=evalJS(argText,x);
+    if(!Number.isFinite(baseValue)||baseValue<=0||Math.abs(baseValue-1)<1e-12) return null;
+    if(!Number.isFinite(argValue)||argValue<=0) return null;
+    const u=Math.log(argValue)/Math.log(baseValue);
+    const ru=rationalApproxSmall(u,24,1e-7);
+    if(!ru) return null;
+    const pow=logPowerLatex(baseText,ru[0]/ru[1]);
+    return symbolicXFromLinearArg(argText,pow,variable) || pow;
+  }catch(e){return null;}
+}
+function formatRootListForLogEquation(left,right,variable,roots){
+  roots=dedupeRoots(roots);
+  if(!roots.length) return null;
+  const parts=roots.map((r,i)=>{
+    const pretty=logSymbolicRootLatex(left,right,r,variable) || fmtLatexNumber(r);
+    return roots.length===1 ? `${variable}=${pretty}` : `${variable}_{${i+1}}=${pretty}`;
+  });
+  return '\\['+parts.join('\\quad ')+'\\]';
+}
+function inlineRootsForLogEquation(left,right,variable,roots){
+  roots=dedupeRoots(roots);
+  return roots.map((r,i)=>{
+    const pretty=logSymbolicRootLatex(left,right,r,variable) || fmtLatexNumber(r);
+    return (roots.length===1 ? `${variable} = ${pretty}` : `${variable}_{${i+1}} = ${pretty}`);
+  }).join('\\quad ');
+}
+
+function splitTopLevelEquation(raw){
+ const eqs=String(raw).split(/\n|;/).filter(x=>x.includes("="));
+ if(eqs.length!==1) return null;
+ const idx=eqs[0].indexOf("=");
+ return [eqs[0].slice(0,idx), eqs[0].slice(idx+1)];
+}
+
+function safeEval(expr,x){
+ const y=evalJS(expr,x);
+ return Number.isFinite(y) ? y : NaN;
+}
+
+function isValidEquationRoot(left,right,x){
+ let lv=safeEval(left,x), rv=safeEval(right,x);
+ if(!Number.isFinite(lv)||!Number.isFinite(rv)) return false;
+ if(Math.abs(lv)>1e12 || Math.abs(rv)>1e12) return false;
+ return Math.abs(lv-rv)<1e-7;
+}
+
+const NUMERIC_ROOTS_MAX_RESULTS=20;
+const NUMERIC_ROOTS_SCAN_MIN=-1000;
+const NUMERIC_ROOTS_SCAN_MAX=1000;
+const NUMERIC_ROOTS_SCAN_STEP=0.5;
+const GENERATOR_MAX_TOKENS=45;
+
+function findNumericRoots(left,right){
+ const f=x=>safeEval(left,x)-safeEval(right,x);
+ const roots=[];
+ const min=NUMERIC_ROOTS_SCAN_MIN, max=NUMERIC_ROOTS_SCAN_MAX, step=NUMERIC_ROOTS_SCAN_STEP;
+ let px=null, pv=null;
+
+ for(let x=min; x<=max+1e-12; x+=step){
+  let y=f(x);
+
+  if(!Number.isFinite(y)){
+    px=null; pv=null; 
+    continue;
+  }
+
+  if(Math.abs(y)<1e-8 && isValidEquationRoot(left,right,x)){
+    roots.push(x);
+    if(roots.length>=NUMERIC_ROOTS_MAX_RESULTS) break;
+  }
+
+  if(px!==null && Number.isFinite(pv) && pv*y<0){
+    let a=px,b=x,fa=pv;
+    for(let i=0;i<80;i++){
+      const m=(a+b)/2;
+      const fm=f(m);
+      if(!Number.isFinite(fm)) break;
+      if(Math.abs(fm)<1e-12){a=b=m;break}
+      if(fa*fm<=0){b=m}else{a=m;fa=fm}
+    }
+    const rr=(a+b)/2;
+    if(isValidEquationRoot(left,right,rr)){
+      roots.push(rr);
+      if(roots.length>=NUMERIC_ROOTS_MAX_RESULTS) break;
+    }
+  }
+
+  px=x; pv=y;
+ }
+
+ // exact-ish integer checks
+ for(let x=-50;x<=50;x++){
+  if(isValidEquationRoot(left,right,x)){
+    roots.push(x);
+    if(roots.length>=NUMERIC_ROOTS_MAX_RESULTS) break;
+  }
+ }
+
+ // malé kladné hodnoty pro logaritmické rovnice typu log_10(x)=-1
+ const extraChecks=[];
+ for(let p=-6;p<=3;p++){
+  const base=Math.pow(10,p);
+  extraChecks.push(base,2*base,5*base);
+ }
+ for(const x of extraChecks){
+  if(roots.length>=NUMERIC_ROOTS_MAX_RESULTS) break;
+  if(isValidEquationRoot(left,right,x)) roots.push(x);
+ }
+
+ return dedupeRoots(roots);
+}
+
+function parseNerdamerSolutions(res){
+ let txt=String(res && res.toString ? res.toString() : res);
+ txt=txt.trim();
+ if(!txt) return [];
+ if(txt.startsWith("[") && txt.endsWith("]")) txt=txt.slice(1,-1);
+ if(!txt.trim()) return [];
+ return txt.split(",").map(s=>s.trim()).filter(Boolean);
+}
+
+function numericValueFromNerdamer(s){
+ try{
+   const t=nerdamer(s).evaluate().text();
+   const n=Number(t);
+   return Number.isFinite(n) ? n : NaN;
+ }catch(e){
+   return NaN;
+ }
+}
+
+function solveQuadraticBySampling(left,right){
+ // For fallback: sample f(0), f(1), f(2) and infer ax^2+bx+c if possible.
+ const f=x=>safeEval(left,x)-safeEval(right,x);
+ const c=f(0), y1=f(1), y2=f(2);
+ if(!Number.isFinite(c)||!Number.isFinite(y1)||!Number.isFinite(y2)) return [];
+ const a=(y2-2*y1+c)/2;
+ const b=y1-c-a;
+ if(Math.abs(a)<1e-12) return [];
+ const D=b*b-4*a*c;
+ if(D<-1e-9) return [];
+ if(Math.abs(D)<1e-9) return [-b/(2*a)].filter(x=>isValidEquationRoot(left,right,x));
+ const s=Math.sqrt(D);
+ return [(-b-s)/(2*a),(-b+s)/(2*a)].filter(x=>isValidEquationRoot(left,right,x));
+}
+
+
+function findIntegerRootsExact(left,right,min=-100,max=100){
+  const roots=[];
+  for(let x=min;x<=max;x++){
+    try{
+      if(isValidEquationRoot(left,right,x)) roots.push(x);
+    }catch(e){}
+  }
+  return dedupeRoots(roots);
+}
+
+function mergeRootArrays(){
+  let all=[];
+  for(const arr of arguments){
+    if(Array.isArray(arr)) all=all.concat(arr);
+  }
+  return dedupeRoots(all.filter(n=>Number.isFinite(n) && Math.abs(n)<1e9));
+}
+
+
+function solveAllNumericRootsRobust(left,right,variable='x'){
+  const roots=[];
+  function add(x){
+    if(roots.length>=NUMERIC_ROOTS_MAX_RESULTS) return;
+    if(Number.isFinite(x) && Math.abs(x)<1e9 && isValidEquationRoot(left,right,x)) roots.push(x);
+  }
+
+  // 1) nejspolehlivější pro školní příklady: celé kořeny přes přímé dosazení
+  for(let x=-50;x<=50 && roots.length<NUMERIC_ROOTS_MAX_RESULTS;x++) add(x);
+
+  // 2) u kvadratických rovnic najdi i zlomkové dvojné kořeny.
+  // Samotné skenování podle změny znaménka je může minout (např. x = 1/2).
+  try{
+    const quad=solveQuadraticBySampling(left,right);
+    quad.forEach(add);
+  }catch(e){}
+
+  // 3) jemnější numerické hledání změny znaménka
+  try{
+    const more=findNumericRoots(left,right);
+    more.forEach(add);
+  }catch(e){}
+
+  // 4) zkus i kořeny z rozkladu Nerdameru, ale jen jako doplněk
+  try{
+    if(window.nerdamer){
+      const expr=normalizeExpr('('+left+')-('+right+')');
+      const sols=parseNerdamerSolutions(nerdamer.solve(expr,variable));
+      for(const sol of sols){
+        if(roots.length>=NUMERIC_ROOTS_MAX_RESULTS) break;
+        const n=numericValueFromNerdamer(sol);
+        add(n);
+      }
+    }
+  }catch(e){}
+
+  return dedupeRoots(roots);
+}
+
+
+function normalizeInequalitySymbols(s){
+  return String(s||'').replace(/≤/g,'<=').replace(/≥/g,'>=').replace(/−/g,'-');
+}
+function splitMathLines(raw){
+  return normalizeInequalitySymbols(raw).split(/\n|;/).map(x=>x.trim()).filter(Boolean);
+}
+function parseInequalityLine(line){
+  line=normalizeInequalitySymbols(line);
+  const ops=['<=','>=','<','>'];
+  for(const op of ops){
+    const idx=line.indexOf(op);
+    if(idx>=0){
+      return {left:line.slice(0,idx), op, right:line.slice(idx+op.length)};
+    }
+  }
+  return null;
+}
+function hasInequality(raw){
+  return splitMathLines(raw).some(l=>parseInequalityLine(l));
+}
+function inequalityHolds(val,op){
+  const eps=1e-8;
+  if(!Number.isFinite(val)) return false;
+  if(op==='<') return val < -eps;
+  if(op==='<=') return val <= eps;
+  if(op==='>') return val > eps;
+  if(op==='>=') return val >= -eps;
+  return false;
+}
+function extractDenominators(expr){
+  expr=String(expr||'');
+  const dens=[];
+  for(let i=0;i<expr.length;i++){
+    if(expr[i]==='/' && expr[i+1]==='('){
+      let j=i+2, depth=1, den='';
+      while(j<expr.length){
+        const c=expr[j];
+        if(c==='(') depth++;
+        if(c===')') depth--;
+        if(depth===0) break;
+        den+=c; j++;
+      }
+      if(den.trim()) dens.push(den.trim());
+      i=j;
+    }
+  }
+  return dens;
+}
+function denomZerosForExpression(expr,variable='x'){
+  const out=[];
+  extractDenominators(expr).forEach(den=>{
+    try{
+      solveAllNumericRootsRobust(den,'0',variable).forEach(x=>out.push(x));
+    }catch(e){}
+  });
+  return dedupeRoots(out);
+}
+function addUniqueNumber(arr,x){
+  if(Number.isFinite(x) && !arr.some(y=>Math.abs(y-x)<1e-6)) arr.push(x);
+}
+function criticalPointsForInequality(left,right,variable='x'){
+  const pts=[];
+  try{ solveEquationSetSmart(left,right,variable).roots.forEach(x=>addUniqueNumber(pts,x)); }catch(e){}
+  try{ absCriticalPointsForExpr(left,variable).forEach(x=>addUniqueNumber(pts,x)); }catch(e){}
+  try{ absCriticalPointsForExpr(right,variable).forEach(x=>addUniqueNumber(pts,x)); }catch(e){}
+  try{ findNumericRoots(left,right).forEach(x=>addUniqueNumber(pts,x)); }catch(e){}
+  try{ solveQuadraticBySampling(left,right).forEach(x=>addUniqueNumber(pts,x)); }catch(e){}
+  try{ denomZerosForExpression(left,variable).forEach(x=>addUniqueNumber(pts,x)); }catch(e){}
+  try{ denomZerosForExpression(right,variable).forEach(x=>addUniqueNumber(pts,x)); }catch(e){}
+  return pts.sort((a,b)=>a-b);
+}
+function isForbiddenPoint(left,right,x){
+  try{
+    if(denominatorsAtZero(left,x)||denominatorsAtZero(right,x)) return true;
+  }catch(e){}
+  try{
+    if(!Number.isFinite(evalJS(left,x)) || !Number.isFinite(evalJS(right,x))) return true;
+  }catch(e){return true;}
+  return false;
+}
+function evalIneqValue(left,right,x){
+  return safeEval(left,x)-safeEval(right,x);
+}
+function cleanEndpoint(x){
+  if(!Number.isFinite(x)) return x;
+  const r=Math.round(x*1e9)/1e9;
+  return Math.abs(r-Math.round(r))<1e-9 ? Math.round(r) : r;
+}
+function solveOneInequalityIntervals(line,variable='x'){
+  const p=parseInequalityLine(line);
+  if(!p) return null;
+  const left=p.left, right=p.right, op=p.op;
+  const pts=criticalPointsForInequality(left,right,variable).map(cleanEndpoint);
+  const intervals=[];
+  const probes=[];
+  if(!pts.length){
+    probes.push({a:-Infinity,b:Infinity,test:0});
+  }else{
+    probes.push({a:-Infinity,b:pts[0],test:pts[0]-1});
+    for(let i=0;i<pts.length-1;i++) probes.push({a:pts[i],b:pts[i+1],test:(pts[i]+pts[i+1])/2});
+    probes.push({a:pts[pts.length-1],b:Infinity,test:pts[pts.length-1]+1});
+  }
+  probes.forEach(seg=>{
+    let ok=false;
+    try{ ok=inequalityHolds(evalIneqValue(left,right,seg.test),op); }catch(e){ok=false;}
+    if(ok) intervals.push({a:seg.a,b:seg.b,leftClosed:false,rightClosed:false});
+  });
+  pts.forEach(x=>{
+    if(isForbiddenPoint(left,right,x)) return;
+    let ok=false;
+    try{ ok=inequalityHolds(evalIneqValue(left,right,x),op); }catch(e){ok=false;}
+    if(ok) intervals.push({a:x,b:x,leftClosed:true,rightClosed:true});
+  });
+  return mergeIntervals(intervals);
+}
+function intervalContainsEndpoint(interval,x,asLeft){
+  if(asLeft) return Math.abs(interval.a-x)<1e-8 && interval.leftClosed;
+  return Math.abs(interval.b-x)<1e-8 && interval.rightClosed;
+}
+function mergeIntervals(items){
+  if(!items.length) return [];
+  items=items.map(it=>({a:cleanEndpoint(it.a),b:cleanEndpoint(it.b),leftClosed:!!it.leftClosed,rightClosed:!!it.rightClosed}))
+    .sort((u,v)=>u.a-v.a || u.b-v.b);
+  const out=[];
+  for(const it of items){
+    if(it.a>it.b) continue;
+    const last=out[out.length-1];
+    if(!last){ out.push(it); continue; }
+    const touches=Math.abs(last.b-it.a)<1e-8;
+    const overlaps=last.b>it.a+1e-8;
+    const canJoin=overlaps || (touches && (last.rightClosed || it.leftClosed));
+    if(canJoin){
+      if(it.b>last.b+1e-8){
+        last.b=it.b; last.rightClosed=it.rightClosed;
+      }else if(Math.abs(it.b-last.b)<1e-8){
+        last.rightClosed=last.rightClosed||it.rightClosed;
+      }
+      if(touches){ last.rightClosed=it.rightClosed; }
+    }else out.push(it);
+  }
+  return out;
+}
+function intersectTwoIntervalSets(A,B){
+  const out=[];
+  for(const a of A) for(const b of B){
+    const start=Math.max(a.a,b.a), end=Math.min(a.b,b.b);
+    if(start>end+1e-8) continue;
+    let lc,rc;
+    if(Math.abs(start-a.a)<1e-8 && Math.abs(start-b.a)<1e-8) lc=a.leftClosed&&b.leftClosed;
+    else lc=(Math.abs(start-a.a)<1e-8)?a.leftClosed:b.leftClosed;
+    if(Math.abs(end-a.b)<1e-8 && Math.abs(end-b.b)<1e-8) rc=a.rightClosed&&b.rightClosed;
+    else rc=(Math.abs(end-a.b)<1e-8)?a.rightClosed:b.rightClosed;
+    if(start<end-1e-8 || (Math.abs(start-end)<1e-8 && lc && rc)) out.push({a:start,b:end,leftClosed:lc,rightClosed:rc});
+  }
+  return mergeIntervals(out);
+}
+function solveInequalitySystem(raw,variable='x'){
+  const lines=splitMathLines(raw).filter(l=>parseInequalityLine(l));
+  if(!lines.length) return null;
+  let current=[{a:-Infinity,b:Infinity,leftClosed:false,rightClosed:false}];
+  for(const line of lines){
+    const one=solveOneInequalityIntervals(line,variable);
+    if(!one) return null;
+    current=intersectTwoIntervalSets(current,one);
+    if(!current.length) break;
+  }
+  return current;
+}
+function fmtIntervalNumber(n){
+  if(n===Infinity) return '\\infty';
+  if(n===-Infinity) return '-\\infty';
+  return fmtLatexNumber(n);
+}
+function intervalsToLatex(intervals,variable='x'){
+  if(!intervals || !intervals.length) return `\\[${variable}\\in\\varnothing\\]`;
+  const parts=intervals.map(it=>{
+    const l=(it.a===-Infinity)?'(': (it.leftClosed?'\\langle':'(');
+    const r=(it.b===Infinity)?')': (it.rightClosed?'\\rangle':')');
+    if(Math.abs(it.a-it.b)<1e-8 && it.leftClosed && it.rightClosed){
+      return `\\langle ${fmtIntervalNumber(it.a)}; ${fmtIntervalNumber(it.b)} \\rangle`;
+    }
+    return `${l} ${fmtIntervalNumber(it.a)}; ${fmtIntervalNumber(it.b)} ${r}`;
+  });
+  return `\\[${variable}\\in ${parts.join('\\cup ')}\\]`;
+}
+async function solveInequalityAndRender(raw,box,variable='x'){
+  const intervals=solveInequalitySystem(raw,variable);
+  if(intervals===null){
+    box.innerHTML='<div class="muted">Nerovnici se nepodařilo rozpoznat.</div>';
+  }else{
+    box.innerHTML=intervalsToLatex(intervals,variable);
+  }
+  if(window.MathJax) await MathJax.typesetPromise([box]);
+}
+
+
+function hasAbsExpr(s){return /\babs\(/.test(String(s||''));}
+function readFunctionArgumentAt(str,openIndex){
+  if(str[openIndex]!=='(') return null;
+  let depth=1, j=openIndex+1, body='';
+  while(j<str.length){
+    const c=str[j];
+    if(c==='(') depth++;
+    else if(c===')'){
+      depth--;
+      if(depth===0) return {body,end:j};
+    }
+    body+=c; j++;
+  }
+  return null;
+}
+function extractAbsArguments(expr){
+  expr=String(expr||'');
+  const out=[];
+  for(let i=0;i<expr.length;i++){
+    if(expr.slice(i,i+4)==='abs('){
+      const parsed=readFunctionArgumentAt(expr,i+3);
+      if(parsed){out.push(parsed.body); i=parsed.end;}
+    }
+  }
+  return out;
+}
+function replaceAbsBySign(expr,testX){
+  expr=String(expr||'');
+  let out='';
+  for(let i=0;i<expr.length;i++){
+    if(expr.slice(i,i+4)==='abs('){
+      const parsed=readFunctionArgumentAt(expr,i+3);
+      if(parsed){
+        const inner=replaceAbsBySign(parsed.body,testX);
+        let val=NaN;
+        try{val=evalJS(inner,testX);}catch(e){}
+        const sign=val>=0?1:-1;
+        out+=(sign>=0?'(':'(-(')+inner+(sign>=0?')':'))');
+        i=parsed.end;
+        continue;
+      }
+    }
+    out+=expr[i];
+  }
+  return out;
+}
+function midpointForSegment(a,b){
+  if(a===-Infinity && b===Infinity) return 0;
+  if(a===-Infinity) return b-1;
+  if(b===Infinity) return a+1;
+  return (a+b)/2;
+}
+function absCriticalPointsForExpr(expr,variable='x'){
+  const pts=[];
+  function add(x){if(Number.isFinite(x)&&!pts.some(y=>Math.abs(y-x)<1e-7))pts.push(cleanEndpoint(x));}
+  extractAbsArguments(expr).forEach(arg=>{
+    try{solveAllNumericRootsRobust(arg,'0',variable).forEach(add);}catch(e){}
+    try{findNumericRoots(arg,'0').forEach(add);}catch(e){}
+  });
+  try{denomZerosForExpression(expr,variable).forEach(add);}catch(e){}
+  return pts.sort((a,b)=>a-b);
+}
+function equationCandidateCriticalPoints(left,right,variable='x'){
+  const pts=[];
+  function add(x){if(Number.isFinite(x)&&!pts.some(y=>Math.abs(y-x)<1e-7))pts.push(cleanEndpoint(x));}
+  absCriticalPointsForExpr(left,variable).forEach(add);
+  absCriticalPointsForExpr(right,variable).forEach(add);
+  try{denomZerosForExpression(left,variable).forEach(add);}catch(e){}
+  try{denomZerosForExpression(right,variable).forEach(add);}catch(e){}
+  return pts.sort((a,b)=>a-b);
+}
+function expressionIdentityOnSegment(left,right,a,b){
+  const tests=[];
+  const m=midpointForSegment(a,b);
+  tests.push(m);
+  if(a!==-Infinity && b!==Infinity){tests.push(a+(b-a)/3,a+2*(b-a)/3);}
+  else {tests.push(m-0.37,m+0.61);}
+  for(const x of tests){
+    if(isForbiddenPoint(left,right,x)) return false;
+    if(!isValidEquationRoot(left,right,x)) return false;
+  }
+  return true;
+}
+function solveAbsEquationSet(left,right,variable='x'){
+  const pts=equationCandidateCriticalPoints(left,right,variable);
+  const roots=[];
+  const intervals=[];
+  const bounds=[-Infinity,...pts,Infinity];
+  function inOpenSegment(x,a,b){return x>a+1e-8 && x<b-1e-8;}
+  function addRoot(x){if(isValidEquationRoot(left,right,x)&&!roots.some(r=>Math.abs(r-x)<1e-7))roots.push(cleanEndpoint(x));}
+  for(let i=0;i<bounds.length-1;i++){
+    const a=bounds[i], b=bounds[i+1];
+    if(!(a<b)) continue;
+    const test=midpointForSegment(a,b);
+    const sl=replaceAbsBySign(left,test);
+    const sr=replaceAbsBySign(right,test);
+    if(expressionIdentityOnSegment(sl,sr,a,b)){
+      intervals.push({a,b,leftClosed:false,rightClosed:false});
+      continue;
+    }
+    let segRoots=[];
+    try{segRoots=solveAllNumericRootsRobust(sl,sr,variable);}catch(e){segRoots=[];}
+    segRoots.forEach(x=>{if(inOpenSegment(x,a,b)) addRoot(x);});
+  }
+  pts.forEach(addRoot);
+  const merged=mergeIntervals(intervals);
+  const filteredRoots=roots.filter(x=>!merged.some(it=>x>it.a+1e-8 && x<it.b-1e-8));
+  return {roots:dedupeRoots(filteredRoots),intervals:merged};
+}
+function solutionSetToLatex(sol,variable='x'){
+  const hasIntervals=sol && sol.intervals && sol.intervals.length;
+  const hasRoots=sol && sol.roots && sol.roots.length;
+  if(hasIntervals){
+    let intervals=sol.intervals.slice();
+    (sol.roots||[]).forEach(x=>intervals.push({a:x,b:x,leftClosed:true,rightClosed:true}));
+    return intervalsToLatex(mergeIntervals(intervals),variable);
+  }
+  if(hasRoots) return formatRootList(variable,sol.roots);
+  return `\\[${variable}\\in\\varnothing\\]`;
+}
+function solveEquationSetSmart(left,right,variable='x'){
+  if(hasAbsExpr(left)||hasAbsExpr(right)) return solveAbsEquationSet(left,right,variable);
+  return {roots:solveAllNumericRootsRobust(left,right,variable),intervals:[]};
+}
+function solutionSummaryHtml(left,right,variable='x'){
+  const sol=solveEquationSetSmart(left,right,variable);
+  return solutionSetToLatex(sol,variable);
+}
+function solutionSetContainsValue(sol,x){
+  if(!sol || !Number.isFinite(x)) return false;
+  if((sol.roots||[]).some(r=>Math.abs(r-x)<1e-7)) return true;
+  return (sol.intervals||[]).some(it=>{
+    const leftOk = it.a===-Infinity || x>it.a+1e-8 || (it.leftClosed && Math.abs(x-it.a)<1e-8);
+    const rightOk = it.b===Infinity || x<it.b-1e-8 || (it.rightClosed && Math.abs(x-it.b)<1e-8);
+    return leftOk && rightOk;
+  });
+}
+function solutionLatexInline(latex){
+  return String(latex||'').replace(/^\\[/,'\(').replace(/\\]$/,'\)');
+}
+
+
+
+function replaceRangesWithToken(str,ranges,token){
+  let out=String(str||'');
+  ranges.slice().sort((a,b)=>b.start-a.start).forEach(r=>{
+    out=out.slice(0,r.start)+token+out.slice(r.end);
+  });
+  return out;
+}
+function almostSameLogCall(raw,r,firstBase,firstArg){
+  return raw.slice(r.baseStart,r.baseEnd).trim()===firstBase && raw.slice(r.argStart,r.argEnd).trim()===firstArg;
+}
+function solveSingleLogQuadraticBySubstitution(left,right,variable='x'){
+  // Speciální bezpečná větev pro školní typ:
+  // a*(log_b(f(x)))^2 + c*log_b(f(x)) + d = 0.
+  // Nezasahuje do ostatních rovnic: spustí se jen při jednom stejném logbase(...) výrazu
+  // a po nalezení každého kořene ho ještě ověří dosazením do původní rovnice.
+  const equation='('+left+')-('+right+')';
+  const ranges=logbaseCallRanges(equation);
+  if(!ranges.length) return [];
+
+  const first=ranges[0];
+  const baseText=equation.slice(first.baseStart,first.baseEnd).trim();
+  const argText=equation.slice(first.argStart,first.argEnd).trim();
+  if(!ranges.every(r=>almostSameLogCall(equation,r,baseText,argText))) return [];
+
+  let baseValue=NaN;
+  try{ baseValue=evalJS(baseText,1); }catch(e){}
+  if(!Number.isFinite(baseValue)||baseValue<=0||Math.abs(baseValue-1)<1e-12) return [];
+
+  const uExpr=replaceRangesWithToken(equation,ranges,'u');
+  // Pokud po nahrazení logaritmu pořád zůstává x mimo argument logaritmu,
+  // už to není čistá substituce jednou proměnnou u.
+  const withoutWords=uExpr.replace(/logbase|Math|sqrt|abs|sin|cos|tan|ln|log/g,'');
+  if(new RegExp('\\b'+variable+'\\b').test(withoutWords)) return [];
+
+  function evalU(u){
+    let e=normalizeExpr(uExpr)
+      .replace(/\^/g,'**')
+      .replace(/\bpi\b/g,'Math.PI')
+      .replace(/\babs\(/g,'Math.abs(')
+      .replace(/\bsqrt\(/g,'Math.sqrt(')
+      .replace(/\bsin\(/g,'Math.sin(')
+      .replace(/\bcos\(/g,'Math.cos(')
+      .replace(/\btan\(/g,'Math.tan(')
+      .replace(/\blog\(/g,'Math.log(')
+      .replace(/\bln\(/g,'Math.log(');
+    return Function('u','return ('+e+')')(u);
+  }
+
+  let y0,y1,y2;
+  try{ y0=evalU(0); y1=evalU(1); y2=evalU(2); }catch(e){ return []; }
+  if(![y0,y1,y2].every(Number.isFinite)) return [];
+
+  const A=(y2-2*y1+y0)/2;
+  const B=y1-y0-A;
+  const C=y0;
+  const uRoots=[];
+  if(Math.abs(A)<1e-10){
+    if(Math.abs(B)>1e-10) uRoots.push(-C/B);
+  }else{
+    const D=B*B-4*A*C;
+    if(D>=-1e-9){
+      if(Math.abs(D)<1e-9) uRoots.push(-B/(2*A));
+      else{
+        const s=Math.sqrt(D);
+        uRoots.push((-B-s)/(2*A),(-B+s)/(2*A));
+      }
+    }
+  }
+
+  const xRoots=[];
+  uRoots.forEach(u=>{
+    if(!Number.isFinite(u)) return;
+    const targetArg=Math.pow(baseValue,u);
+    if(!Number.isFinite(targetArg)||targetArg<=0) return;
+    let roots=[];
+    try{ roots=solveAllNumericRootsRobust(argText,String(targetArg),variable); }catch(e){ roots=[]; }
+    roots.forEach(x=>{
+      if(isValidEquationRoot(left,right,x)) xRoots.push(x);
+    });
+  });
+  return dedupeRoots(xRoots);
+}
+async function solveEquation(){
+ const box=document.getElementById('result'); 
+ const raw=calcA(root);
+
+ if(!raw){
+  box.innerHTML='<div class="muted">Nejdřív zadej rovnici.</div>';
+  return;
+ }
+
+ const vars=document.getElementById('vars').value.split(',').map(x=>x.trim()).filter(Boolean); 
+ const v=vars[0]||'x';
+
+ try{
+  if(hasInequality(raw)){
+    await solveInequalityAndRender(raw,box,v);
+    return;
+  }
+
+  const eqs=getEquationLinesFromCalc();
+
+  if(eqs.length>1){
+    const usedVars=vars.slice(0,eqs.length);
+    const solutions=solveSystemAll(eqs,usedVars);
+    if(solutions && solutions.length){
+      await renderSystemResult(box,usedVars,solutions);
+      return;
+    }
+    box.innerHTML='<div class="muted">Soustavu se nepodařilo spočítat.</div>';
+    return;
+  }
+
+  const parts=splitTopLevelEquation(raw);
+  if(!parts){
+    box.innerHTML='<div class="muted">Zápis neobsahuje jednu rovnici s rovnítkem.</div>';
+    return;
+  }
+
+  const [left,right]=parts;
+  const expr=normalizeExpr('('+left+')-('+right+')');
+
+  // Logaritmická kvadratická rovnice: např. 2*(log_5(x))^2+2*log_5(x)=5.
+  // Běžné numerické skenování může minout kořen pro 0<x<1, proto nejdřív zkusíme
+  // bezpečnou substituci u=log_b(f(x)).
+  let logSubRoots=[];
+  try{ logSubRoots=solveSingleLogQuadraticBySubstitution(left,right,v); }catch(e){ logSubRoots=[]; }
+  if(logSubRoots.length>1){
+    box.innerHTML=formatRootListForLogEquation(left,right,v,logSubRoots) || formatRootList(v,logSubRoots);
+    if(window.MathJax) await MathJax.typesetPromise([box]);
+    return;
+  }
+
+  if(hasAbsExpr(left)||hasAbsExpr(right)){
+    const sol=solveAbsEquationSet(left,right,v);
+    box.innerHTML=solutionSetToLatex(sol,v);
+    if(window.MathJax) await MathJax.typesetPromise([box]);
+    return;
+  }
+  const degree=getMaxPowerInRaw(raw,v);
+
+  // Nejdřív robustně najdi všechny reálné číselné kořeny.
+  // Důležité: u vyšších mocnin se nesmí skončit po prvních 1–2 kořenech z Nerdameru.
+  let allDirectRoots=[];
+  try{ allDirectRoots=solveAllNumericRootsRobust(left,right,v); }catch(e){ allDirectRoots=[]; }
+  if(degree>2 && allDirectRoots.length){
+    let html=formatRootList(v,allDirectRoots);
+    const fact=factorLatexOfEquation(left,right,v);
+    if(fact) html+='<div class="muted">Součinový tvar: \\('+fact+'=0\\)</div>';
+    box.innerHTML=html;
+    if(window.MathJax) await MathJax.typesetPromise([box]);
+    return;
+  }
+
+  // 1) Nerdamer symbolic solve. Important: parse and display ALL returned solutions.
+  let symbolicRoots=[];
+  if(window.nerdamer){
+    try{
+      symbolicRoots=parseNerdamerSolutions(nerdamer.solve(expr,v));
+      symbolicRoots=symbolicRoots.filter(s=>{
+        const n=numericValueFromNerdamer(s);
+        // Keep nonnumeric symbolic roots, but filter numeric roots by substitution.
+        return !Number.isFinite(n) || isValidEquationRoot(left,right,n);
+      });
+    }catch(e){
+      symbolicRoots=[];
+    }
+  }
+
+  if(symbolicRoots.length){
+    // Nerdamer někdy vrátí jen část kořenů. Proto se symbolické kořeny
+    // vždy sjednotí s numerickým i přesným celočíselným dohledáním.
+    let numericRoots=[];
+    let integerRoots=[];
+    let quadraticRoots=[];
+    try{ numericRoots=findNumericRoots(left,right); }catch(e){ numericRoots=[]; }
+    try{ integerRoots=findIntegerRootsExact(left,right,-100,100); }catch(e){ integerRoots=[]; }
+    try{ quadraticRoots=solveQuadraticBySampling(left,right); }catch(e){ quadraticRoots=[]; }
+
+    const symbolicNumericRoots=symbolicRoots
+      .map(s=>numericValueFromNerdamer(s))
+      .filter(n=>Number.isFinite(n) && isValidEquationRoot(left,right,n));
+
+    const allNumericRoots=mergeRootArrays(symbolicNumericRoots,numericRoots,integerRoots,quadraticRoots);
+
+    let html='';
+    if(allNumericRoots.length>=symbolicRoots.length){
+      html=formatRootList(v,allNumericRoots);
+    }else if(symbolicRoots.length===1){
+      html='\\['+v+'='+nerdamer(symbolicRoots[0]).toTeX()+'\\]';
+    }else{
+      html='\\['+symbolicRoots.map((s,i)=>`${v}_{${i+1}}=${nerdamer(s).toTeX()}`).join('\\quad ')+'\\]';
+    }
+
+    if(degree>2){
+      const fact=factorLatexOfEquation(left,right,v);
+      if(fact) html+='<div class="muted">Součinový tvar: \\('+fact+'=0\\)</div>';
+    }
+    box.innerHTML=html;
+    if(window.MathJax) await MathJax.typesetPromise([box]);
+    return;
+  }
+
+
+  // 2) Quadratic fallback: ensures two roots are shown when it is quadratic.
+  let roots=solveQuadraticBySampling(left,right);
+  if(roots.length){
+    box.innerHTML=formatRootList(v,roots);
+    if(window.MathJax) await MathJax.typesetPromise([box]);
+    return;
+  }
+
+  // 3) Numeric search for rational equations and equations with x in denominator.
+  roots=findNumericRoots(left,right);
+  if(roots.length){
+    let html=formatRootList(v,roots);
+    const degree=getMaxPowerInRaw(raw,v);
+    if(degree>2){
+      const fact=factorLatexOfEquation(left,right,v);
+      if(fact) html+='<div class="muted">Součinový tvar: \\('+fact+'=0\\)</div>';
+    }
+    box.innerHTML=html;
+    if(window.MathJax) await MathJax.typesetPromise([box]);
+    return;
+  }
+
+  // 4) Last fallback: linear.
+  const ans=linearFallback(left,right);
+  if(isValidEquationRoot(left,right,ans)){
+    box.innerHTML='\\['+v+'='+fmtLatexNumber(ans)+'\\]';
+  }else{
+    box.innerHTML='<div class="muted">Řešení nenalezeno nebo je mimo definiční obor.</div>';
+  }
+  if(window.MathJax) await MathJax.typesetPromise([box]);
+
+ }catch(e){
+  box.innerHTML='<div class="muted">Tohle se nepodařilo spočítat.</div>';
+ }
+}
+function logBaseValue(base,arg){
+  base=Number(base); arg=Number(arg);
+  if(!Number.isFinite(base)||!Number.isFinite(arg)||base<=0||Math.abs(base-1)<1e-12||arg<=0) return NaN;
+  return Math.log(arg)/Math.log(base);
+}
+function evalJS(s,x){
+ s=normalizeExpr(String(s))
+   .replace(/\^/g,'**')
+   .replace(/\bpi\b/g,'Math.PI')
+   .replace(/\blogbase\(/g,'logBaseValue(')
+   .replace(/\babs\(/g,'Math.abs(')
+   .replace(/\bsqrt\(/g,'Math.sqrt(')
+   .replace(/\bsin\(/g,'Math.sin(')
+   .replace(/\bcos\(/g,'Math.cos(')
+   .replace(/\btan\(/g,'Math.tan(')
+   .replace(/\blog\(/g,'Math.log(')
+   .replace(/\bln\(/g,'Math.log(');
+ return Function('x','logBaseValue','return ('+s+')')(x,logBaseValue)
+}
+function linearFallback(l,r){function f(x){return evalJS(l,x)-evalJS(r,x)}const b=f(0),a=f(1)-b;if(Math.abs(a)<1e-12)throw Error('not linear');return -b/a}
+function fmt(n){const r=Math.round(n*1e9)/1e9;return Math.abs(r-Math.round(r))<1e-9?String(Math.round(r)):String(r).replace('.',',')}
+function toks(raw){const out=[],re=/-?\d+(?:\.\d+)?/g;let m,idx=0;const preserved=preservedTokenIndexesForRaw(raw);while((m=re.exec(raw))){const bef=raw.slice(Math.max(0,m.index-3),m.index);if(bef.includes('^')){idx++;continue;}out.push({start:m.index,end:m.index+m[0].length,value:m[0],keep:preserved.has(idx)});idx++;}return out}
+function repl(raw,rs){
+  let o=raw;
+  rs.sort((a,b)=>b.t.start-a.t.start).forEach(r=>{
+    if(r.t&&r.t.keep)return;
+    let v=String(r.v);
+
+    // Důležité: tokeny typu -4 obsahují i znaménko mínus.
+    // Když se -4 nahradí kladným číslem 5, nesmí vzniknout ...x^25...
+    // Proto binární mínus měníme na explicitní +5.
+    if(String(r.t.value).startsWith('-') && !v.startsWith('-')){
+      const before=o.slice(0,r.t.start).trimEnd();
+      const prev=before[before.length-1]||'';
+      if(/[0-9a-zA-Z)\]]/.test(prev)) v='+'+v;
+    }
+
+    o=o.slice(0,r.t.start)+v+o.slice(r.t.end);
+  });
+  return o;
+}
+function coeffLimits(){
+  let minCoeff=Number(document.getElementById('minCoeff')?.value||0);
+  let maxCoeff=Number(document.getElementById('maxCoeff')?.value||80);
+  minCoeff=Math.max(0,Math.floor(Math.abs(minCoeff)||0));
+  maxCoeff=Math.max(1,Math.floor(Math.abs(maxCoeff)||80));
+  if(minCoeff>maxCoeff){const tmp=minCoeff;minCoeff=maxCoeff;maxCoeff=tmp;}
+  return {minCoeff,maxCoeff};
+}
+function getMutationDelta(){
+  const {minCoeff,maxCoeff}=coeffLimits();
+  return Math.max(1,Math.min(8,Math.max(5,maxCoeff-minCoeff)));
+}
+function coefficientAllowedValue(n,allowZero=false){
+  const {minCoeff,maxCoeff}=coeffLimits();
+  if(!Number.isFinite(n)) return false;
+  const a=Math.abs(n);
+  if(a>maxCoeff) return false;
+  if(a===0) return !!allowZero;
+  return a>=minCoeff;
+}
+function applyCoeffLimits(q,fallbackSign=1){
+  const {minCoeff,maxCoeff}=coeffLimits();
+  if(!Number.isFinite(q)) q=fallbackSign<0?-1:1;
+  if(q>maxCoeff) q=maxCoeff;
+  if(q<-maxCoeff) q=-maxCoeff;
+  if(q===0) q=fallbackSign<0?-Math.max(1,minCoeff):Math.max(1,minCoeff);
+  if(Math.abs(q)<minCoeff) q=(q<0?-1:1)*minCoeff;
+  if(q===0) q=fallbackSign<0?-1:1;
+  return q;
+}
+function parseSimpleCoeffValue(s){
+  s=String(s).trim();
+  if(/^[-+]?\d+(?:\.\d+)?$/.test(s)) return Number(s);
+  const m=s.match(/^([-+]?\d+(?:\.\d+)?)\/([-+]?\d+(?:\.\d+)?)$/);
+  if(m){const a=Number(m[1]),b=Number(m[2]);return b? a/b:NaN;}
+  return NaN;
+}
+function mutate(v,d){
+ const n=Number(v);
+ d=Number(d||getMutationDelta());
+ let k=0;
+ for(let i=0;i<20;i++){k=Math.floor(Math.random()*(2*d+1))-d;if(k)break}
+ let q=n+k;
+ q=applyCoeffLimits(q,n<0?-1:1);
+ return String(q)
+}
+
+function equationLines(){
+ return calcA(root).split(/\n|;/).map(s=>s.trim()).filter(s=>s.includes('='));
+}
+
+function getMaxPowerInRaw(raw, variable='x'){
+  let max=raw.includes(variable)?1:0;
+  const esc=variable.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const patterns=[
+    new RegExp(esc+'\\s*\\^\\s*(?:\\(?\\s*)?(\\d+)', 'g'),
+    new RegExp('\\('+esc+'\\)\\s*\\^\\s*\\(?\\s*(\\d+)', 'g')
+  ];
+  patterns.forEach(re=>{
+    let m;
+    while((m=re.exec(raw))!==null){
+      const n=Number(m[1]);
+      if(Number.isFinite(n)) max=Math.max(max,n);
+    }
+  });
+  return max;
+}
+
+function factorLatexOfEquation(left,right,variable='x'){
+  if(!window.nerdamer) return '';
+  try{
+    const expr=normalizeExpr('('+left+')-('+right+')');
+    const fact=nerdamer('factor('+expr+')');
+    return fact.toTeX();
+  }catch(e){
+    return '';
+  }
+}
+
+function solveLinearSystemNumeric(A,b){
+  const n=A.length;
+  if(!n)return [];
+  const m=A[0].length;
+  const M=A.map((row,i)=>row.slice().concat([b[i]]));
+  for(let col=0,row=0; col<m && row<n; col++,row++){
+    let pivot=row;
+    for(let r=row+1;r<n;r++){
+      if(Math.abs(M[r][col])>Math.abs(M[pivot][col])) pivot=r;
+    }
+    if(Math.abs(M[pivot][col])<1e-10) return null;
+    [M[row],M[pivot]]=[M[pivot],M[row]];
+    const div=M[row][col];
+    for(let j=col;j<=m;j++) M[row][j]/=div;
+    for(let r=0;r<n;r++){
+      if(r===row)continue;
+      const f=M[r][col];
+      for(let j=col;j<=m;j++) M[r][j]-=f*M[row][j];
+    }
+  }
+  const sol=Array(m).fill(0);
+  for(let i=0;i<m;i++) sol[i]=M[i][m];
+  return sol;
+}
+
+function coefficientRowsForTargets(raw,tokens,adjustIdxs,fixedValues,targets){
+  const rows=[], rhs=[];
+  for(const x of targets){
+    const full0=tokens.map((t,i)=>fixedValues[i]!==undefined?fixedValues[i]:0);
+    adjustIdxs.forEach(i=>full0[i]=0);
+    const expr0=repl(raw,tokens.map((t,i)=>({t,v:String(full0[i])})));
+    const [l0,r0]=expr0.split('=');
+    let c0;
+    try{c0=evalJS(l0,x)-evalJS(r0,x)}catch(e){continue}
+    const row=[];
+    for(const adj of adjustIdxs){
+      const full=tokens.map((t,i)=>fixedValues[i]!==undefined?fixedValues[i]:0);
+      adjustIdxs.forEach(i=>full[i]=0);
+      full[adj]=1;
+      const expr1=repl(raw,tokens.map((t,i)=>({t,v:String(full[i])})));
+      const [l1,r1]=expr1.split('=');
+      let c1;
+      try{c1=evalJS(l1,x)-evalJS(r1,x)}catch(e){c1=NaN}
+      row.push(c1-c0);
+    }
+    if(row.every(v=>Math.abs(v)<1e-10)){
+      if(Math.abs(c0)<1e-8) continue; // root is automatic for this shape
+      return null;
+    }
+    rows.push(row);
+    rhs.push(-c0);
+  }
+  return {rows,rhs};
+}
+
+
+function evalJSVars(s,vars,values){
+  s=normalizeExpr(String(s))
+    .replace(/\^/g,'**')
+    .replace(/\bpi\b/g,'Math.PI')
+    .replace(/\blogbase\(/g,'logBaseValue(')
+   .replace(/\babs\(/g,'Math.abs(')
+   .replace(/\bsqrt\(/g,'Math.sqrt(')
+    .replace(/\bsin\(/g,'Math.sin(')
+    .replace(/\bcos\(/g,'Math.cos(')
+    .replace(/\btan\(/g,'Math.tan(')
+    .replace(/\blog\(/g,'Math.log(')
+    .replace(/\bln\(/g,'Math.log(');
+  return Function(...vars,'logBaseValue','return ('+s+')')(...values,logBaseValue);
+}
+function equationLineValueAt(eq,vars,values){
+  const idx=eq.indexOf('=');
+  if(idx<0)throw Error('missing equals');
+  const l=eq.slice(0,idx), r=eq.slice(idx+1);
+  return evalJSVars(l,vars,values)-evalJSVars(r,vars,values);
+}
+function sameTokenCountAndOperators(original,candidate){
+  if(toks(original).length!==toks(candidate).length)return false;
+  const mask=s=>String(s).replace(/-?\d+(?:\.\d+)?/g,'#');
+  return mask(original).replace(/\s+/g,'')===mask(candidate).replace(/\s+/g,'');
+}
+function generateEquationLinePreserveShape(eq,vars,values,d){
+  const tokens=toks(eq);
+  if(tokens.length>GENERATOR_MAX_TOKENS || tokens.length<1)return null;
+  const started=nowMs();
+  for(let attempt=0; attempt<GENERATOR_MAX_ATTEMPTS; attempt++){
+    if(generatorTimedOut(started))break;
+    const adj=Math.floor(Math.random()*tokens.length);
+    const fixedValues={};
+    tokens.forEach((t,i)=>{ if(i!==adj) fixedValues[i]=mutate(t.value,d); });
+
+    const full0=tokens.map((t,i)=>fixedValues[i]!==undefined?fixedValues[i]:0);
+    full0[adj]=0;
+    const expr0=repl(eq,tokens.map((t,i)=>({t,v:String(full0[i])})));
+    let c0;
+    try{c0=equationLineValueAt(expr0,vars,values)}catch(e){continue;}
+
+    const full1=tokens.map((t,i)=>fixedValues[i]!==undefined?fixedValues[i]:0);
+    full1[adj]=1;
+    const expr1=repl(eq,tokens.map((t,i)=>({t,v:String(full1[i])})));
+    let c1;
+    try{c1=equationLineValueAt(expr1,vars,values)}catch(e){continue;}
+
+    const denom=c1-c0;
+    if(!Number.isFinite(denom) || Math.abs(denom)<1e-10)continue;
+    const solved=-c0/denom;
+    const txt=niceNumberString(solved);
+    if(txt===null || txt==='0')continue;
+
+    const vals=tokens.map((t,i)=>fixedValues[i]!==undefined?fixedValues[i]:txt);
+    const cand=repl(eq,tokens.map((t,i)=>({t,v:String(vals[i])})));
+    if(!sameTokenCountAndOperators(eq,cand))continue;
+    try{
+      if(Math.abs(equationLineValueAt(cand,vars,values))<1e-8)return cand;
+    }catch(e){}
+  }
+  return null;
+}
+
+function niceNumberString(n){
+  if(!Number.isFinite(n)) return null;
+  const r=Math.round(n);
+  // Generátor má zachovat stejný tvar zápisu jako v editoru.
+  // Proto sem nepouštíme zlomky typu 7/5, které by v hotové rovnici
+  // vytvářely nový zlomek nebo složený zlomek, pokud ve vzoru nebyl.
+  if(Math.abs(n-r)<1e-9 && coefficientAllowedValue(r)) return String(r);
+  return null;
+}
+
+const GENERATOR_TIME_LIMIT_MS=1400;
+const GENERATOR_YIELD_EVERY=120;
+const GENERATOR_MAX_ATTEMPTS=8000;
+const GENERATOR_SINGLE_ROOT_MAX_ATTEMPTS=8000;
+function nowMs(){return performance && performance.now ? performance.now() : Date.now()}
+function generatorTimedOut(start, limitMs=GENERATOR_TIME_LIMIT_MS){
+  return nowMs()-start>limitMs;
+}
+function sleep0(){return new Promise(resolve=>setTimeout(resolve,0))}
+async function generatorShouldStop(start, attempt, limitMs=GENERATOR_TIME_LIMIT_MS){
+  if(attempt % GENERATOR_YIELD_EVERY === 0) await sleep0();
+  return generatorTimedOut(start,limitMs);
+}
+function generatorStoppedMessage(){
+  return '<div class="muted">Generátor hledání zastavil, aby se nezasekl. Zkus méně kořenů, širší rozsah koeficientů nebo jednodušší tvar rovnice.</div>';
+}
+
+async function generateFactorableHigher(){
+  const box=document.getElementById('generated');
+  const raw=calcA(root);
+  const tokens=toks(raw);
+  if(tokens.length>GENERATOR_MAX_TOKENS){
+    box.innerHTML='<div class="muted">Příklad je pro bezpečné generování příliš složitý. Zkus jednodušší tvar nebo méně čísel.</div>';
+    return;
+  }
+  if(tokens.length<1){
+    box.innerHTML='<div class="muted">U této rovnice není žádné číslo, které by šlo v generátoru změnit.</div>';
+    return;
+  }
+
+  let targets=[];
+  for(let i=0;i<6;i++){
+    const t=readTarget(i);
+    if(t!==null && !targets.some(x=>Math.abs(x-t)<1e-9)) targets.push(t);
+  }
+  if(!targets.length) targets=[randNonZero(-5,5)];
+
+  const d=getMutationDelta();
+  let best=null;
+  const started=nowMs();
+
+  for(let attempt=0; attempt<GENERATOR_MAX_ATTEMPTS && !best; attempt++){
+    if(await generatorShouldStop(started,attempt)) break;
+    const k=Math.min(Math.max(1,targets.length),tokens.length);
+    const shuffled=tokens.map((_,i)=>i).sort(()=>Math.random()-.5);
+    const adjustIdxs=shuffled.slice(0,k);
+    const fixedValues={};
+    tokens.forEach((t,i)=>{
+      if(!adjustIdxs.includes(i)) fixedValues[i]=mutate(t.value,d);
+    });
+
+    const sys=coefficientRowsForTargets(raw,tokens,adjustIdxs,fixedValues,targets);
+    if(!sys || !sys.rows.length) continue;
+    if(sys.rows.length!==adjustIdxs.length) continue;
+
+    const sol=solveLinearSystemNumeric(sys.rows,sys.rhs);
+    if(!sol) continue;
+
+    const vals=tokens.map((t,i)=>fixedValues[i]!==undefined?fixedValues[i]:0);
+    let ok=true;
+    sol.forEach((v,j)=>{
+      const txt=niceNumberString(v);
+      if(txt===null || txt==='0') ok=false;
+      vals[adjustIdxs[j]]=txt;
+    });
+    if(!ok) continue;
+
+    const cand=repl(raw,tokens.map((t,i)=>({t,v:String(vals[i])})));
+    // Nepřidávej nový znak dělení: vygenerovaný příklad má mít stejný tvar
+    // jako zápis v editoru, jen s jinými čísly.
+    if((cand.match(/\//g)||[]).length !== (raw.match(/\//g)||[]).length) continue;
+    try{
+      const [l,r]=cand.split('=');
+      const allOk=targets.every(x=>isValidEquationRoot(l,r,x));
+      if(!allOk) continue;
+      const roots=findNumericRoots(l,r);
+      const fact=factorLatexOfEquation(l,r,'x');
+      best={cand,roots,fact};
+    }catch(e){}
+  }
+
+  if(!best){
+    box.innerHTML=generatorStoppedMessage();
+    return;
+  }
+
+  lastGeneratedCalc=prettifyUnitCoefficientsCalc(best.cand);
+  lastGeneratedLatex=calcToLatexSimple(lastGeneratedCalc);
+  let info='';
+  if(best.roots && best.roots.length){
+    info+='<div class="muted">Kořeny: \\('+best.roots.map((r,i)=>'x_{'+(i+1)+'} = '+fmtLatexNumber(r)).join('\\quad ')+'\\)</div>';
+  }
+  if(best.fact){
+    info+='<div class="muted">Součinový tvar levá strana − pravá strana: \\('+best.fact+'=0\\)</div>';
+  }
+  box.innerHTML='\\['+lastGeneratedLatex+'\\]'+info;
+  if(window.MathJax) await MathJax.typesetPromise([box]);
+}
+
+function detectGeneratorMode(){
+ const raw=calcA(root);
+
+ // Rovnice s absolutní hodnotou: v generátoru vždy jen jedno políčko x.
+ // Absolutní rovnice často dávají interval nebo sjednocení intervalů; generátor
+ // proto nesmí nabízet x₁…x₆ ani se přepnout do obecného „higher“ režimu.
+ if(hasAbsExpr(raw) && raw.includes('=') && !hasInequality(raw)){
+   return {type:'absEquation',count:1,labels:['x']};
+ }
+
+ if(hasLogarithmExpr(raw)){
+   return {type:'logarithmic',count:1,labels:['x']};
+ }
+
+ if(hasInequality(raw)){
+   const info=analyzeInequalityForGenerator(raw,'x');
+   const count=Math.max(1,Math.min(info.zeroCount||1,6));
+   const labels=[];
+   for(let i=1;i<=count;i++) labels.push('n'+subDigit(i));
+   return {type:'inequality',count,labels,zeroCount:count};
+ }
+
+ const lines=equationLines();
+ if(lines.length===2)return {type:'system',count:2,labels:['x','y']};
+ if(lines.length>=3)return {type:'system',count:3,labels:['x','y','z']};
+
+ const degree=getMaxPowerInRaw(raw,'x');
+
+ // Důležité: rovnice se zlomkem se nesmí přepnout do „kvadratické“ šablony,
+ // protože by se tím úplně změnil tvar příkladu. Má se zachovat původní zápis
+ // a měnit jen čísla v něm.
+ if(raw.includes('/') && raw.includes('=')){
+   let count=1;
+   try{
+     const parts=splitTopLevelEquation(raw);
+     if(parts){
+       const roots=solveAllNumericRootsRobust(parts[0],parts[1],'x');
+       count=Math.max(1,Math.min(roots.length||1,6));
+     }
+   }catch(e){}
+   const labels=[];
+   for(let i=1;i<=count;i++) labels.push('x'+subDigit(i));
+   return {type:'higher',count:labels.length,labels};
+ }
+
+ if(degree>2){
+   const labels=[];
+   for(let i=1;i<=Math.min(degree,6);i++) labels.push('x'+subDigit(i));
+   return {type:'higher',count:labels.length,labels};
+ }
+
+ const looksQuadratic =
+   raw.includes('^2') ||
+   raw.includes('^(2)') ||
+   raw.includes('x^2') ||
+   raw.includes('(x)^(2)');
+
+ if(looksQuadratic)return {type:'quadratic',count:2,labels:['x₁','x₂']};
+
+ // Pro jednu nekvadratickou rovnici je jeden výsledek x.
+ return {type:'single',count:1,labels:['x']};
+}
+function subDigit(n){
+ const m={'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉'};
+ return String(n).split('').map(ch=>m[ch]||ch).join('');
+}
+function refreshGeneratorTargets(force=true){
+ const box=document.getElementById('targetBox');
+ if(!box)return;
+ const mode=detectGeneratorMode();
+ const key=mode.type+'|'+mode.count+'|'+(mode.labels||[]).join('|');
+ const oldVals=[...box.querySelectorAll('input')].map(i=>i.value);
+ if(!force && box.dataset.mode===key)return;
+ box.dataset.mode=key;
+ box.innerHTML='';
+ mode.labels.forEach((lab,i)=>{
+   const wrap=document.createElement('div');
+   wrap.className='labeledInput';
+   const label=document.createElement('label');
+   label.setAttribute('for','target_'+i);
+   label.textContent=lab+':';
+   const input=document.createElement('input');
+   input.id='target_'+i;
+   input.placeholder=lab;
+   input.value=oldVals[i] || '';
+   wrap.append(label,input);
+   box.appendChild(wrap);
+ });
+ const hint=document.getElementById('targetHint');
+ if(mode.type==='inequality')hint.textContent=`Rozpoznána nerovnice: zadej ${mode.count===1?'nulový bod':'nulové body'} ${mode.labels.join(', ')}. Generátor zachová typ znaménka nerovnosti a dopočítá intervaly.`;
+ else if(mode.type==='logarithmic')hint.textContent='Rozpoznána logaritmická rovnice: zadej výsledek x. Generátor nezmění základ logaritmu, změní jen čísla v argumentu logaritmu a čísla/koeficienty mimo logaritmus.';
+ else if(mode.type==='system')hint.textContent=`Rozpoznána soustava ${mode.count} rovnic: zadej ${mode.labels.join(', ')}. Prázdné hodnoty program zvolí.`;
+ else if(mode.type==='quadratic')hint.textContent='Rozpoznána kvadratická rovnice: zadej jeden nebo oba kořeny. Generátor zachová stejný tvar rovnice, stejné strany i pořadí členů; změní jen čísla.';
+ else if(mode.type==='higher')hint.textContent='Rozpoznána rovnice vyššího stupně: zadej kořen nebo kořeny. Generátor změní pouze čísla a znaménka, strany a mocniny nechá beze změny.';
+ else if(mode.type==='absEquation')hint.textContent='Rozpoznána rovnice s absolutní hodnotou: zadej jeden požadovaný výsledek / kontrolní bod x. Výsledek může být kořen, interval nebo sjednocení intervalů.';
+ else hint.textContent='Rozpoznána jedna rovnice: zadej požadovaný výsledek x.';
+}
+function parseTargetNumber(s){
+ s=String(s||'').trim().replace(',', '.');
+ if(!s)return null;
+ const frac=s.match(/^([+-]?(?:\d+(?:\.\d+)?|\.\d+))\s*\/\s*([+-]?(?:\d+(?:\.\d+)?|\.\d+))$/);
+ if(frac){
+   const a=Number(frac[1]);
+   const b=Number(frac[2]);
+   if(Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(b)>1e-12)return a/b;
+   return null;
+ }
+ const n=Number(s);
+ return Number.isFinite(n)?n:null;
+}
+function readTarget(i){
+ const el=document.getElementById('target_'+i);
+ if(!el)return null;
+ return parseTargetNumber(el.value);
+}
+function targetInputIsFilled(i){
+ const el=document.getElementById('target_'+i);
+ return !!(el && String(el.value||'').trim());
+}
+function shuffledPrettyTargets(){
+ const vals=[];
+ for(let i=-10;i<=10;i++) vals.push(i);
+ [2,3,4,5,6,8].forEach(den=>{
+   for(let num=-3*den;num<=3*den;num++){
+     if(num===0) continue;
+     const v=num/den;
+     if(Number.isFinite(v) && !vals.some(x=>Math.abs(x-v)<1e-12)) vals.push(v);
+   }
+ });
+ return vals.sort(()=>Math.random()-0.5);
+}
+function randNonZero(min=-7,max=7){
+ let n=0;
+ while(n===0)n=Math.floor(Math.random()*(max-min+1))+min;
+ return n;
+}
+function det2(A){return A[0][0]*A[1][1]-A[0][1]*A[1][0]}
+function det3(A){
+ return A[0][0]*(A[1][1]*A[2][2]-A[1][2]*A[2][1])
+      - A[0][1]*(A[1][0]*A[2][2]-A[1][2]*A[2][0])
+      + A[0][2]*(A[1][0]*A[2][1]-A[1][1]*A[2][0]);
+}
+function systemCalcFromMatrix(A,b,vars){
+ return A.map((row,i)=>{
+   let left='';
+   row.forEach((c,j)=>{
+     if(c===0)return;
+     const sign=c<0?'-':(left?'+':'');
+     const abs=Math.abs(c);
+     left+=sign+abs+'*'+vars[j];
+   });
+   return (left||'0')+'='+b[i];
+ }).join('\n');
+}
+function systemLatexFromMatrix(A,b,vars){
+ return A.map((row,i)=>{
+   let left='';
+   row.forEach((c,j)=>{
+     if(c===0)return;
+     const sign=c<0?'-':(left?'+':'');
+     const abs=Math.abs(c);
+     // Koeficient 1 se před neznámou v zobrazení nepíše.
+     const coeff=(abs===1)?'':String(abs);
+     left+=sign+coeff+vars[j];
+   });
+   return (left||'0')+'&='+b[i];
+ }).join('\\\\');
+}
+
+function detectVariablePowersInEquation(eq, vars){
+  // Returns per variable highest power in this equation: 1 or 2. Keeps the "shape" of powers.
+  const powers={};
+  vars.forEach(v=>{
+    powers[v]=1;
+    const patterns=[
+      new RegExp(v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\^2'),
+      new RegExp('\\('+v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\)\\^\\(2\\)'),
+      new RegExp('\\('+v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\)\\^2')
+    ];
+    if(patterns.some(re=>re.test(eq))) powers[v]=2;
+  });
+  return powers;
+}
+
+function termValue(variable, power, values, vars){
+  const idx=vars.indexOf(variable);
+  const val=values[idx];
+  return Math.pow(val,power);
+}
+
+function powerTermLabel(variable, power, latex=false){
+  if(power===2) return latex ? `${variable}^{2}` : `${variable}^2`;
+  return variable;
+}
+
+function generateEquationPreservingPowers(eq, vars, values){
+  // Zachová přesný tvar původního řádku. Nic nepřesouvá mezi stranami,
+  // pouze přepíše číselné tokeny na stejných místech.
+  const calc=generateEquationLinePreserveShape(eq,vars,values,getMutationDelta());
+  if(!calc)return null;
+  return {
+    calc,
+    latex:calcToLatexSimple(calc).replace('=','&=')
+  };
+}
+
+function generateSystemPreserveShape(lines, count){
+ const vars=count===3?['x','y','z']:['x','y'];
+ const values=vars.map((_,i)=>readTarget(i));
+ for(let i=0;i<values.length;i++){
+   if(values[i]===null)values[i]=randNonZero(-6,6);
+ }
+
+ const generated=[];
+ for(const eq of lines.slice(0,count)){
+   const g=generateEquationPreservingPowers(eq, vars, values);
+   if(!g){
+     const box=document.getElementById('generated');
+     box.innerHTML=generatorStoppedMessage();
+     return;
+   }
+   generated.push(g);
+ }
+
+ lastGeneratedCalc=generated.map(g=>g.calc).join('\n');
+ lastGeneratedLatex='\\left\\{\\begin{aligned}'+generated.map(g=>g.latex).join('\\\\')+'\\end{aligned}\\right.';
+
+ const box=document.getElementById('generated');
+ let solutionInfo='';
+ try{
+   const sols=solveSystemAll(lastGeneratedCalc.split(/\n|;/).filter(x=>x.includes('=')), vars);
+   if(sols && sols.length){
+     solutionInfo='<div class="muted">Řešení: \\('+systemSolutionsToLatex(vars,sols)+'\\)</div>';
+   }else{
+     solutionInfo='<div class="muted">Kontrola: pro \\('+vars.map((v,i)=>v+' = '+fmtLatexNumber(values[i])).join('\\quad ')+'\\) soustava vychází.</div>';
+   }
+ }catch(e){
+   solutionInfo='<div class="muted">Kontrola: pro \\('+vars.map((v,i)=>v+' = '+fmtLatexNumber(values[i])).join('\\quad ')+'\\) soustava vychází.</div>';
+ }
+ box.innerHTML='\\['+lastGeneratedLatex+'\\]'+solutionInfo;
+ if(window.MathJax) MathJax.typesetPromise([box]);
+}
+async function generateSystem(count){
+ const vars=count===3?['x','y','z']:['x','y'];
+ const values=vars.map((_,i)=>readTarget(i));
+ for(let i=0;i<values.length;i++){
+   if(values[i]===null)values[i]=randNonZero(-6,6);
+ }
+ let A,det=0,tries=0;
+ while(Math.abs(det)<1e-9 && tries++<300){
+   A=Array.from({length:count},()=>Array.from({length:count},()=>randNonZero(-8,8)));
+   det=count===2?det2(A):det3(A);
+ }
+ const b=A.map(row=>row.reduce((s,c,i)=>s+c*values[i],0));
+ lastGeneratedCalc=systemCalcFromMatrix(A,b,vars);
+ lastGeneratedLatex='\\left\\{\\begin{aligned}'+systemLatexFromMatrix(A,b,vars)+'\\end{aligned}\\right.';
+ const box=document.getElementById('generated');
+ box.innerHTML='\\['+lastGeneratedLatex+'\\]<div class="muted">Řešení: \\('+vars.map((v,i)=>v+' = '+fmtLatexNumber(values[i])).join('\\quad ')+'\\)</div>';
+ if(window.MathJax)await MathJax.typesetPromise([box]);
+}
+async function generateQuadratic(){
+ let r1=readTarget(0);
+ let r2=readTarget(1);
+ if(r1===null)r1=randNonZero(-6,6);
+ if(r2===null)r2=randNonZero(-6,6);
+ if(Math.abs(r1-r2)<1e-9)r2+=1;
+ const a=randNonZero(1,5);
+ const B=-a*(r1+r2);
+ const C=a*r1*r2;
+ lastGeneratedCalc=`${a}*x^2${B<0?B:'+'+B}*x${C<0?C:'+'+C}=0`;
+ lastGeneratedLatex=`${a===1?'':a}x^{2}${B<0?B:'+'+B}x${C<0?C:'+'+C}=0`;
+ const box=document.getElementById('generated');
+ box.innerHTML='\\['+lastGeneratedLatex+'\\]<div class="muted">Kořeny: \\(x_{1} = '+fmtLatexNumber(r1)+'\\quad x_{2} = '+fmtLatexNumber(r2)+'\\)</div>';
+ if(window.MathJax)await MathJax.typesetPromise([box]);
+}
+
+function inequalityLines(){
+  return splitMathLines(calcA(root)).filter(l=>parseInequalityLine(l));
+}
+function inequalityLineZeroPoints(line,variable='x'){
+  const p=parseInequalityLine(line);
+  if(!p)return [];
+  try{return solveAllNumericRootsRobust(p.left,p.right,variable);}catch(e){return []}
+}
+function inequalityLineCriticalPoints(line,variable='x'){
+  const p=parseInequalityLine(line);
+  if(!p)return [];
+  try{return criticalPointsForInequality(p.left,p.right,variable);}catch(e){return inequalityLineZeroPoints(line,variable)}
+}
+function denominatorZeroPointsForInequalityLine(line,variable='x'){
+  const p=parseInequalityLine(line);
+  if(!p)return [];
+  const out=[];
+  try{denomZerosForExpression(p.left,variable).forEach(x=>addUniqueNumber(out,x));}catch(e){}
+  try{denomZerosForExpression(p.right,variable).forEach(x=>addUniqueNumber(out,x));}catch(e){}
+  return out.sort((a,b)=>a-b);
+}
+function analyzeInequalityForGenerator(raw,variable='x'){
+  const lines=splitMathLines(raw).filter(l=>parseInequalityLine(l));
+  const zeros=[];
+  const denominatorZeros=[];
+  lines.forEach(line=>{
+    inequalityLineCriticalPoints(line,variable).forEach(x=>addUniqueNumber(zeros,x));
+    denominatorZeroPointsForInequalityLine(line,variable).forEach(x=>addUniqueNumber(denominatorZeros,x));
+  });
+  zeros.sort((a,b)=>a-b);
+  denominatorZeros.sort((a,b)=>a-b);
+
+  // Když numerické hledání selže, odhadneme počet podle tvaru zápisu.
+  let estimated=zeros.length;
+  if(!estimated){
+    const degree=getMaxPowerInRaw(raw,variable);
+    if(degree>1) estimated=degree;
+    else if(/[*/]\s*\(/.test(raw)) estimated=2;
+    else estimated=1;
+  }
+  return {lines,zeros,denominatorZeros,zeroCount:estimated};
+}
+function opToEquation(line){
+  const p=parseInequalityLine(line);
+  if(!p)return null;
+  return {eq:p.left+'='+p.right, left:p.left, right:p.right, op:p.op};
+}
+function equationToInequality(eq,op){
+  const idx=eq.indexOf('=');
+  if(idx<0)return eq;
+  return eq.slice(0,idx)+op+eq.slice(idx+1);
+}
+function rootTargetsForLine(line,allTargets,startIndex,totalLines){
+  const existing=inequalityLineZeroPoints(line,'x');
+  let need=existing.length || 1;
+  if(totalLines===1) need=allTargets.length;
+  const out=[];
+  for(let i=0;i<need;i++){
+    const val=allTargets[startIndex+i];
+    if(val!==undefined && val!==null && !out.some(x=>Math.abs(x-val)<1e-9)) out.push(val);
+  }
+  if(!out.length && allTargets.length){
+    const val=allTargets[Math.min(startIndex,allTargets.length-1)];
+    if(val!==undefined && val!==null) out.push(val);
+  }
+  return out;
+}
+function buildFactorCalcFromTargets(targets,op,hasQuotient=false,denominatorTargets=[]){
+  let points=targets.slice().filter(x=>Number.isFinite(x));
+  if(!points.length) points=[randNonZero(-6,6)];
+  points=dedupeRoots(points);
+  let denRoots=denominatorTargets.slice().filter(x=>Number.isFinite(x));
+  denRoots=dedupeRoots(denRoots);
+  if(hasQuotient && !denRoots.length && points.length>=2){
+    // Když nevíme, který bod je ze jmenovatele, vezmeme prostřední kritický bod.
+    denRoots=[points[Math.floor(points.length/2)]];
+  }
+  const numRoots=hasQuotient ? points.filter(x=>!denRoots.some(d=>Math.abs(d-x)<1e-8)) : points;
+  const a=randNonZero(1,5);
+  const factor=x=>{
+    const r=cleanEndpoint(x);
+    if(r===0)return 'x';
+    return '(x'+(r<0?'+'+Math.abs(r):'-'+r)+')';
+  };
+  let left=a+'*'+(numRoots.length?numRoots.map(factor).join('*'):'1');
+  if(hasQuotient){
+    left='(('+left+')/('+denRoots.map(factor).join('*')+'))';
+  }
+  return left+op+'0';
+}
+async function generateInequalityByLinearFit(line,targets,d){
+  const parsed=opToEquation(line);
+  if(!parsed || !targets.length)return null;
+  const eqRaw=parsed.eq;
+  const tokens=toks(eqRaw);
+  if(tokens.length>GENERATOR_MAX_TOKENS)return null;
+  if(tokens.length<1)return null;
+
+  let best=null;
+  const started=nowMs();
+  for(let attempt=0; attempt<GENERATOR_MAX_ATTEMPTS && !best; attempt++){
+    if(await generatorShouldStop(started,attempt)) break;
+    const k=Math.min(Math.max(1,targets.length),tokens.length);
+    const shuffled=tokens.map((_,i)=>i).sort(()=>Math.random()-.5);
+    const adjustIdxs=shuffled.slice(0,k);
+    const fixedValues={};
+    tokens.forEach((t,i)=>{ if(!adjustIdxs.includes(i)) fixedValues[i]=mutate(t.value,d); });
+
+    const sys=coefficientRowsForTargets(eqRaw,tokens,adjustIdxs,fixedValues,targets);
+    if(!sys || !sys.rows.length || sys.rows.length!==adjustIdxs.length) continue;
+    const sol=solveLinearSystemNumeric(sys.rows,sys.rhs);
+    if(!sol) continue;
+
+    const vals=tokens.map((t,i)=>fixedValues[i]!==undefined?fixedValues[i]:0);
+    let ok=true;
+    sol.forEach((v,j)=>{
+      const txt=niceNumberString(v);
+      if(txt===null || txt==='0') ok=false;
+      vals[adjustIdxs[j]]=txt;
+    });
+    if(!ok) continue;
+
+    const candEq=repl(eqRaw,tokens.map((t,i)=>({t,v:String(vals[i])})));
+    try{
+      const [l,r]=candEq.split('=');
+      const allOk=targets.every(x=>isValidEquationRoot(l,r,x));
+      if(!allOk) continue;
+      const roots=solveAllNumericRootsRobust(l,r,'x');
+      if(roots.length && roots.length>targets.length+2) continue;
+      best=equationToInequality(candEq,parsed.op);
+    }catch(e){}
+  }
+  return best;
+}
+async function generateInequalitySimilar(){
+  const box=document.getElementById('generated');
+  const raw=calcA(root);
+  const d=getMutationDelta();
+  const lines=splitMathLines(raw).filter(l=>parseInequalityLine(l));
+  if(!lines.length){box.innerHTML='<div class="muted">Nejdřív zadej nerovnici.</div>';return;}
+
+  let targets=[];
+  for(let i=0;i<6;i++){
+    const t=readTarget(i);
+    if(t!==null && !targets.some(x=>Math.abs(x-t)<1e-9)) targets.push(t);
+  }
+  if(!targets.length){
+    const info=analyzeInequalityForGenerator(raw,'x');
+    targets=(info.zeros.length?info.zeros:[randNonZero(-6,6)]).slice(0,Math.max(1,info.zeroCount||1));
+  }
+  targets=dedupeRoots(targets);
+
+  const generated=[];
+  let cursorIndex=0;
+  for(let i=0;i<lines.length;i++){
+    const p=parseInequalityLine(lines[i]);
+    const originalCrit=inequalityLineCriticalPoints(lines[i],'x');
+    const originalDen=denominatorZeroPointsForInequalityLine(lines[i],'x');
+    const lineTargets=rootTargetsForLine(lines[i],targets,cursorIndex,lines.length);
+    cursorIndex+=Math.max(1,lineTargets.length);
+    const hasQuotient=lines[i].includes('/');
+    const denominatorTargets=[];
+    if(hasQuotient){
+      originalDen.forEach(dz=>{
+        const idx=originalCrit.findIndex(c=>Math.abs(c-dz)<1e-8);
+        if(idx>=0 && lineTargets[idx]!==undefined) denominatorTargets.push(lineTargets[idx]);
+      });
+    }
+
+    // Zachovat přesný tvar řádku: členy nesmí cestovat ani se skládat nový součinový tvar.
+    // Pokud to nejde najít výměnou čísel na původních místech, generování se zastaví.
+    let gen=await generateInequalityByLinearFit(lines[i],lineTargets,d);
+    if(!gen){
+      box.innerHTML=generatorStoppedMessage();
+      return;
+    }
+    generated.push(gen);
+  }
+
+  lastGeneratedCalc=generated.join('\n');
+  lastGeneratedLatex=generated.length>1
+    ? '\\left\\{\\begin{aligned}'+generated.map(g=>calcToLatexSimple(g.replace(/(<=|>=|<|>)/,'&$1'))).join('\\\\')+'\\end{aligned}\\right.'
+    : calcToLatexSimple(lastGeneratedCalc);
+
+  const intervals=solveInequalitySystem(lastGeneratedCalc,'x');
+  const rootsInfo=[];
+  generated.forEach(g=>{
+    const p=parseInequalityLine(g);
+    if(p){
+      const zs=criticalPointsForInequality(p.left,p.right,'x');
+      zs.forEach(z=>addUniqueNumber(rootsInfo,z));
+    }
+  });
+  rootsInfo.sort((a,b)=>a-b);
+
+  let info='';
+  if(rootsInfo.length){
+    info+='<div class="muted">Nulové body: \\('+rootsInfo.map((r,i)=>'n_{'+(i+1)+'} = '+fmtLatexNumber(r)).join('\\quad ')+'\\)</div>';
+  }
+  info+='<div class="muted">Výsledek: \\('+intervalsToLatex(intervals,'x').replace(/^\\\[|\\\]$/g,'')+'\\)</div>';
+
+  box.innerHTML='\\['+lastGeneratedLatex+'\\]'+info;
+  if(window.MathJax)await MathJax.typesetPromise([box]);
+}
+
+
+function generatorSignatureForCurrent(){
+  const targets=[...document.querySelectorAll('#targetBox input')].map(i=>String(i.value||'').trim()).join('|');
+  const min=document.getElementById('minCoeff')?.value||'';
+  const max=document.getElementById('maxCoeff')?.value||'';
+  const mode=detectGeneratorMode();
+  return JSON.stringify({raw:calcA(root),targets,min,max,mode:mode.type,count:mode.count||0});
+}
+function canonicalGeneratedCalc(s){
+  return prettifyUnitCoefficientsCalc(String(s||''))
+    .replace(/\s+/g,'')
+    .replace(/\+\-/g,'-');
+}
+function isRepeatedGeneratedCandidate(candidate){
+  const sig=generatorSignatureForCurrent();
+  const canon=canonicalGeneratedCalc(candidate);
+  const recent=generatorRecentBySignature[sig]||[];
+  return recent.includes(canon);
+}
+function rememberGeneratedCandidate(candidate){
+  const sig=generatorSignatureForCurrent();
+  const canon=canonicalGeneratedCalc(candidate);
+  const recent=generatorRecentBySignature[sig]||[];
+  if(!recent.includes(canon)) recent.push(canon);
+  while(recent.length>12) recent.shift();
+  generatorRecentBySignature[sig]=recent;
+
+  const full=generatorRecentFullBySignature[sig]||[];
+  if(!full.some(item=>item.canon===canon)) full.push({canon,calc:String(candidate)});
+  while(full.length>12) full.shift();
+  generatorRecentFullBySignature[sig]=full;
+}
+function candidateRespectsCurrentCoeffLimits(candidate){
+  const ranges=logbaseCallRanges(candidate);
+  const all=toks(candidate).filter(t=>!tokenInsideAnyLogBase(t,ranges));
+  return all.every(t=>{
+    const n=parseSimpleCoeffValue(t.value);
+    if(!Number.isFinite(n)) return true;
+    return coefficientAllowedValue(n,false);
+  });
+}
+function repeatedValidLogFallback(raw,targets){
+  const sig=generatorSignatureForCurrent();
+  const full=generatorRecentFullBySignature[sig]||[];
+  for(let i=full.length-1;i>=0;i--){
+    const cand=full[i].calc;
+    if(hasChangedLogBases(raw,cand)) continue;
+    if(!candidateRespectsCurrentCoeffLimits(cand)) continue;
+    for(const target of targets){
+      if(target===null || !Number.isFinite(target)) continue;
+      if(logarithmicCandidateReallyHasTargetRoot(cand,target)) return {calc:cand,target};
+    }
+  }
+  return null;
+}
+
+function hasLogarithmExpr(raw){
+  raw=String(raw||'');
+  return raw.includes('logbase(') || /\blog\s*\(/.test(raw) || /\bln\s*\(/.test(raw);
+}
+
+function logbaseCallRanges(raw){
+  raw=String(raw||'');
+  const ranges=[];
+  const head='logbase(';
+  for(let i=0;i<raw.length;i++){
+    if(raw.slice(i,i+head.length)!==head) continue;
+    const innerStart=i+head.length;
+    let depth=0, comma=-1, end=-1;
+    for(let j=innerStart;j<raw.length;j++){
+      const c=raw[j];
+      if(c==='(') depth++;
+      else if(c===')'){
+        if(depth===0){end=j;break;}
+        depth--;
+      }else if(c===',' && depth===0 && comma<0){
+        comma=j;
+      }
+    }
+    if(comma>innerStart && end>comma){
+      ranges.push({
+        start:i,
+        end:end+1,
+        baseStart:innerStart,
+        baseEnd:comma,
+        argStart:comma+1,
+        argEnd:end
+      });
+      i=end;
+    }
+  }
+  return ranges;
+}
+function tokenInsideRange(t,r){
+  return t.start>=r.baseStart && t.end<=r.baseEnd;
+}
+function tokenInsideAnyLogBase(t,ranges){
+  return ranges.some(r=>tokenInsideRange(t,r));
+}
+function adjustableLogTokens(raw){
+  const ranges=logbaseCallRanges(raw);
+  return toks(raw).filter(t=>!t.keep && !tokenInsideAnyLogBase(t,ranges));
+}
+function hasChangedLogBases(original,candidate){
+  const a=logbaseCallRanges(original).map(r=>original.slice(r.baseStart,r.baseEnd).trim());
+  const b=logbaseCallRanges(candidate).map(r=>candidate.slice(r.baseStart,r.baseEnd).trim());
+  if(a.length!==b.length) return true;
+  return a.some((x,i)=>x!==b[i]);
+}
+function logarithmicCandidateReallyHasTargetRoot(candidate,target){
+  try{
+    const parts=splitTopLevelEquation(candidate);
+    if(!parts) return false;
+    const [l,r]=parts;
+    const lv=evalJS(l,target), rv=evalJS(r,target);
+    if(!Number.isFinite(lv)||!Number.isFinite(rv)||Math.abs(lv-rv)>1e-9) return false;
+
+    // Nestačí jen formálně upravit koeficienty; zadaná hodnota musí po dosazení
+    // opravdu splňovat rovnici. U mocnin logaritmů (např. (log_5(x))^2=4)
+    // ale numerické skenování občas mine druhý kladný kořen, hlavně u hodnot
+    // typu 1/5. Proto je přímé ověření dosazením pro logaritmickou rovnici
+    // bezpečná pojistka: pokud target rovnici splňuje a logaritmus je v definičním
+    // oboru, target je skutečný kořen.
+    const roots=solveAllNumericRootsRobust(l,r,'x');
+    if(roots.some(x=>Math.abs(x-target)<1e-7)) return true;
+    return hasLogarithmExpr(candidate);
+  }catch(e){
+    return false;
+  }
+}
+
+function solveAffineArgumentTargetForX(argExpr,targetValue){
+  // Vrátí x z rovnice argExpr(x)=targetValue, pokud je argument v x opravdu lineární.
+  // Používá se jen pro výběr hezkých cílů generátoru logaritmů, výsledek se pak ještě ověřuje dosazením.
+  try{
+    argExpr=String(argExpr||'').trim();
+    if(!argExpr) return NaN;
+    const y0=evalJS(argExpr,0);
+    const y1=evalJS(argExpr,1);
+    const y2=evalJS(argExpr,2);
+    if(![y0,y1,y2].every(Number.isFinite)) return NaN;
+    const a=y1-y0;
+    if(Math.abs(a)<1e-12) return NaN;
+    // pojistka: argument musí být lineární, ne třeba x^2+2
+    if(Math.abs((y2-y1)-a)>1e-8) return NaN;
+    const x=(targetValue-y0)/a;
+    if(!Number.isFinite(x)) return NaN;
+    // ověření, že opravdu dává požadovanou mocninu v argumentu logaritmu
+    const check=evalJS(argExpr,x);
+    if(!Number.isFinite(check) || Math.abs(check-targetValue)>1e-7*Math.max(1,Math.abs(targetValue))) return NaN;
+    return x;
+  }catch(e){
+    return NaN;
+  }
+}
+function addNiceTargetsFromLogArgument(out,base,argExpr){
+  function add(v){
+    if(Number.isFinite(v) && v>0 && Math.abs(v)<1e9 && !out.some(x=>Math.abs(x-v)<1e-10)) out.push(v);
+  }
+  if(!Number.isFinite(base) || base<=0 || Math.abs(base-1)<1e-12) return;
+  // Nejdřív chceme hodnoty x, pro které je argument logaritmu hezká mocnina základu:
+  // log_b(2x+2): 2x+2=b^k => x=(b^k-2)/2.
+  [1,2,3,-1,-2,0,4,-3].forEach(k=>{
+    const inside=Math.pow(base,k);
+    const x=solveAffineArgumentTargetForX(argExpr,inside);
+    add(x);
+  });
+}
+function prioritizedLogarithmicTargets(raw){
+  // U logaritmů není hezký cíl vždy přímo x=b^k.
+  // Když je argument třeba 2x+2, hezké má být uvnitř logaritmu: 2x+2=b^k.
+  // Proto cíle dopočítáme z argumentu každého logbase(base,arg).
+  const out=[];
+  function add(v){
+    if(Number.isFinite(v) && v>0 && Math.abs(v)<1e9 && !out.some(x=>Math.abs(x-v)<1e-10)) out.push(v);
+  }
+  const ranges=logbaseCallRanges(raw);
+  ranges.forEach(r=>{
+    const b=Number(raw.slice(r.baseStart,r.baseEnd).trim());
+    const arg=raw.slice(r.argStart,r.argEnd).trim();
+    addNiceTargetsFromLogArgument(out,b,arg);
+    // Záloha pro původní jednoduché případy log_b(x), kdyby argument nešel rozpoznat.
+    if(Number.isFinite(b) && b>0 && Math.abs(b-1)>1e-12){
+      [1,2,3,-1,-2].forEach(k=>add(Math.pow(b,k)));
+    }
+  });
+  shuffledPrettyTargets().forEach(add);
+  return out;
+}
+async function generateLogarithmicSimilar(){
+  const box=document.getElementById('generated');
+  const raw=calcA(root), d=getMutationDelta();
+  const manualTarget=readTarget(0);
+  const targets=targetInputIsFilled(0) ? [manualTarget] : prioritizedLogarithmicTargets(raw);
+  if(targets.length===1 && targets[0]===null){box.innerHTML='<div class="muted">Zadej platný výsledek x, nebo nech políčko prázdné.</div>';return;}
+  if(!raw.includes('=')){box.innerHTML='<div class="muted">Nejdřív zadej logaritmickou rovnici s rovnítkem.</div>';return;}
+
+  const ts=adjustableLogTokens(raw);
+  if(ts.length<1){box.innerHTML='<div class="muted">Nenašel jsem žádné číslo, které smím změnit. Základy logaritmů se nemění.</div>';return;}
+  if(ts.length>GENERATOR_MAX_TOKENS){box.innerHTML='<div class="muted">Příklad je pro bezpečné generování příliš složitý. Zkus jednodušší tvar nebo méně čísel.</div>';return;}
+
+  const {minCoeff,maxCoeff}=coeffLimits();
+  const vals=[];
+  for(let i=-maxCoeff;i<=maxCoeff;i++){
+    if(i!==0 && Math.abs(i)>=minCoeff) vals.push(String(i));
+  }
+  // U logaritmů zde záměrně nepřidáváme nulu ani zlomkové koeficienty typu 1/2.
+  // Mohly by z výrazu ax+b udělat tvar 1/2x+b nebo složený zlomek a porušit ověření výsledku.
+
+  lastGeneratedCalc='';
+  let target=null;
+  const started=nowMs();
+  let repeatedFallbackCalc='';
+  let repeatedFallbackTarget=null;
+
+  // Nejdřív zkusíme přesný dopočet jednoho číselného tokenu pro zadaný kořen.
+  // Tohle je důležité pro tvary jako 2*logbase(5,x)-logbase(5,2)=2,
+  // kde je logaritmus násoben koeficientem. Náhodné zkoušení se zde často netrefí,
+  // ale rovnice je vzhledem k tomuto koeficientu lineární a jde dopočítat přímo.
+  for(let targetIndex=0; targetIndex<targets.length && !lastGeneratedCalc; targetIndex++){
+    target=targets[targetIndex];
+    if(target===null || !Number.isFinite(target)) continue;
+    for(let attempt=0; attempt<GENERATOR_SINGLE_ROOT_MAX_ATTEMPTS && !lastGeneratedCalc; attempt++){
+      if(await generatorShouldStop(started,attempt)) break;
+      const adjIndex=Math.floor(Math.random()*ts.length);
+      const fixedValues={};
+      ts.forEach((t,i)=>{ if(i!==adjIndex) fixedValues[i]=mutate(t.value,d); });
+
+      const sys=coefficientRowsForTargets(raw,ts,[adjIndex],fixedValues,[target]);
+      if(!sys || !sys.rows.length || sys.rows.length!==1) continue;
+      const sol=solveLinearSystemNumeric(sys.rows,sys.rhs);
+      if(!sol || !Number.isFinite(sol[0])) continue;
+
+      const txt=niceNumberString(sol[0]);
+      if(txt===null || txt==='0') continue;
+      if(!coefficientAllowedValue(parseSimpleCoeffValue(txt),false)) continue;
+
+      const vals=ts.map((t,i)=>fixedValues[i]!==undefined?fixedValues[i]:txt);
+      vals[adjIndex]=txt;
+      const cand=repl(raw,ts.map((t,i)=>({t,v:String(vals[i])})));
+      if(hasChangedLogBases(raw,cand)) continue;
+      if(!candidateRespectsCurrentCoeffLimits(cand)) continue;
+      if(!logarithmicCandidateReallyHasTargetRoot(cand,target)) continue;
+
+      if(isRepeatedGeneratedCandidate(cand)){
+        if(!repeatedFallbackCalc){
+          repeatedFallbackCalc=cand;
+          repeatedFallbackTarget=target;
+        }
+        continue;
+      }
+
+      lastGeneratedCalc=cand;
+      break;
+    }
+    if(generatorTimedOut(started)) break;
+  }
+
+  // Původní náhodné hledání necháváme jako zálohu pro tvary, kde přímý lineární
+  // dopočet jednoho tokenu nestačí.
+  for(let targetIndex=0; targetIndex<targets.length && !lastGeneratedCalc; targetIndex++){
+    target=targets[targetIndex];
+    if(target===null || !Number.isFinite(target)) continue;
+    for(let attempt=0; attempt<GENERATOR_SINGLE_ROOT_MAX_ATTEMPTS && !lastGeneratedCalc; attempt++){
+      if(await generatorShouldStop(started,attempt)) break;
+      const adj=ts[Math.floor(Math.random()*ts.length)];
+      for(const c of vals){
+        if(generatorTimedOut(started)) break;
+        const replacements=ts.map(t=>({
+          t,
+          v:(t===adj?c:mutate(t.value,d))
+        }));
+        const cand=repl(raw,replacements);
+        if(hasChangedLogBases(raw,cand)) continue;
+        if(!candidateRespectsCurrentCoeffLimits(cand)) continue;
+        if(!logarithmicCandidateReallyHasTargetRoot(cand,target)) continue;
+
+        if(isRepeatedGeneratedCandidate(cand)){
+          if(!repeatedFallbackCalc){
+            repeatedFallbackCalc=cand;
+            repeatedFallbackTarget=target;
+          }
+          continue;
+        }
+
+        lastGeneratedCalc=cand;
+        break;
+      }
+    }
+    if(generatorTimedOut(started)) break;
+  }
+
+  if(!lastGeneratedCalc && repeatedFallbackCalc){
+    lastGeneratedCalc=repeatedFallbackCalc;
+    target=repeatedFallbackTarget;
+  }
+
+  // Když už nejde najít novou bezpečnou variantu, raději zopakujeme dřívější platnou.
+  // Nikdy kvůli neopakování nepřekračujeme min/max koeficienty a nikdy nepřijmeme rovnici
+  // bez ověření, že má skutečně požadovaný kořen.
+  if(!lastGeneratedCalc){
+    const fallback=repeatedValidLogFallback(raw,targets);
+    if(fallback){
+      lastGeneratedCalc=fallback.calc;
+      target=fallback.target;
+    }
+  }
+
+  if(!lastGeneratedCalc){
+    box.innerHTML='<div class="muted">Nepodařilo se najít variantu v nastavených mezích koeficientů, jejíž skutečný kořen je zadaný nebo hezky zvolený výsledek.</div>';
+    return;
+  }
+  lastGeneratedCalc=prettifyUnitCoefficientsCalc(lastGeneratedCalc);
+  rememberGeneratedCandidate(lastGeneratedCalc);
+  lastGeneratedLatex=calcToLatexSimple(lastGeneratedCalc);
+
+  let rootInfo='';
+  try{
+    const [gl,gr]=splitTopLevelEquation(lastGeneratedCalc);
+
+    // U logaritmických kvadratických rovnic nestačí ukázat jen target,
+    // podle kterého se rovnice našla. Po vygenerování vždy znovu spočítáme
+    // všechny skutečné kořeny a u logaritmů je zkusíme zapsat hezky
+    // jako mocniny základu: např. 5^{-3/4} místo desetinného čísla.
+    let roots=[];
+    try{ roots=solveSingleLogQuadraticBySubstitution(gl,gr,'x'); }catch(e){ roots=[]; }
+    if(!roots.length){
+      roots=solveAllNumericRootsRobust(gl,gr,'x');
+    }
+    roots=dedupeRoots(roots);
+
+    if(roots.length>1){
+      rootInfo='<div class="muted">Kořeny: \\('+inlineRootsForLogEquation(gl,gr,'x',roots)+'\\)</div>';
+    }else if(roots.length===1){
+      rootInfo='<div class="muted">Kořen: \\('+inlineRootsForLogEquation(gl,gr,'x',roots)+'\\)</div>';
+    }else{
+      rootInfo='<div class="muted">Kontrola: pro \\(x='+fmtLatexNumber(target)+'\\) rovnice vychází. Základ logaritmu zůstal stejný.</div>';
+    }
+  }catch(e){
+    rootInfo='<div class="muted">Kontrola: pro \\(x='+fmtLatexNumber(target)+'\\) rovnice vychází. Základ logaritmu zůstal stejný.</div>';
+  }
+  box.innerHTML='\\['+lastGeneratedLatex+'\\]'+rootInfo+'<div class="muted">Základy logaritmů se neměnily.</div>';
+  if(window.MathJax)await MathJax.typesetPromise([box]);
+}
+
+
+function isFastValidAbsCandidate(left,right,x){
+  if(!Number.isFinite(x)) return false;
+  try{
+    if(isForbiddenPoint(left,right,x)) return false;
+    return isValidEquationRoot(left,right,x);
+  }catch(e){
+    return false;
+  }
+}
+
+
+async function generateAbsSimilar(){
+ const box=document.getElementById('generated'), raw=calcA(root), d=getMutationDelta();
+ if(!raw.includes('=')){box.innerHTML='<div class="muted">Nejdřív zadej rovnici s rovnítkem.</div>';return}
+ const manualTarget=readTarget(0);
+ const targets=targetInputIsFilled(0) ? [manualTarget] : shuffledPrettyTargets();
+ if(targets.length===1 && targets[0]===null){box.innerHTML='<div class="muted">Zadej platnou hodnotu x, nebo nech políčko prázdné.</div>';return;}
+ const ts=toks(raw);
+ if(ts.length>GENERATOR_MAX_TOKENS){box.innerHTML='<div class="muted">Příklad je pro bezpečné generování příliš složitý. Zkus jednodušší tvar nebo méně čísel.</div>';return}
+ if(ts.length<1){box.innerHTML='<div class="muted">U této rovnice není žádné číslo, které by šlo v generátoru změnit.</div>';return}
+ const vals=[];
+ const {minCoeff,maxCoeff}=coeffLimits();
+ for(let i=-maxCoeff;i<=maxCoeff;i++){
+   if(i!==0 && Math.abs(i)>=minCoeff) vals.push(String(i));
+ }
+ lastGeneratedCalc='';
+ let acceptedTarget=null;
+ const started=nowMs();
+ const maxAttempts=Math.min(GENERATOR_SINGLE_ROOT_MAX_ATTEMPTS,220);
+ for(let ti=0; ti<targets.length && !lastGeneratedCalc; ti++){
+   const target=targets[ti];
+   if(target===null || !Number.isFinite(target)) continue;
+   for(let attempt=0; attempt<maxAttempts && !lastGeneratedCalc; attempt++){
+     if(await generatorShouldStop(started,attempt,GENERATOR_TIME_LIMIT_MS)) break;
+     const adj=Math.floor(Math.random()*ts.length), rs=[];
+     for(let i=0;i<ts.length;i++) if(i!==adj) rs.push({t:ts[i],v:mutate(ts[i].value,d)});
+     const base=repl(raw,rs), nt=toks(base);
+     if(nt.length!==ts.length) continue;
+     const shuffledVals=vals.slice().sort(()=>Math.random()-.5);
+     for(const c of shuffledVals){
+       if(generatorTimedOut(started,GENERATOR_TIME_LIMIT_MS)) break;
+       const t=nt[adj], cand=base.slice(0,t.start)+c+base.slice(t.end);
+       if(!candidateRespectsCurrentCoeffLimits(cand)) continue;
+       try{
+         const parts=splitTopLevelEquation(cand);
+         if(!parts) continue;
+         // Rychlá kontrola: při generování absolutních rovnic neřešíme po každém pokusu celou množinu řešení.
+         // To bylo nejdražší místo a na mobilu umělo zaseknout stránku.
+         // Stačí ověřit dosazením zadaného / vybraného x; celé intervalové řešení se spočítá až jednou pro finální příklad.
+         if(!isFastValidAbsCandidate(parts[0],parts[1],target)) continue;
+         lastGeneratedCalc=cand;
+         acceptedTarget=target;
+         break;
+       }catch(e){}
+     }
+   }
+   if(generatorTimedOut(started,GENERATOR_TIME_LIMIT_MS)) break;
+ }
+ if(!lastGeneratedCalc){
+   box.innerHTML=generatorStoppedMessage();
+   return;
+ }
+ lastGeneratedCalc=prettifyUnitCoefficientsCalc(lastGeneratedCalc);
+ rememberGeneratedCandidate(lastGeneratedCalc);
+ lastGeneratedLatex=calcToLatexSimple(lastGeneratedCalc);
+ let rootInfo='';
+ try{
+   const [gl,gr]=splitTopLevelEquation(lastGeneratedCalc);
+   rootInfo='<div class="muted">Výsledek: '+solutionLatexInline(solutionSummaryHtml(gl,gr,'x'))+'</div>';
+ }catch(e){
+   rootInfo='<div class="muted">Kontrola: pro \\(x='+fmtLatexNumber(acceptedTarget)+'\\) rovnice vychází.</div>';
+ }
+ box.innerHTML='\\['+lastGeneratedLatex+'\\]'+rootInfo;
+ if(window.MathJax)await MathJax.typesetPromise([box]);
+}
+
+async function generateSimilar(){
+ refreshGeneratorTargets(true);
+ const box=document.getElementById('generated'),raw=calcA(root),d=getMutationDelta();
+ const mode=detectGeneratorMode();
+ if(mode.type==='inequality'){await generateInequalitySimilar();return}
+ if(mode.type==='logarithmic'){await generateLogarithmicSimilar();return}
+ if(mode.type==='absEquation'){await generateAbsSimilar();return}
+ if(!raw.includes('=')){box.innerHTML='<div class="muted">Nejdřív zadej rovnici s rovnítkem.</div>';return}
+ if(mode.type==='system'){generateSystemPreserveShape(equationLines(), mode.count);return}
+ if(mode.type==='higher'){await generateFactorableHigher();return}
+ if(mode.type==='quadratic'){await generateFactorableHigher();return}
+
+ const target=readTarget(0);
+ if(target===null){box.innerHTML='<div class="muted">Zadej požadovaný výsledek x.</div>';return}
+ const ts=toks(raw);
+ if(ts.length>GENERATOR_MAX_TOKENS){box.innerHTML='<div class="muted">Příklad je pro bezpečné generování příliš složitý. Zkus jednodušší tvar nebo méně čísel.</div>';return}
+ if(ts.length<2){box.innerHTML='<div class="muted">Málo čísel k obměně.</div>';return}
+ const vals=[];
+ const {minCoeff,maxCoeff}=coeffLimits();
+ for(let i=-maxCoeff;i<=maxCoeff;i++){
+   if(i && Math.abs(i)>=minCoeff) vals.push(String(i));
+ }
+ ['1/2','-1/2','3/2','-3/2','2/3','-2/3'].forEach(v=>{
+   if(coefficientAllowedValue(parseSimpleCoeffValue(v))) vals.push(v);
+ });
+ lastGeneratedCalc='';
+ const started=nowMs();
+ for(let a=0;a<GENERATOR_SINGLE_ROOT_MAX_ATTEMPTS&&!lastGeneratedCalc;a++){
+   if(await generatorShouldStop(started,a)) break;
+   const adj=Math.floor(Math.random()*ts.length),rs=[];
+   for(let i=0;i<ts.length;i++) if(i!==adj) rs.push({t:ts[i],v:mutate(ts[i].value,d)});
+   const base=repl(raw,rs),nt=toks(base);
+   if(nt.length!==ts.length) continue;
+   for(const c of vals){
+     if(generatorTimedOut(started)) break;
+     const t=nt[adj],cand=base.slice(0,t.start)+c+base.slice(t.end);
+     try{
+       const [l,r]=cand.split('=');
+       if(Math.abs(evalJS(l,target)-evalJS(r,target))<1e-9){
+         if(hasAbsExpr(cand)){
+           const sol=solveEquationSetSmart(l,r,'x');
+           if(!solutionSetContainsValue(sol,target)) continue;
+         }
+         if(isRepeatedGeneratedCandidate(cand)) continue;
+         lastGeneratedCalc=cand;
+         lastGeneratedLatex=calcToLatexSimple(cand);
+         break;
+       }
+     }catch(e){}
+   }
+}
+ if(!lastGeneratedCalc){
+   box.innerHTML='<div class="muted">Nepodařilo se najít další jinou variantu v nastaveném rozsahu koeficientů. Zkus zvětšit rozsah koeficientů nebo změnit zadání.</div>';
+   return;
+ }
+ let rootInfo='';
+ try{
+   const [gl,gr]=lastGeneratedCalc.split('=');
+   if(hasAbsExpr(lastGeneratedCalc)){
+     rootInfo='<div class="muted">Výsledek: '+solutionLatexInline(solutionSummaryHtml(gl,gr,'x'))+'</div>';
+   }else{
+     const roots=findNumericRoots(gl,gr);
+     if(roots.length>1){
+       rootInfo='<div class="muted">Kořeny: \\('+roots.map((r,i)=>'x_{'+(i+1)+'} = '+fmtLatexNumber(r)).join('\\quad ')+'\\)</div>';
+     }else if(roots.length===1){
+       rootInfo='<div class="muted">Kořen: \\(x = '+fmtLatexNumber(roots[0])+'\\)</div>';
+     }else{
+       rootInfo='<div class="muted">Kontrola: pro \\(x='+target+'\\) rovnice vychází.</div>';
+     }
+   }
+ }catch(e){
+   rootInfo='<div class="muted">Kontrola: pro \\(x='+target+'\\) rovnice vychází.</div>';
+ }
+ lastGeneratedCalc=prettifyUnitCoefficientsCalc(lastGeneratedCalc);
+ rememberGeneratedCandidate(lastGeneratedCalc);
+ lastGeneratedLatex=calcToLatexSimple(lastGeneratedCalc);
+ box.innerHTML='\\['+lastGeneratedLatex+'\\]'+rootInfo; 
+ if(window.MathJax)await MathJax.typesetPromise([box]);
+}
+function splitTopLevelOnce(s,op){
+  let depth=0;
+  for(let i=0;i<s.length;i++){
+    const c=s[i];
+    if(c==='(') depth++;
+    else if(c===')') depth--;
+    else if(depth===0 && s.slice(i,i+op.length)===op){
+      return [s.slice(0,i),s.slice(i+op.length)];
+    }
+  }
+  return null;
+}
+function stripOuterParens(s){
+  s=String(s||'').trim();
+  let changed=true;
+  while(changed && s.startsWith('(') && s.endsWith(')')){
+    changed=false;
+    let depth=0, ok=true;
+    for(let i=0;i<s.length;i++){
+      if(s[i]==='(') depth++;
+      if(s[i]===')') depth--;
+      if(depth===0 && i<s.length-1){ok=false;break;}
+    }
+    if(ok){s=s.slice(1,-1).trim();changed=true;}
+  }
+  return s;
+}
+function splitTopLevelFactors(s){
+  const out=[]; let depth=0, last=0;
+  for(let i=0;i<s.length;i++){
+    const c=s[i];
+    if(c==='(') depth++;
+    else if(c===')') depth--;
+    else if(depth===0 && c==='*'){
+      out.push(s.slice(last,i)); last=i+1;
+    }
+  }
+  out.push(s.slice(last));
+  return out.map(x=>x.trim()).filter(Boolean);
+}
+function splitTopLevelTerms(s){
+  const out=[]; let depth=0, last=0;
+  for(let i=0;i<s.length;i++){
+    const c=s[i];
+    if(c==='(') depth++;
+    else if(c===')') depth--;
+    else if(depth===0 && (c==='+' || c==='-') && i>last){
+      out.push(s.slice(last,i));
+      last=i;
+    }
+  }
+  out.push(s.slice(last));
+  return out.map(x=>x.trim()).filter(Boolean);
+}
+function hasTopLevelPlusMinus(s){
+  let depth=0;
+  for(let i=0;i<s.length;i++){
+    const c=s[i];
+    if(c==='(') depth++;
+    else if(c===')') depth--;
+    else if(depth===0 && (c==='+' || c==='-') && i>0) return true;
+  }
+  return false;
+}
+function parseFunctionCall(expr,name){
+  expr=String(expr||'').trim();
+  const head=name+'(';
+  if(!expr.startsWith(head) || !expr.endsWith(')')) return null;
+  const inner=expr.slice(head.length,-1);
+  const args=[];
+  let depth=0,start=0;
+  for(let i=0;i<inner.length;i++){
+    const c=inner[i];
+    if(c==='(') depth++;
+    else if(c===')') depth--;
+    else if(c===',' && depth===0){ args.push(inner.slice(start,i)); start=i+1; }
+  }
+  args.push(inner.slice(start));
+  return {name,args};
+}
+function exprToLatexGenerated(expr, context="normal") {
+  expr=String(expr||'').trim();
+  // Pojistka jen pro vykreslení generátoru: když se v calc zápisu objeví 2logbase(...),
+  // MathJax by z toho udělal obyčejná písmena. Pro LaTeX převod z toho uděláme 2*logbase(...).
+  expr=expr.replace(/[·⋅×]/g,'*')
+           .replace(/(\d|\))(?=(?:logbase|log|ln)\s*\()/g,'$1*')
+           // Implicitní násobení v generovaném calc zápisu: 3(logbase(...))^2, 2(x+1), )(
+           // Bez toho se logbase uvnitř mocniny nepřevede a MathJax vykreslí obyčejný text.
+           .replace(/(\d|\))(?=\()/g,'$1*');
+  // V generovaném LaTeXu nechceme proměnnou zbytečně jako (x)^2.
+  // Zápis (x)^(2) převádíme jen vizuálně na x^2; výpočty se nemění.
+  expr=expr.replace(/\(([a-zA-Z])\)\s*\^\s*\(?\s*(\d+)\s*\)?/g,'$1^$2');
+  // Po vizuálním zjednodušení mocnin ještě znovu smažeme jednotkové koeficienty.
+  // Bez toho zůstávalo například -1*(x)^(2) jako -1x^2 nebo 1\cdot x^2.
+  expr=prettifyUnitCoefficientsCalc(expr);
+  if(!expr) return '';
+
+  const beforeStrip=expr;
+  expr=stripOuterParens(expr);
+  const wasWrapped=expr!==beforeStrip;
+
+  // Chirurgická pojistka pro znaménko těsně před logaritmem.
+  // Bez ní výraz jako -logbase(5,x) nezačne řetězcem logbase(, takže by se
+  // nepřevedl na \log_{5}(x) a MathJax by vykreslil obyčejné písmo „logbase“.
+  if((expr.startsWith('-') || expr.startsWith('+')) && /^(?:logbase|log|ln)\s*\(/.test(expr.slice(1).trim())){
+    const sign=expr[0];
+    const rest=expr.slice(1).trim();
+    return (sign==='-'?'-':'+')+exprToLatexGenerated(rest, context);
+  }
+
+  const logBaseCall=parseFunctionCall(expr,'logbase');
+  if(logBaseCall && logBaseCall.args.length===2){
+    return '\\log_{'+exprToLatexGenerated(logBaseCall.args[0], 'suppressWrap')+'}\\left('+exprToLatexGenerated(logBaseCall.args[1], 'suppressWrap')+'\\right)';
+  }
+
+  const commonLogCall=parseFunctionCall(expr,'log');
+  if(commonLogCall && commonLogCall.args.length===1){
+    return '\\log\\left('+exprToLatexGenerated(commonLogCall.args[0], 'suppressWrap')+'\\right)';
+  }
+
+  const lnCall=parseFunctionCall(expr,'ln');
+  if(lnCall && lnCall.args.length===1){
+    return '\\ln\\left('+exprToLatexGenerated(lnCall.args[0], 'suppressWrap')+'\\right)';
+  }
+
+  const absCall=parseFunctionCall(expr,'abs');
+  if(absCall && absCall.args.length===1){
+    return '\\left| '+exprToLatexGenerated(absCall.args[0], 'suppressWrap')+' \\right|';
+  }
+
+  const frac=splitTopLevelOnce(expr,'/');
+  if(frac) return '\\frac{'+exprToLatexGenerated(frac[0], 'suppressWrap')+'}{'+exprToLatexGenerated(frac[1], 'suppressWrap')+'}';
+
+  const terms=splitTopLevelTerms(expr);
+  if(terms.length>1){
+    const rendered=terms.map((t,i)=>{
+      if(i===0) return exprToLatexGenerated(t);
+      if(t.startsWith('+')) return '+'+exprToLatexGenerated(t.slice(1));
+      if(t.startsWith('-')) return '-'+exprToLatexGenerated(t.slice(1));
+      return '+'+exprToLatexGenerated(t);
+    }).join('');
+    return (wasWrapped && context!=='suppressWrap') ? '\\left('+rendered+'\\right)' : rendered;
+  }
+
+  const factors=splitTopLevelFactors(expr);
+  if(factors.length>1){
+    const rendered=factors.map(f=>{
+      const part=exprToLatexGenerated(f);
+      // Záporný činitel za násobením má být čitelně v závorce: 5\cdot \left(-2\right), ne 5\cdot -2.
+      const plainFactor=stripOuterParens(String(f).trim());
+      return plainFactor.startsWith('-') ? '\\left('+part+'\\right)' : part;
+    }).join('\\cdot ');
+    return (wasWrapped && context!=='suppressWrap') ? '\\left('+rendered+'\\right)' : rendered;
+  }
+
+  // Mocnina na konci výrazu, např. (x)^(2), x^2 nebo (x-1)^2.
+  let depth=0;
+  for(let i=expr.length-1;i>=0;i--){
+    const c=expr[i];
+    if(c===')') depth++;
+    else if(c==='(') depth--;
+    else if(depth===0 && c==='^'){
+      const base=expr.slice(0,i);
+      const exp=stripOuterParens(expr.slice(i+1));
+      const rendered='{'+exprToLatexGenerated(base)+'}^{'+exprToLatexGenerated(exp)+'}';
+      return (wasWrapped && context!=='suppressWrap') ? '\\left('+rendered+'\\right)' : rendered;
+    }
+  }
+
+  expr=expr.replace(/<=/g,'\\le ')
+           .replace(/>=/g,'\\ge ')
+           .replace(/pi/g,'\\pi ')
+           .replace(/Infinity/g,'\\infty ')
+           .replace(/sqrt\(([^()]*)\)/g,'\\sqrt{$1}');
+
+  // Hezké implicitní násobení koeficientu a proměnné.
+  expr=expr.replace(/(\d+)\*([a-zA-Z])/g,'$1$2');
+  return (wasWrapped && context!=='suppressWrap' && hasTopLevelPlusMinus(expr)) ? '\\left('+expr+'\\right)' : expr;
+}
+
+function prettifyUnitCoefficientsCalc(s){
+  return String(s||'')
+    // 1x, 1*x, 1x^2, 1*x^(2) -> x, x^2; stejně pro -1x -> -x.
+    // Nezasahuje do čísel typu 10x, protože před jedničkou nesmí být číslice.
+    .replace(/(^|[^0-9A-Za-z_])(-?)1\*?([a-zA-Z](?:_\d+)?(?:\^\(?\d+\)?)?)/g,(m,p,sg,v)=>p+(sg?'-':'')+v)
+    .replace(/\+\-/g,'-')
+    .replace(/--/g,'+');
+}
+function cleanupCopiedLatex(s){
+  return String(s||'')
+    .replace(/\\left\(([a-zA-Z0-9]+)\\right\)\^\{/g,'$1^{')
+    .replace(/\(([a-zA-Z0-9]+)\)\^\{/g,'$1^{')
+    .replace(/\{([a-zA-Z0-9]+)\}\^\{/g,'$1^{')
+    .replace(/\\left\(([a-zA-Z0-9]+)\\right\)_\{/g,'$1_{')
+    .replace(/\(([a-zA-Z0-9]+)\)_\{/g,'$1_{')
+    .replace(/\{([a-zA-Z0-9]+)\}_\{/g,'$1_{');
+}
+function calcToLatexSimple(s){
+  let out=prettifyUnitCoefficientsCalc(s);
+  out=out.replace(/−/g,'-');
+  const opMatch=out.match(/(<=|>=|<|>|=)/);
+  let result;
+  if(opMatch){
+    const op=opMatch[1];
+    const left=out.slice(0,opMatch.index);
+    const right=out.slice(opMatch.index+op.length);
+    const opLatex=op==='<= إ'?'\\le ':op; // never used, keeps minifier away
+    const map={ '<=':'\\le ', '>=':'\\ge ', '<':'<', '>':'>', '=':'=' };
+    result=exprToLatexGenerated(left)+map[op]+exprToLatexGenerated(right);
+  }else{
+    result=exprToLatexGenerated(out);
+  }
+  return cleanupCopiedLatex(result);
+}
+
+function calcToLatexSimpleKeepUnitCoeff(s){
+  // Zachováno jen kvůli případným starším voláním; i tady už se jednotkový koeficient nemaže výjimkou.
+  return calcToLatexSimple(s);
+}
+function useGenerated(){
+ if(!lastGeneratedCalc)return;
+ lastGeneratedCalc=prettifyUnitCoefficientsCalc(lastGeneratedCalc);
+ root=calcTextToNodes(lastGeneratedCalc);
+ path=[];
+ cursor=root.length;
+ render();
+ updateDebug();
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function fallbackCopyText(text){
+  const ta=document.createElement('textarea');
+  ta.value=text;
+  ta.style.position='fixed';
+  ta.style.left='-9999px';
+  ta.style.top='0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  let ok=false;
+  try{ok=document.execCommand('copy')}catch(e){ok=false}
+  document.body.removeChild(ta);
+  return ok;
+}
+
+async function copyTextSmart(text){
+  if(!text)return false;
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  }catch(e){}
+  return fallbackCopyText(text);
+}
+
+function showCopyResult(ok, label){
+  const box=document.getElementById('generated');
+  if(ok){
+    const old=box.innerHTML;
+    box.innerHTML=old+'<div class="muted">Zkopírováno: '+label+'</div>';
+  }else{
+    alert('Kopírování se nepodařilo. Označ text ručně: ' + label);
+  }
+}
+
+async function copyGenerated(){
+ const lx=lastGeneratedLatex||calcToLatexSimple(lastGeneratedCalc||'');
+ if(!lx)return;
+ const text='\\[\n'+lx+'\n\\]';
+ const ok=await copyTextSmart(text);
+ showCopyResult(ok,text);
+}
+async function copyLatex(){
+ const lx=lastGeneratedLatex || (lastGeneratedCalc ? calcToLatexSimple(lastGeneratedCalc) : latexA(root));
+ const text=cleanupCopiedLatex(lx);
+ const ok=await copyTextSmart(text);
+ if(!ok) alert('Kopírování se nepodařilo. Text: '+text);
+}
+
+async function copyEditorLatex(){
+ const raw=prettifyUnitCoefficientsCalc(calcA(root));
+ const text=calcToLatexSimple(raw);
+ if(!text)return;
+ const ok=await copyTextSmart(text);
+ const status=document.getElementById('editorLinkStatus');
+ if(status){
+   status.textContent=ok?'LaTeX z editoru zkopírován.':'Kopírování se nepodařilo.';
+   setTimeout(()=>{status.textContent=''},2500);
+ }
+ if(!ok) alert('Kopírování se nepodařilo. Text: '+text);
+}
+async function copyCalc(){
+ const text=prettifyUnitCoefficientsCalc(lastGeneratedCalc || calcA(root));
+ const ok=await copyTextSmart(text);
+ if(!ok) alert('Kopírování se nepodařilo. Text: '+text);
+}
+
+function base64UrlEncodeUtf8(text){
+  const bytes=new TextEncoder().encode(text);
+  let bin='';
+  bytes.forEach(b=>bin+=String.fromCharCode(b));
+  return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function base64UrlDecodeUtf8(text){
+  text=String(text||'').replace(/-/g,'+').replace(/_/g,'/');
+  while(text.length%4) text+='=';
+  const bin=atob(text);
+  const bytes=new Uint8Array([...bin].map(ch=>ch.charCodeAt(0)));
+  return new TextDecoder().decode(bytes);
+}
+function getEditorUrlData(){
+  const hash=String(window.location.hash||'');
+  if(hash.startsWith('#eq=')) return hash.slice(4);
+  return new URLSearchParams(window.location.search).get('eq');
+}
+function syncEditorToUrl(){
+  try{
+    const url=new URL(window.location.href);
+    // Kratší odkaz: ukládá se jen výpočetní zápis, ne celý JSON strom editoru.
+    // Hash funguje i při otevření jako file:// a GitHub Pages/PWA ho neupravuje.
+    url.searchParams.delete('eq');
+    url.hash=root.length ? 'eq='+encodeURIComponent(calcA(root)) : '';
+    history.replaceState(null,'',url.toString());
+  }catch(e){
+    try{
+      window.location.hash=root.length ? 'eq='+encodeURIComponent(calcA(root)) : '';
+    }catch(_e){}
+  }
+}
+function loadEditorFromUrl(){
+  try{
+    const data=getEditorUrlData();
+    if(!data)return;
+
+    // Nový krátký formát: #eq=x%5E2-5*x%3D6
+    let raw=decodeURIComponent(data);
+
+    // Zpětná kompatibilita se starším dlouhým formátem, kde byl uložen JSON v base64url.
+    try{
+      const parsed=JSON.parse(base64UrlDecodeUtf8(data));
+      if(parsed && Array.isArray(parsed.root)){
+        root=parsed.root;
+        path=[];
+        cursor=root.length;
+        return;
+      }
+    }catch(_oldFormat){}
+
+    root=calcTextToNodes(raw);
+    path=[];
+    cursor=root.length;
+  }catch(e){}
+}
+async function copyEditorLink(){
+  syncEditorToUrl();
+  const text=window.location.href;
+  const ok=await copyTextSmart(text);
+  const status=document.getElementById('editorLinkStatus');
+  if(status){
+    status.textContent=ok?'Odkaz s aktuální rovnicí zkopírován.':'Kopírování se nepodařilo.';
+    setTimeout(()=>{status.textContent=''},2500);
+  }
+  if(!ok) alert('Kopírování se nepodařilo. Odkaz: '+text);
+}
+function setPanel(p,btn){panel=p;document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));btn.classList.add('active');renderKeys()}
+
+
+function latexFromMenuLabel(label, calc){
+  const map={
+    "≥":"\\ge ",
+    "≤":"\\le ",
+    "≠":"\\ne ",
+    "π":"\\pi ",
+    "∞":"\\infty ",
+    "±":"\\pm ",
+    "→":"\\to ",
+    "⇒":"\\Rightarrow ",
+    "∈":"\\in ",
+    "∪":"\\cup ",
+    "∩":"\\cap ",
+    ":":"\\div ",
+    "×":"\\cdot ",
+    "−":"-"
+  };
+  return map[label] || textToLatex(calc);
+}
+
+function insertMenuText(label, calc){
+  insNode({
+    type:"menuText",
+    show:String(label),
+    calc:String(calc),
+    latex:latexFromMenuLabel(String(label), String(calc))
+  });
+}
+
+function runPopoverOption(opt){
+  const label=opt[0];
+  const action=opt[1];
+
+  if(typeof action==="function"){
+    action();
+  }else{
+    insertMenuText(label, action);
+  }
+}
+
+function runKeyAction(action){
+  if(typeof action==='function') action();
+  else insText(action);
+}
+
+let longPressTimer=null;
+let activePopoverKey=null;
+
+function hidePopover(){
+  const pop=document.getElementById('keyPopover');
+  pop.classList.remove('show');
+  pop.innerHTML='';
+  activePopoverKey=null;
+}
+
+document.addEventListener('pointerdown',function(e){
+  const pop=document.getElementById('keyPopover');
+  if(!pop || !pop.classList.contains('show')) return;
+  if(pop.contains(e.target)) return;
+  hidePopover();
+}, true);
+
+function showKeyPopover(btn, options){
+  const pop=document.getElementById('keyPopover');
+  pop.innerHTML='';
+  const rect=btn.getBoundingClientRect();
+
+  options.forEach((opt,i)=>{
+    const div=document.createElement('div');
+    div.className='popOpt'+(i===0?' active':'');
+    div.innerHTML=opt[0];
+    div.onclick=()=>{
+      runPopoverOption(opt);
+      hidePopover();
+    };
+    pop.appendChild(div);
+  });
+
+  pop.style.left=Math.max(8, Math.min(window.innerWidth-80, rect.left))+'px';
+  pop.style.bottom=(window.innerHeight-rect.top+8)+'px';
+  pop.classList.add('show');
+  activePopoverKey={btn,options};
+}
+
+function handleKeyPointerStart(e, btn, item){
+  if(!item[3])return;
+  clearTimeout(longPressTimer);
+  longPressTimer=setTimeout(()=>{
+    showKeyPopover(btn,item[3]);
+  },420);
+}
+
+function handleKeyPointerEnd(e, item){
+  clearTimeout(longPressTimer);
+  const pop=document.getElementById('keyPopover');
+  if(pop.classList.contains('show')){
+    // necháme uživatele kliknout na volbu
+    return;
+  }
+  runKeyAction(item[1]);
+}
+
+
+/* =========================
+   FYZICKÁ KLÁVESNICE PRO PC
+   ========================= */
+let physicalKeyboardReady=true;
+
+function isTypingInFormElement(e){
+  const el=e.target;
+  if(!el) return false;
+  const tag=(el.tagName||'').toLowerCase();
+  return tag==='input' || tag==='textarea' || tag==='select' || el.isContentEditable;
+}
+
+function physicalFocusEditor(){
+  const ed=document.getElementById('editor');
+  if(ed && document.activeElement!==ed) ed.focus({preventScroll:true});
+}
+
+function insertPlainCharacterFromKeyboard(ch){
+  // česká klávesnice: desetinná čárka ukládáme výpočetně jako tečku
+  if(ch===',') ch='.';
+  if(ch==='π') ch='pi';
+  insText(ch);
+  tryAutoConvertTypedWords();
+}
+
+function currentArrayTextTail(maxLen=8){
+  const a=arr();
+  let out='';
+  let count=0;
+  for(let i=cursor-1;i>=0 && count<maxLen;i--){
+    const n=a[i];
+    if(!n || n.type!=='text') break;
+    out=String(n.v)+out;
+    count++;
+  }
+  return out;
+}
+
+function removePreviousTextNodes(count){
+  const a=arr();
+  save();
+  for(let i=0;i<count;i++){
+    if(cursor>0 && a[cursor-1] && a[cursor-1].type==='text'){
+      a.splice(cursor-1,1);
+      cursor--;
+    }
+  }
+}
+
+function tryAutoConvertTypedWords(){
+  const tail=currentArrayTextTail(8).toLowerCase();
+
+  // log -> logaritmus se základem a argumentem
+  if(tail.endsWith('log')){
+    removePreviousTextNodes(3);
+    const a=arr();
+    a.splice(cursor,0,{type:'logbase',base:[],body:[]});
+    path.push(cursor,'base');
+    cursor=0;
+    render();updateDebug();
+    return;
+  }
+
+  // sqrt -> odmocnina
+  if(tail.endsWith('sqrt')){
+    removePreviousTextNodes(4);
+    const a=arr();
+    a.splice(cursor,0,{type:'sqrt',body:[]});
+    path.push(cursor,'body');
+    cursor=0;
+    render();updateDebug();
+    return;
+  }
+
+  // pi nebo pí -> skutečné π; výpočetně zůstává „pi“
+  if(tail.endsWith('pi')){
+    removePreviousTextNodes(2);
+    const a=arr();
+    a.splice(cursor,0,{type:'text',v:'pi'});
+    cursor++;
+    render();updateDebug();
+    return;
+  }
+  if(tail.endsWith('pí')){
+    removePreviousTextNodes(2);
+    const a=arr();
+    a.splice(cursor,0,{type:'text',v:'pi'});
+    cursor++;
+    render();updateDebug();
+    return;
+  }
+}
+
+function keyboardFractionFromSlash(){
+  const a=arr();
+  save();
+
+  // když před lomítkem něco je, vezme se to jako čitatel: 1/ -> zlomek s čitatelem 1
+  if(cursor>0){
+    const numerator=a.splice(cursor-1,1)[0];
+    a.splice(cursor-1,0,{type:'frac',top:[numerator],bottom:[]});
+    path.push(cursor-1,'bottom');
+    cursor=0;
+  }else{
+    a.splice(cursor,0,{type:'frac',top:[],bottom:[]});
+    path.push(cursor,'top');
+    cursor=0;
+  }
+  render();updateDebug();
+}
+
+function keyboardPowerFromCaret(){
+  insPow('');
+  // po ^ rovnou skočíme do exponentu
+  const a=arr();
+  // insPow už změnil strukturu v aktuální úrovni; najdeme právě vložený exponent poblíž kurzoru
+  smartMove(1);
+  const stops=allCursorStops();
+  const curKey=JSON.stringify(path)+'|'+cursor;
+  const idx=stops.findIndex(s=>JSON.stringify(s.path)+'|'+s.cursor===curKey);
+  for(let i=Math.max(0,idx-3);i<Math.min(stops.length,idx+6);i++){
+    const p=stops[i].path;
+    if(p[p.length-1]==='sup'){
+      path=p.slice(); cursor=0; render(); break;
+    }
+  }
+}
+
+function keyboardParen(openChar){
+  if(openChar==='(') insParen();
+  else if(openChar==='[') insBracket('square');
+  else if(openChar==='{') insBracket('curly');
+}
+
+function keyboardCloseBracket(ch){
+  // nejpřirozenější chování: když jsem uvnitř závorky/zlomku/odmocniny, zavírací závorka vyskočí ven
+  if(path.length){ exitBox(); return; }
+  insText(ch);
+}
+
+function insertRootNewlineFromKeyboard(){
+  save();
+  // soustavy rovnic se píšou jako nové řádky v kořeni editoru
+  if(path.length) exitBox();
+  root.splice(cursor,0,{type:'newline'});
+  cursor++;
+  render();updateDebug();
+}
+
+function verticalMoveInStructure(direction){
+  if(!path.length) return false;
+  const p=path.slice();
+  const last=p[p.length-1];
+
+  function setTo(newPath){
+    const oldCursor=cursor;
+    path=newPath;
+    const len=arr().length;
+    cursor=Math.min(oldCursor,len);
+    render();
+    return true;
+  }
+
+  // obyčejný zlomek: top <-> bottom
+  if(last==='top' || last==='bottom'){
+    const np=p.slice();
+    np[np.length-1]=(last==='top')?'bottom':'top';
+    return setTo(np);
+  }
+
+  // smíšené číslo má cestu ... frac top/bottom
+  if(p.length>=2 && (last==='top'||last==='bottom') && p[p.length-2]==='frac'){
+    const np=p.slice();
+    np[np.length-1]=(last==='top')?'bottom':'top';
+    return setTo(np);
+  }
+
+  // exponent: nahoru do exponentu, dolů zpět na základ / ven
+  if(last==='base' && direction<0){ const np=p.slice(); np[np.length-1]='sup'; return setTo(np); }
+  if(last==='sup' && direction>0){ const np=p.slice(); np[np.length-1]='base'; return setTo(np); }
+
+  return false;
+}
+
+function handlePhysicalKeyboard(e){
+  if(isTypingInFormElement(e)) return;
+  if(e.ctrlKey || e.metaKey || e.altKey) return;
+
+  const key=e.key;
+  const printable=key.length===1;
+  const navKeys=['Backspace','Enter','ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Delete','Escape','Tab'];
+  if(!printable && !navKeys.includes(key)) return;
+
+  physicalFocusEditor();
+
+  if(key==='Backspace'){
+    e.preventDefault();
+    backspaceKey();
+    return;
+  }
+  if(key==='Delete'){
+    e.preventDefault();
+    const a=arr();
+    if(cursor<a.length){save();a.splice(cursor,1);render();updateDebug();}
+    return;
+  }
+  if(key==='Enter'){
+    e.preventDefault();
+    insertRootNewlineFromKeyboard();
+    return;
+  }
+  if(key==='ArrowLeft'){
+    e.preventDefault();
+    move(-1);
+    return;
+  }
+  if(key==='ArrowRight'){
+    e.preventDefault();
+    move(1);
+    return;
+  }
+  if(key==='ArrowUp'){
+    e.preventDefault();
+    if(!verticalMoveInStructure(-1)) move(-1);
+    return;
+  }
+  if(key==='ArrowDown'){
+    e.preventDefault();
+    if(!verticalMoveInStructure(1)) move(1);
+    return;
+  }
+  if(key==='Escape'){
+    e.preventDefault();
+    hideKb();hidePopover();
+    return;
+  }
+  if(key==='Tab'){
+    e.preventDefault();
+    if(path.length) exitBox(); else move(1);
+    return;
+  }
+
+  if(printable){
+    e.preventDefault();
+    if(key==='d'){ insSub(''); return; }
+    if(key==='/'){ keyboardFractionFromSlash(); return; }
+    if(key==='^' || key==='u'){ keyboardPowerFromCaret(); return; }
+    if(key==='(' || key==='[' || key==='{'){ keyboardParen(key); return; }
+    if(key===')' || key===']' || key==='}'){ keyboardCloseBracket(key); return; }
+    if(key==='*'){ insText('*'); return; }
+    if(key==='+' || key==='-' || key==='=' || key==='<' || key==='>') { insText(key); return; }
+    if(/[0-9a-zA-ZáčďéěíňóřšťúůýžÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ.,]/.test(key)){
+      insertPlainCharacterFromKeyboard(key);
+      return;
+    }
+    if(key==='π'){
+      insertPlainCharacterFromKeyboard('π');
+      return;
+    }
+  }
+}
+
+document.addEventListener('keydown',handlePhysicalKeyboard);
+
+function renderKeys(){
+ const k=document.getElementById('keys');
+ k.innerHTML='';
+ panels[panel].forEach(item=>{
+   const b=document.createElement('button');
+   b.className='key '+(item[2]||'');
+   b.innerHTML=item[0];
+
+   if(item[3]){
+     b.addEventListener('pointerdown',e=>handleKeyPointerStart(e,b,item));
+     b.addEventListener('pointerup',e=>handleKeyPointerEnd(e,item));
+     b.addEventListener('pointerleave',e=>clearTimeout(longPressTimer));
+   }else{
+     b.onclick=()=>runKeyAction(item[1]);
+   }
+
+   k.appendChild(b);
+ });
+}
+
+
+function latexToCalcText(latex){
+  let s=String(latex||'').trim();
+
+  s=s.replace(/^\s*\\\[/,'').replace(/\\\]\s*$/,'');
+  s=s.replace(/^\s*\\\(/,'').replace(/\\\)\s*$/,'');
+  s=s.replace(/^\s*\$\$/,'').replace(/\$\$\s*$/,'');
+  s=s.replace(/^\s*\$/,'').replace(/\$\s*$/,'');
+
+  s=s.replace(/\r/g,'\n');
+  s=s.replace(/\\begin\{(?:aligned|array|cases|matrix)\}/g,'');
+  s=s.replace(/\\end\{(?:aligned|array|cases|matrix)\}/g,'');
+  s=s.replace(/\\\\/g,'\n');
+  s=s.replace(/&/g,'');
+
+  s=s.replace(/\\left/g,'').replace(/\\right/g,'');
+  s=s.replace(/\\,/g,'').replace(/\\;/g,'').replace(/\\!/g,'').replace(/\\:/g,'');
+  s=s.replace(/\s+/g,'');
+
+  function convertAbsBarsInLatexText(str){
+    let out='', stack=[];
+    for(let i=0;i<str.length;i++){
+      if(str[i]==='|'){
+        if(stack.length){
+          out+=')';
+          stack.pop();
+        }else{
+          out+='abs(';
+          stack.push('|');
+        }
+      }else{
+        out+=str[i];
+      }
+    }
+    return out;
+  }
+  s=convertAbsBarsInLatexText(s);
+
+  s=s.replace(/\\cdot|\\times/g,'*');
+  s=s.replace(/[·⋅×]/g,'*');
+  s=s.replace(/\\div/g,'/');
+  s=s.replace(/\\pi/g,'pi');
+  s=s.replace(/\\infty/g,'Infinity');
+  s=s.replace(/\\leq|\\le/g,'<=');
+  s=s.replace(/\\geq|\\ge/g,'>=');
+  s=s.replace(/\\neq|\\ne/g,'!=');
+  s=s.replace(/\\sin/g,'sin');
+  s=s.replace(/\\cos/g,'cos');
+  s=s.replace(/\\tan/g,'tan');
+  s=s.replace(/\\cot/g,'cot');
+  s=s.replace(/\\log_\{([^{}]+)\}\(([^()]+)\)/g,'logbase($1,$2)');
+  s=s.replace(/\\log_([0-9a-zA-Z]+)\(([^()]+)\)/g,'logbase($1,$2)');
+  s=s.replace(/\\log/g,'log');
+  s=s.replace(/\\ln/g,'ln');
+
+  function readGroup(str,i){
+    if(str[i]!=='{') return {body:str[i]||'', end:i+1};
+    let depth=1, j=i+1, body='';
+    while(j<str.length){
+      if(str[j]==='{') depth++;
+      else if(str[j]==='}'){
+        depth--;
+        if(depth===0) break;
+      }
+      body+=str[j];
+      j++;
+    }
+    return {body,end:j+1};
+  }
+
+  function convertSpecial(str){
+    let out='', i=0;
+    while(i<str.length){
+      if(str.startsWith('\\frac',i)){
+        i+=5;
+        const top=readGroup(str,i);
+        const bot=readGroup(str,top.end);
+        out+='(('+convertSpecial(top.body)+')/('+convertSpecial(bot.body)+'))';
+        i=bot.end;
+      }else if(str.startsWith('\\sqrt',i)){
+        i+=5;
+        if(str[i]==='['){
+          let j=i+1, idx='';
+          while(j<str.length && str[j]!==']'){idx+=str[j];j++;}
+          const body=readGroup(str,j+1);
+          out+='('+convertSpecial(body.body)+')^(1/('+convertSpecial(idx)+'))';
+          i=body.end;
+        }else{
+          const body=readGroup(str,i);
+          out+='sqrt('+convertSpecial(body.body)+')';
+          i=body.end;
+        }
+      }else{
+        out+=str[i];
+        i++;
+      }
+    }
+    return out;
+  }
+
+  s=convertSpecial(s);
+  s=s.replace(/\{/g,'(').replace(/\}/g,')');
+  s=s.replace(/\^\(([^()]*)\)/g,'^($1)');
+  s=s.replace(/\^([0-9a-zA-Z]+)/g,'^($1)');
+  s=s.replace(/_\(([^()]*)\)/g,'_$1');
+  s=s.replace(/_([0-9a-zA-Z]+)/g,'_$1');
+  s=s.replace(/\\/g,'');
+  return s;
+}
+
+function pasteLatexIntoEditor(e){
+  const text=e.clipboardData?.getData('text/plain') || '';
+  if(!text.trim()) return;
+
+  const looksLatex=/\\frac|\\sqrt|\\left|\\right|\\cdot|\\times|\\le|\\ge|\\pi|\\begin|\^|_\{/.test(text);
+  if(!looksLatex) return;
+
+  e.preventDefault();
+  try{
+    save();
+    const calcText=latexToCalcText(text);
+    root=calcTextToNodes(calcText);
+    path=[];
+    cursor=root.length;
+    render();
+    updateDebug();
+    showKb();
+  }catch(err){
+    alert('LaTeX se nepodařilo převést.');
+  }
+}
+
+const editorPasteTarget=document.getElementById('editor');
+if(editorPasteTarget){
+  editorPasteTarget.addEventListener('paste',pasteLatexIntoEditor);
+}
+
+loadEditorFromUrl();renderKeys();render();updateDebug();refreshGeneratorTargets(true);
+</script>
+<script src="test-dopocet.js"></script>
+<script src="test-dopocet-ui.js"></script>
+</body>
+</html>
+
