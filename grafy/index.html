@@ -873,7 +873,8 @@ const badge=(name,axis)=>{const content=String(name),lines=content.split('\n').s
   const weight=s.fontBold?'750':'500';const tspans=lines.map((t,i)=>`<tspan x="${x+8}" dy="${i?lineH:0}">${esc(t)}</tspan>`).join('');
   return `<g data-edit="axis" data-axis="${axis}" style="cursor:move"><title>Klikni pro úpravu, tažením přesuň</title><text x="${x+8}" y="${y+fs+2}" font-family="Inter,system-ui,Arial,sans-serif" font-size="${fs}" font-weight="${weight}" fill="#233954" pointer-events="none">${tspans}</text>${rect(x,y,bw,h,'transparent','rx="5"')}</g>`;
 };
-html+=badge(s.axisX,'x')+badge(s.axisY,'y');
+// Popisky os musí být ve vykreslovacím pořadí NAD zvětšenými
+// neviditelnými úchyty konců os: jinak kliknutí do x/y zachytí úchyt.
 // Úchyty dílků jsou pod úchyty os, aby měla šipka osy přednost.
 html+=drawGridEdgeHandles();
 if(L.posX)html+=`<g data-axis-handle="xMax" class="axis-tip" role="button" aria-label="Táhnout konec osy x" tabindex="0"><title>Táhnutím změnit maximum osy x</title>${rect(L.right-25,L.y0-71,58,142,'transparent')}</g>`;
@@ -886,6 +887,9 @@ for(const c of s.curves){if(c.visible===false||c.type==='formula')continue;for(l
 for(const p0 of pending){const p=toPixel(p0.x,p0.y);html+=mark({color:'#5278e9',pointStyle:'x',width:2.5},p.x,p.y)}
 if(intersectionHover&&s.type!=='select'&&inPlot(intersectionHover.px,intersectionHover.py))html+=`<g pointer-events="none"><circle cx="${intersectionHover.px}" cy="${intersectionHover.py}" r="9" stroke="#f4a340" stroke-width="3" fill="#fff" fill-opacity=".78"/><circle cx="${intersectionHover.px}" cy="${intersectionHover.py}" r="2.5" fill="#dd8032"/><title>Průsečík (${fmt(intersectionHover.x*s.scaleX,4)}; ${fmt(intersectionHover.y*s.scaleY,4)})</title></g>`;
 if(preview&&s.snap&&activeAt(preview.x,preview.y)&&s.type!=='select'){const p=toPixel(preview.x,preview.y);if(inPlot(p.x,p.y))html+=`<path d="M${p.x-6} ${p.y}h12 M${p.x} ${p.y-6}v12" stroke="#4b73d6" stroke-width="1.2" opacity=".57" pointer-events="none"/>`}
+// Popisky os vykreslujeme nakonec nad úchyty os, aby šlo kliknutím
+// upravit text a tažením změnit polohu i blízko šipky osy.
+html+=badge(s.axisX,'x')+badge(s.axisY,'y');
 // Popisky jsou nad všemi křivkami a mimo ořez mřížky, aby se daly volně přesouvat.
 for(const c of s.curves){if(c.visible===false||!c.label)continue;try{html+=curveAnnotation(c,fitCurve(c))}catch(e){}}
 svg.innerHTML=html;svg.classList.toggle('pan-ready',s.type==='select'&&!selected.size&&!drag);svg.classList.toggle('pan-active',drag?.kind==='pan');if(!skipList)renderList();renderInspector();updateHint()}
