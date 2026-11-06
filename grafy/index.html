@@ -136,27 +136,45 @@ const MIN_ZOOM=1e-6,MAX_ZOOM=1e9,PAN_LIMIT=1e12;
 const safeZoom=(n,fallback=47)=>Number.isFinite(n)?clamp(n,MIN_ZOOM,MAX_ZOOM):fallback;
 // Avoid iterating millions of overlapping labels when zoomed far out.
 function axisLabelStep(pitch,lo,hi,setting,minPixels){
- const requested=setting==='auto'?1:Math.max(1,Number(setting)||1);
- const desired=Math.max(1,Math.ceil(minPixels/Math.max(pitch,MIN_ZOOM)),Math.ceil((hi-lo+1)/280));
- return Math.max(requested,Math.ceil(desired/requested)*requested);
+ const visible=Math.max(0,hi-lo+1);
+ if(setting!=='auto'){
+  const requested=Math.max(1,Number(setting)||1);
+  // Volba „Po 1“ znamená opravdu každý dílek, i při větším písmu.
+  // Jen extrémní oddálení potřebuje pojistku proti milionům značek v DOM.
+  return requested*Math.max(1,Math.ceil(visible/(requested*750)));
+ }
+ return Math.max(1,Math.ceil(minPixels/Math.max(pitch,MIN_ZOOM)),Math.ceil(visible/280));
 }
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function num(v){const n=Number(String(v).trim().replace(/\s/g,'').replace(',','.'));return Number.isFinite(n)?n:NaN}
 function fmt(n,dec=4){if(!Number.isFinite(n))return '—';if(Math.abs(n)<1e-9)n=0;const abs=Math.abs(n);if(abs>=1e7||abs>0&&abs<.0001)return n.toExponential(3).replace('.',',');return new Intl.NumberFormat('cs-CZ',{maximumFractionDigits:dec}).format(n)}
 function sNum(n){return Number.isFinite(n)?Number(n.toPrecision(11)):0}
 function poly(coef){const term=[];for(let i=coef.length-1;i>=0;i--){let a=coef[i];if(Math.abs(a)<1e-9)continue;const sign=a<0?'−':'+';let text='';const av=Math.abs(a);if(i===0||Math.abs(av-1)>1e-9)text=fmt(av);if(i)text+=(text?'·':'')+'x'+(i===2?'²':i===3?'³':i===4?'⁴':i>1?'^'+i:'');term.push({sign,text})}if(!term.length)return 'y = 0';return 'y = '+term.map((t,i)=>(i?(t.sign==='−'?' − ':' + '):(t.sign==='−'?'−':''))+t.text).join('')}
+// Předpis získaný z bodů ukládáme s vyšší přesností, než jaká se zobrazuje v seznamu.
+// Při první úpravě proto křivka zbytečně nezmění svůj tvar kvůli zaokrouhlení.
+const exprNumber=n=>Number(Number(n).toPrecision(9)).toString();
+function polynomialExpr(coef){
+ const parts=[];
+ for(let i=coef.length-1;i>=0;i--){
+  const a=coef[i];if(Math.abs(a)<1e-14)continue;
+  const value=exprNumber(Math.abs(a));
+  const term=i===0?value:(value==='1'?'':value+'*')+'x'+(i>1?'^'+i:'');
+  parts.push((a<0?'-':parts.length?'+':'')+term);
+ }
+ return parts.join('')||'0';
+}
 function solve(A,b){A=A.map((r,i)=>[...r,b[i]]);let n=b.length;for(let i=0;i<n;i++){let p=i;for(let j=i+1;j<n;j++)if(Math.abs(A[j][i])>Math.abs(A[p][i]))p=j;const tmp=A[i];A[i]=A[p];A[p]=tmp;if(Math.abs(A[i][i])<1e-10)throw Error('Body musejí mít různé hodnoty x.');let d=A[i][i];for(let k=i;k<=n;k++)A[i][k]/=d;for(let j=0;j<n;j++)if(j!==i){let q=A[j][i];for(let k=i;k<=n;k++)A[j][k]-=q*A[i][k]}}return A.map(r=>r[n])}
-function polynomial(pts,degree){const xs=pts.map(p=>p.x);for(let i=0;i<xs.length;i++)for(let j=i+1;j<xs.length;j++)if(Math.abs(xs[i]-xs[j])<1e-8)throw Error('Zvol body s různými hodnotami x.');const coef=solve(pts.map(p=>Array.from({length:degree+1},(_,i)=>p.x**i)),pts.map(p=>p.y));return {f:x=>coef.reduceRight((a,c)=>a*x+c,0),formula:poly(coef)}}
+function polynomial(pts,degree){const xs=pts.map(p=>p.x);for(let i=0;i<xs.length;i++)for(let j=i+1;j<xs.length;j++)if(Math.abs(xs[i]-xs[j])<1e-8)throw Error('Zvol body s různými hodnotami x.');const coef=solve(pts.map(p=>Array.from({length:degree+1},(_,i)=>p.x**i)),pts.map(p=>p.y));return {f:x=>coef.reduceRight((a,c)=>a*x+c,0),formula:poly(coef),expr:polynomialExpr(coef)}}
 function fit(type,coords){const p=coords, [v,w]=p;const diff=()=>{if(Math.abs(v.x-w.x)<1e-10)throw Error('Tyto dva body mají stejné x. Vyber jiné body.')};let a,b,k;
  switch(type){
- case 'line':if(Math.abs(v.x-w.x)<1e-9)return {vertical:v.x,formula:'x = '+fmt(v.x)};a=(w.y-v.y)/(w.x-v.x);b=v.y-a*v.x;return {f:x=>a*x+b,formula:poly([b,a])};
+ case 'line':if(Math.abs(v.x-w.x)<1e-9)return {vertical:v.x,formula:'x = '+fmt(v.x),expr:exprNumber(v.x)};a=(w.y-v.y)/(w.x-v.x);b=v.y-a*v.x;return {f:x=>a*x+b,formula:poly([b,a]),expr:polynomialExpr([b,a])};
  case 'quadratic':return polynomial(p,2);
  case 'cubic':return polynomial(p,3);
- case 'exp':diff();if(v.y*w.y<=0)throw Error('Exponenciála vyžaduje obě y nenulová a stejného znaménka.');k=Math.log(w.y/v.y)/(w.x-v.x);a=v.y*Math.exp(-k*v.x);b=Math.exp(k);if(!Number.isFinite(a)||!Number.isFinite(b)||b<=0)throw Error('Z těchto bodů nelze exponenciálu určit.');return {f:x=>a*Math.exp(k*x),formula:'y = '+fmt(a)+'·'+fmt(b)+'ˣ'};
- case 'log':diff();if(v.x<=0||w.x<=0)throw Error('U logaritmu musejí být obě x větší než nula.');a=(w.y-v.y)/(Math.log(w.x)-Math.log(v.x));b=v.y-a*Math.log(v.x);return {f:x=>x>0?a*Math.log(x)+b:NaN,formula:'y = '+fmt(a)+'·ln(x)'+(b<0?' − '+fmt(-b):' + '+fmt(b))};
- case 'power':diff();if(v.x<=0||w.x<=0)throw Error('U obecné mocninné funkce zvol obě x kladná.');if(v.y*w.y<=0)throw Error('Souřadnice y musejí být nenulové a stejného znaménka.');k=Math.log(w.y/v.y)/Math.log(w.x/v.x);a=v.y/(v.x**k);if(!Number.isFinite(a)||!Number.isFinite(k))throw Error('Z těchto bodů nelze určit mocninnou funkci.');{const integer=Math.abs(k-Math.round(k))<1e-8;k=integer?Math.round(k):k;return {f:x=>integer?a*x**k:x>0?a*x**k:NaN,formula:'y = '+fmt(a)+'·x'+(k===1?'':(k===2?'²':k===3?'³':k===4?'⁴':'^('+fmt(k)+')'))}};
- case 'hyperbola':diff();if(Math.abs(v.x)<1e-9||Math.abs(w.x)<1e-9)throw Error('Hyperbola y = a/x + b není definovaná pro x = 0.');a=(w.y-v.y)/(1/w.x-1/v.x);b=v.y-a/v.x;return {f:x=>Math.abs(x)>1e-12?a/x+b:NaN,formula:'y = '+fmt(a)+'/x'+(b<0?' − '+fmt(-b):' + '+fmt(b))};
- case 'sqrt':diff();if(v.x<0||w.x<0)throw Error('Odmocninová funkce vyžaduje x ≥ 0.');a=(w.y-v.y)/(Math.sqrt(w.x)-Math.sqrt(v.x));b=v.y-a*Math.sqrt(v.x);return {f:x=>x>=0?a*Math.sqrt(x)+b:NaN,formula:'y = '+fmt(a)+'·√x'+(b<0?' − '+fmt(-b):' + '+fmt(b))};
+ case 'exp':diff();if(v.y*w.y<=0)throw Error('Exponenciála vyžaduje obě y nenulová a stejného znaménka.');k=Math.log(w.y/v.y)/(w.x-v.x);a=v.y*Math.exp(-k*v.x);b=Math.exp(k);if(!Number.isFinite(a)||!Number.isFinite(b)||b<=0)throw Error('Z těchto bodů nelze exponenciálu určit.');return {f:x=>a*Math.exp(k*x),formula:'y = '+fmt(a)+'·'+fmt(b)+'ˣ',expr:exprNumber(a)+'*exp(('+exprNumber(k)+')*x)'};
+ case 'log':diff();if(v.x<=0||w.x<=0)throw Error('U logaritmu musejí být obě x větší než nula.');a=(w.y-v.y)/(Math.log(w.x)-Math.log(v.x));b=v.y-a*Math.log(v.x);return {f:x=>x>0?a*Math.log(x)+b:NaN,formula:'y = '+fmt(a)+'·ln(x)'+(b<0?' − '+fmt(-b):' + '+fmt(b)),expr:exprNumber(a)+'*ln(x)'+(b<0?'-':'+')+exprNumber(Math.abs(b))};
+ case 'power':diff();if(v.x<=0||w.x<=0)throw Error('U obecné mocninné funkce zvol obě x kladná.');if(v.y*w.y<=0)throw Error('Souřadnice y musejí být nenulové a stejného znaménka.');k=Math.log(w.y/v.y)/Math.log(w.x/v.x);a=v.y/(v.x**k);if(!Number.isFinite(a)||!Number.isFinite(k))throw Error('Z těchto bodů nelze určit mocninnou funkci.');{const integer=Math.abs(k-Math.round(k))<1e-8;k=integer?Math.round(k):k;return {f:x=>integer?a*x**k:x>0?a*x**k:NaN,formula:'y = '+fmt(a)+'·x'+(k===1?'':(k===2?'²':k===3?'³':k===4?'⁴':'^('+fmt(k)+')')),expr:exprNumber(a)+'*x^('+exprNumber(k)+')'}};
+ case 'hyperbola':diff();if(Math.abs(v.x)<1e-9||Math.abs(w.x)<1e-9)throw Error('Hyperbola y = a/x + b není definovaná pro x = 0.');a=(w.y-v.y)/(1/w.x-1/v.x);b=v.y-a/v.x;return {f:x=>Math.abs(x)>1e-12?a/x+b:NaN,formula:'y = '+fmt(a)+'/x'+(b<0?' − '+fmt(-b):' + '+fmt(b)),expr:exprNumber(a)+'/x'+(b<0?'-':'+')+exprNumber(Math.abs(b))};
+ case 'sqrt':diff();if(v.x<0||w.x<0)throw Error('Odmocninová funkce vyžaduje x ≥ 0.');a=(w.y-v.y)/(Math.sqrt(w.x)-Math.sqrt(v.x));b=v.y-a*Math.sqrt(v.x);return {f:x=>x>=0?a*Math.sqrt(x)+b:NaN,formula:'y = '+fmt(a)+'·√x'+(b<0?' − '+fmt(-b):' + '+fmt(b)),expr:exprNumber(a)+'*sqrt(x)'+(b<0?'-':'+')+exprNumber(Math.abs(b))};
  default:throw Error('Neznámá funkce.');
  }}
 function physical(pt){return {x:pt.x*s.scaleX,y:pt.y*s.scaleY}}
@@ -287,7 +305,7 @@ function mathMarkup(src,depth=0){
   // Nejdříve operace s nejnižší prioritou a pouze mimo závorky.
   const op=(set,right=false)=>{let dep=0,indices=[];for(let i=0;i<text.length;i++){let c=text[i];if(c==='(')dep++;else if(c===')')dep--;else if(dep===0&&set.includes(c)){if((c==='+'||c==='-')&&(i===0||'+-*/^('.includes(text[i-1])))continue;indices.push(i)}}return right?indices[0]:indices.at(-1)};
   let k=op('+-');if(k!==undefined)return mathMarkup(text.slice(0,k),depth+1)+' <span class="math-operator">'+esc(text[k])+'</span> '+mathMarkup(text.slice(k+1),depth+1);
-  k=op('*/');if(k!==undefined){const left=text.slice(0,k),right=text.slice(k+1),a=mathMarkup(text[k]==='/'&&full(left)?left.slice(1,-1):left,depth+1),b=mathMarkup(text[k]==='/'&&full(right)?right.slice(1,-1):right,depth+1);return text[k]==='/'?'<span class="math-frac"><span class="math-top">'+a+'</span><span class="math-bottom">'+b+'</span></span>':a+' <span class="math-operator">·</span> '+b}
+  k=op('*/');if(k!==undefined){const left=text.slice(0,k),right=text.slice(k+1),a=mathMarkup(text[k]==='/'&&full(left)?left.slice(1,-1):left,depth+1),b=mathMarkup(text[k]==='/'&&full(right)?right.slice(1,-1):right,depth+1);return text[k]==='/'?'<span class="math-frac"><span class="math-top">'+a+'</span><span class="math-bottom">'+b+'</span></span>':a+( /^[a-zA-Zπ√(]/.test(right.trim())?'':' <span class="math-operator">·</span> ')+b}
   k=op('^',true);if(k!==undefined){let exponent=text.slice(k+1);if(full(exponent))exponent=exponent.slice(1,-1);return mathMarkup(text.slice(0,k),depth+1)+'<sup>'+mathMarkup(exponent,depth+1)+'</sup>'}
   const root=text.match(/^(?:sqrt|√)\s*(.*)$/i);
   if(root&&!/^sqrt(?:\uE400)?$/i.test(text)){
@@ -303,10 +321,27 @@ function mathMarkup(src,depth=0){
   if(mixed&&full(mixed[3]))return mathMarkup(mixed[1],depth+1)+mathMarkup(mixed[2]+mixed[3],depth+1);
   return esc(text).replace(/\bx\b/g,'<span class="math-variable">x</span>').replace(/π/g,'<span class="math-variable">π</span>').replace(/\bpi\b/gi,'<span class="math-variable">π</span>');
 }
+// Čísla v kartě funkce zobrazujeme stručně, ale samotný editor dál pracuje
+// s přesnějším předpisem uloženým v c.expr.
+function listMathMarkup(expr){
+ const short=String(expr||'').replace(/\d+\.\d+(?:[eE][+-]?\d+)?/g,token=>
+  /[eE]/.test(token)?token:fmt(Number(token),4).replace(/\u00a0/g,' '));
+ return mathMarkup(short);
+}
+// Stará proložená funkce se v seznamu zobrazuje stejnou matematickou sazbou
+// jako ručně zadaná. Zaokrouhlení zde slouží jen pro čitelnost, nikoli pro výpočet.
+function drawnEquationMarkup(result){
+ const text=String(result.formula||'');
+ if(result.vertical!==undefined)return '<span class="math-variable">x</span> = '+esc(text.split('=').slice(1).join('=').trim());
+ const raw=text.replace(/^y\s*=\s*/,'').replace(/[−–]/g,'-').replace(/·/g,'*')
+  .replace(/²/g,'^2').replace(/³/g,'^3').replace(/⁴/g,'^4')
+  .replace(/ˣ/g,'^(x)').replace(/√x/g,'sqrt(x)');
+ return '<span class="math-variable">y</span> = '+mathMarkup(raw);
+}
 // Jediné editační pole: zápis se přímo při psaní mění v matematickou sazbu.
 // Skrytá hodnota je pouze přenosný formát pro stávající výpočetní parser.
 const MATH_MARK='\uE400',MATH_START='\uE401',MATH_END='\uE402';
-let mathHistory=[],mathFuture=[],mathComposing=false,mathLastCaret=0;
+let mathHistory=[],mathFuture=[],mathComposing=false,mathLastCaret=0,editingFormulaId=null,editingVerticalLine=false;
 function readMathNode(node){
  if(node.nodeType===Node.TEXT_NODE)return node.data.replaceAll('…','').replaceAll('\u200B','');
  if(node.nodeType!==Node.ELEMENT_NODE)return '';
@@ -352,7 +387,7 @@ function updateLiveMath(caret=null){
  $('formulaLive').classList.toggle('empty',!v.trim());
 }
 function setMathFormula(value,caret=null){$('inlineFormulaInput').value=value;updateLiveMath(caret);const hint=$('formulaHint');hint.classList.remove('invalid');if(!value.trim()){hint.textContent='Piš přímo do vzorce (např. ax² + bx + c vytvoří posuvníky). Šipkou → opustíš zlomek, exponent nebo odmocninu. Funkce počítají v radiánech.';return}
- try{compileFormulaExpression(value);hint.textContent='✓ Předpis je srozumitelný. Násobení můžeš psát i bez znaménka.'}
+ try{if(editingVerticalLine){if(!Number.isFinite(num(value)))throw Error('Zadej číslo určující polohu svislé přímky.')}else compileFormulaExpression(value);hint.textContent='✓ Předpis je srozumitelný. Násobení můžeš psát i bez znaménka.'}
  catch(err){hint.textContent='⚠ '+err.message;hint.classList.add('invalid')}
 }
 function updateFormulaHint(){setMathFormula($('inlineFormulaInput').value)}
@@ -437,9 +472,22 @@ function mathDeleteOne(direction){
 
 function initUI(){const el=$('tools');el.innerHTML='<button class="tool select-tool" data-type="select" type="button"><span class="tool-name">↖ Myš · vybrat a upravit</span><span class="tool-sub">Delete maže</span></button>'+types.filter(t=>t.id!=='formula').map(t=>`<button class="tool" data-type="${t.id}" type="button"><span class="tool-name">${esc(t.name)}</span><span class="tool-sub">${t.sym}</span></button>`).join('');el.addEventListener('click',e=>{let t=e.target.closest('[data-type]');if(!t)return;s.type=t.dataset.type;pending=[];preview=null;syncUI();render();save()});
 $('finishPolyline').addEventListener('click',finishPolyline);$('addPointNumeric').addEventListener('click',()=>{$('newPointTarget').value=s.type==='polyline'?'polyline':'point';$('newPointDialog').showModal();$('newPointX').focus()});$('newPointCancel').addEventListener('click',()=>$('newPointDialog').close());$('newPointForm').addEventListener('submit',e=>{e.preventDefault();const x=num($('newPointX').value),y=num($('newPointY').value);if(!Number.isFinite(x)||!Number.isFinite(y)){notify('Souřadnice musí být čísla.');return}const pt={x:sNum(x/s.scaleX),y:sNum(y/s.scaleY)};if(!activeAt(pt.x,pt.y)){notify('Bod je mimo zapnuté kvadranty.');return}if($('newPointTarget').value==='polyline'){if(s.type!=='polyline'){s.type='polyline';pending=[];syncUI()}addPoint(pt)}else{createCurve('point',[pt]);} $('newPointDialog').close()});
-let editingFormulaId=null;
-const showInlineFormula=(curve=null)=>{editingFormulaId=curve?.type==='formula'?curve.id:null;$('formulaEntryTitle').textContent=editingFormulaId!==null?'Upravit předpis funkce':'Nová funkce y = f(x)';$('formulaSubmitBtn').textContent=editingFormulaId!==null?'Uložit změny':'Přidat';document.querySelector('.workspace').classList.add('formula-open');$('inlineFormulaForm').hidden=false;$('showFormulaInline').hidden=true;mathHistory=[];mathFuture=[];setMathFormula(curve?.expr||'',curve?.expr?.length||0);$('mathEditor').focus()};
- const hideInlineFormula=()=>{editingFormulaId=null;document.querySelector('.workspace').classList.remove('formula-open');$('inlineFormulaForm').hidden=true;$('showFormulaInline').hidden=false;mathHistory=[];mathFuture=[];setMathFormula('')};
+
+const showInlineFormula=(curve=null)=>{
+ const editable=curve&&curve.type!=='point'&&curve.type!=='polyline';
+ let value='';editingFormulaId=editable?curve.id:null;editingVerticalLine=false;
+ if(editable){
+  try{const computed=fitCurve(curve);editingVerticalLine=computed.vertical!==undefined;
+   value=curve.type==='formula'?curve.expr:(computed.expr||'');}
+  catch(err){notify('Předpis nelze upravit: '+err.message);return}
+ }
+ $('formulaEntryTitle').textContent=editingFormulaId!==null?(editingVerticalLine?'Upravit svislou přímku x = …':'Upravit předpis funkce'):'Nová funkce y = f(x)';
+ $('formulaLive').querySelector('.math-variable').textContent=editingVerticalLine?'x':'y';
+ $('formulaSubmitBtn').textContent=editingFormulaId!==null?'Uložit změny':'Přidat';
+ document.querySelector('.workspace').classList.add('formula-open');$('inlineFormulaForm').hidden=false;$('showFormulaInline').hidden=true;
+ mathHistory=[];mathFuture=[];setMathFormula(value,value.length);$('mathEditor').focus();
+};
+ const hideInlineFormula=()=>{editingFormulaId=null;editingVerticalLine=false;$('formulaLive').querySelector('.math-variable').textContent='y';document.querySelector('.workspace').classList.remove('formula-open');$('inlineFormulaForm').hidden=true;$('showFormulaInline').hidden=false;mathHistory=[];mathFuture=[];setMathFormula('')};
  const formulaKeys=[
    {name:'x',insert:'x',label:'x'}, {name:'x²',insert:'^2',label:'Na druhou'},
    {name:'xⁿ',insert:'^()',label:'Obecná mocnina'}, {name:'a/b',insert:'()/()',label:'Zlomek; čitatel a jmenovatel'},
@@ -530,7 +578,28 @@ const showInlineFormula=(curve=null)=>{editingFormulaId=curve?.type==='formula'?
  $('formulaLive').addEventListener('click',e=>{if(!e.target.closest('#mathEditor'))$('mathEditor').focus()});
  $('showFormulaInline').addEventListener('click',()=>showInlineFormula());
  $('closeFormulaInline').addEventListener('click',hideInlineFormula);
- $('inlineFormulaForm').addEventListener('submit',e=>{e.preventDefault();const input=$('inlineFormulaInput').value.trim();if(!input){notify('Zadej předpis funkce.');return}try{if(editingFormulaId!==null){const curve=s.curves.find(c=>c.id===editingFormulaId&&c.type==='formula');if(!curve)throw Error('Původní funkce nebyla nalezena.');const result=compileFormulaExpression(input);curve.expr=input;curve.params=normalizedParams(result.paramNames,curve.params);hideInlineFormula();render();save();notify('Předpis byl upraven.')}else{createFormulaCurve(input);hideInlineFormula();notify('Funkce byla přidána.')}}catch(err){notify(err.message,4500)}});
+ $('inlineFormulaForm').addEventListener('submit',e=>{
+ e.preventDefault();const input=$('inlineFormulaInput').value.trim();
+ if(!input){notify('Zadej předpis funkce.');return}
+ try{
+  if(editingFormulaId!==null){
+   const curve=s.curves.find(c=>c.id===editingFormulaId);
+   if(!curve)throw Error('Původní funkce nebyla nalezena.');
+   if(editingVerticalLine){
+    const x=num(input);if(!Number.isFinite(x))throw Error('U svislé přímky zadej číslo pro x.');
+    const diff=x/s.scaleX-curve.pts[0].x;
+    curve.pts.forEach(p=>p.x=sNum(p.x+diff));updateAutoRange(curve);
+   }else{
+    const result=compileFormulaExpression(input);
+    // Proložené křivky změníme až při uložení na analytický předpis.
+    // Zachováme barvu, popisek, rozsah, viditelnost, ID i tloušťku.
+    curve.type='formula';curve.expr=input;curve.params=normalizedParams(result.paramNames,curve.params);
+    curve.pts=[];curve.autoRange=false;
+   }
+   hideInlineFormula();render();save();notify('Předpis byl upraven.');
+  }else{createFormulaCurve(input);hideInlineFormula();notify('Funkce byla přidána.')}
+ }catch(err){notify(err.message,4500)}
+});
 $('lineSegment').checked=s.lineSegment!==false;$('lineSegment').addEventListener('change',()=>{s.lineSegment=$('lineSegment').checked;save()});
 $('quadrants').innerHTML=['I','II','III','IV'].map((q,i)=>`<button class="quad" data-q="${i}" aria-pressed="false" title="Kvadrant ${q}" type="button">${q}</button>`).join('');$('quadrants').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(!b)return;const i=+b.dataset.q;if(s.quads[i]&&s.quads.filter(Boolean).length===1){notify('Musí zůstat zapnutý alespoň jeden kvadrant.');return}s.quads[i]=!s.quads[i];pending=[];syncUI();render();save()});
 $('presets').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(!b)return;s.scaleX=s.scaleY=+b.dataset.step;syncUI();render();save()});
@@ -844,7 +913,7 @@ function renderParamSliders(c){
  }).join('')}</div>`;
 }
 function renderList(){const list=$('funcList');$('curveCount').textContent='('+s.curves.length+')';if(!s.curves.length){list.innerHTML='<div class="empty">Zatím tu nic není. Zkus nakreslit přímku dvěma body.</div>';return}
- list.innerHTML=s.curves.map(c=>{let eq;try{eq=fitCurve(c).formula}catch(e){eq='⚠ '+e.message}const range=c.range?` • ${rangeIsY(c)?'y':'x'} ∈ ⟨${fmt(c.range.from*(rangeIsY(c)?s.scaleY:s.scaleX),3)}; ${fmt(c.range.to*(rangeIsY(c)?s.scaleY:s.scaleX),3)}⟩`:'';const meta=c.type==='formula'?`${esc(types.find(t=>t.id===c.type)?.name||c.type)} • předpis`:`${esc(types.find(t=>t.id===c.type)?.name||c.type)} • ${c.pts.length} ${c.pts.length===1?'bod':'bodů'}`;return `<div class="func-card ${c.visible===false?'hidden-curve':''} ${selected.has(c.id)?'selected':''}" data-card-id="${c.id}" tabindex="0" aria-label="Vybrat ${esc(c.label||eq)}"><div class="func-color" style="background:${c.color||'#456add'}"></div><div class="func-content">${c.label?`<div class="inspector-label-title">${esc(c.label)}</div>`:''}<div class="formula">${c.type==='formula'?`<button type="button" class="formula-edit" data-act="edit-formula" data-id="${c.id}" title="Kliknutím uprav předpis" aria-label="Upravit předpis funkce"><span class="math-variable">y</span> = ${mathMarkup(c.expr||'')} <span class="edit-glyph">✎</span></button>`:esc(eq)}</div><div class="func-meta">${meta}${range}</div>${c.type==='formula'?renderParamSliders(c):''}<div class="points">${c.pts.map((p,i)=>`<button class="point-chip" data-act="edit" data-id="${c.id}" data-index="${i}" title="Přesně upravit bod">${i+1}: (${fmt(p.x*s.scaleX,3)}; ${fmt(p.y*s.scaleY,3)}) ✎</button>`).join('')}</div></div><div class="func-buttons"><button class="mini" data-act="copy" data-id="${c.id}" title="Kopírovat předpis" aria-label="Kopírovat předpis">⧉</button><button class="mini" data-act="visible" data-id="${c.id}" title="Zobrazit nebo skrýt" aria-label="Zobrazit nebo skrýt">${c.visible===false?'◌':'◉'}</button><button class="mini" data-act="delete" data-id="${c.id}" title="Odstranit funkci" aria-label="Odstranit funkci">×</button></div></div>`}).join('')}
+ list.innerHTML=s.curves.map(c=>{let eq,fitted=null;try{fitted=fitCurve(c);eq=fitted.formula}catch(e){eq='⚠ '+e.message}const range=c.range?` • ${rangeIsY(c)?'y':'x'} ∈ ⟨${fmt(c.range.from*(rangeIsY(c)?s.scaleY:s.scaleX),3)}; ${fmt(c.range.to*(rangeIsY(c)?s.scaleY:s.scaleX),3)}⟩`:'';const meta=c.type==='formula'?`${esc(types.find(t=>t.id===c.type)?.name||c.type)} • předpis`:`${esc(types.find(t=>t.id===c.type)?.name||c.type)} • ${c.pts.length} ${c.pts.length===1?'bod':'bodů'}`;return `<div class="func-card ${c.visible===false?'hidden-curve':''} ${selected.has(c.id)?'selected':''}" data-card-id="${c.id}" tabindex="0" aria-label="Vybrat ${esc(c.label||eq)}"><div class="func-color" style="background:${c.color||'#456add'}"></div><div class="func-content">${c.label?`<div class="inspector-label-title">${esc(c.label)}</div>`:''}<div class="formula">${!['point','polyline'].includes(c.type)?`<button type="button" class="formula-edit" data-act="edit-formula" data-id="${c.id}" title="Kliknutím uprav předpis" aria-label="Upravit předpis funkce">${c.type==='formula'?'<span class="math-variable">y</span> = '+listMathMarkup(c.expr||''):(fitted?drawnEquationMarkup(fitted):esc(eq))} <span class="edit-glyph">✎</span></button>`:esc(eq)}</div><div class="func-meta">${meta}${range}</div>${c.type==='formula'?renderParamSliders(c):''}<div class="points">${c.pts.map((p,i)=>`<button class="point-chip" data-act="edit" data-id="${c.id}" data-index="${i}" title="Přesně upravit bod">${i+1}: (${fmt(p.x*s.scaleX,3)}; ${fmt(p.y*s.scaleY,3)}) ✎</button>`).join('')}</div></div><div class="func-buttons"><button class="mini" data-act="copy" data-id="${c.id}" title="Kopírovat předpis" aria-label="Kopírovat předpis">⧉</button><button class="mini" data-act="visible" data-id="${c.id}" title="Zobrazit nebo skrýt" aria-label="Zobrazit nebo skrýt">${c.visible===false?'◌':'◉'}</button><button class="mini" data-act="delete" data-id="${c.id}" title="Odstranit funkci" aria-label="Odstranit funkci">×</button></div></div>`}).join('')}
 function createCurve(type,pts){const c={id:s.nextId,type,pts:pts.map(p=>({...p})),color:s.drawColor||colors[0],visible:true,dash:'solid',width:3,label:'',range:null,autoRange:false,pointStyle:'x',showPoints:type==='point'?true:s.globalShowPoints!==false};if(type==='line'&&s.lineSegment!==false){c.range=pointBounds(c);c.autoRange=true}try{fitCurve(c)}catch(e){notify(e.message,4700);return false}++s.nextId;s.curves.push(c);selected.clear();render();save();return true}
 function createFormulaCurve(expr){const c={id:s.nextId,type:'formula',pts:[],expr:String(expr||'').trim(),color:s.drawColor||colors[0],visible:true,dash:'solid',width:3,label:'',range:null,autoRange:false,pointStyle:'x',showPoints:s.globalShowPoints!==false,params:{}};const result=fitCurve(c);c.params=normalizedParams(result.paramNames);++s.nextId;s.curves.push(c);selected.clear();render();save();return true}
 function tryFinish(){if(s.type==='polyline'||pending.length!==tool().n)return;if(createCurve(s.type,pending)){pending=[];preview=null;render()}else pending.pop()}
