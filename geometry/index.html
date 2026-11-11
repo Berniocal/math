@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f7fb">
+  <title>Geometry – rýsovací plocha</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar" aria-label="Rýsovací nástroje">
+    <div class="brand"><div class="logo">△</div><div><h1>Geometry</h1><p>Geometrie krok za krokem</p></div><a href="../grafy/" title="Otevřít Grafy">Grafy ↗</a></div>
+    <section class="section"><h2>Nástroje</h2>
+      <div class="tools" id="tools">
+        <button class="tool active wide" data-tool="select"><span>↖ Vybrat a posunout</span><small>Útvar, bod nebo popisek</small></button>
+        <button class="tool" data-tool="point"><span>× Bod</span><small>Kliknutí do plochy</small></button>
+        <button class="tool" data-tool="segment"><span>╱ Úsečka</span><small>Dva body</small></button>
+        <button class="tool" data-tool="line"><span>↗ Přímka</span><small>Dva body</small></button>
+        <button class="tool" data-tool="parallel"><span>∥ Rovnoběžka</span><small>Přímka a bod</small></button>
+        <button class="tool" data-tool="perp"><span>⊥ Kolmice</span><small>Přímka a bod</small></button>
+        <button class="tool" data-tool="circle"><span>◯ Kružnice</span><small>Střed a poloměr</small></button>
+        <button class="tool wide" data-tool="arc"><span>◠ Kružnicový oblouk</span><small>Střed → tuha → podržet a táhnout</small></button>
+      </div>
+    </section>
+    <section class="section"><h2>Vložit útvar</h2>
+      <div class="tabs"><button data-family="triangle" class="active">Trojúhelník</button><button data-family="quad">Čtyřúhelník</button><button data-family="regular">n-úhelník</button></div>
+      <div id="triangleOptions">
+        <label class="field">Podle úhlů<select id="triangleAngle"><option value="any">Obecný / libovolné úhly</option><option value="acute">Ostroúhlý</option><option value="right">Pravoúhlý</option><option value="obtuse">Tupoúhlý</option></select></label>
+        <label class="check"><input type="checkbox" id="isosceles"> Rovnoramenný</label>
+        <label class="check"><input type="checkbox" id="equilateral"> Rovnostranný</label>
+        <p class="hint" id="triangleHint">Lze kombinovat typ úhlů a rovnoramennost.</p>
+      </div>
+      <div id="quadOptions" hidden><label class="field">Typ čtyřúhelníku<select id="quadType"><option value="square">Čtverec</option><option value="rectangle">Obdélník</option><option value="parallelogram">Kosodélník</option><option value="rhombus">Kosočtverec</option><option value="kite">Deltoid</option><option value="trapezoid">Lichoběžník</option></select></label></div>
+      <div id="regularOptions" hidden><label class="field">Počet vrcholů<input id="vertexCount" type="number" min="3" max="40" step="1" value="5"></label><p class="hint">Pravidelný mnohoúhelník, 3 až 40 vrcholů.</p></div>
+      <div class="two"><label class="field">Velikost<input id="shapeScale" type="range" min="0.5" max="2" step="0.1" value="1"></label><label class="check"><input type="checkbox" id="rotateShape" checked> Náhodně otočit</label></div>
+      <button id="insertShape" class="btn primary full">＋ Vložit náhodný trojúhelník</button>
+      <p class="hint">Útvar se vloží rovnou do plochy. Přetáhnutím jej přesuneš.</p>
+    </section>
+    <details class="section" open><summary>Plocha a přichytávání</summary>
+      <label class="toggle-row">Zobrazit mřížku<input class="toggle" id="showGrid" type="checkbox" checked></label>
+      <label class="field inline">Velikost oka<input id="gridStep" type="number" min="0.1" max="10" step="0.1" value="1"></label>
+      <label class="toggle-row">Přichytávat k mřížce<input class="toggle" id="snapGrid" type="checkbox" checked></label>
+      <label class="toggle-row">K bodům a průsečíkům<input class="toggle" id="snapPoints" type="checkbox" checked></label>
+      <label class="toggle-row">K dílům úseček<input class="toggle" id="snapParts" type="checkbox" checked></label>
+      <div class="fractions" id="fractions"><label><input type="checkbox" value="2" checked> ½</label><label><input type="checkbox" value="3"> ⅓</label><label><input type="checkbox" value="4"> ¼</label><label><input type="checkbox" value="5"> ⅕</label><label><input type="checkbox" value="8"> ⅛</label></div>
+      <label class="toggle-row">Pravítka a kružítko<input class="toggle" id="showInstruments" type="checkbox" checked></label>
+      <label class="toggle-row">Automatické názvy konstrukcí<input class="toggle" id="autoNames" type="checkbox" checked></label>
+      <p class="hint">Mřížku lze skrýt a přichytávání ponechat zapnuté. Při rýsování má existující bod přednost před mřížkou.</p>
+    </details>
+  </aside>
+  <div class="splitter" id="sideSplitter" role="separator" aria-label="Šířka panelu" aria-orientation="vertical" tabindex="0"></div>
+  <main class="workspace">
+    <header class="topbar"><div><strong>Rýsovací plocha</strong><span class="muted" id="objectCount">Prázdná plocha</span></div><div class="actions"><button class="btn" id="undo" title="Zpět (Ctrl+Z)">↶</button><button class="btn" id="redo" title="Znovu (Ctrl+Y)">↷</button><button class="btn" id="zoomOut" title="Oddálit">−</button><button class="btn" id="zoomIn" title="Přiblížit">＋</button><button class="btn" id="fit">Celý nákres</button><button class="btn" id="save">Uložit</button><button class="btn" id="load">Otevřít</button><button class="btn" id="export">PNG</button><button class="btn danger" id="clear">Vymazat</button></div></header>
+    <div class="plot-card"><div class="plot-shell" id="plotShell"><svg id="plot" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Interaktivní geometrická rýsovací plocha" tabindex="0"></svg><input id="inlineEdit" aria-label="Upravit popisek" hidden autocomplete="off"><div class="plot-coord" id="coords">1 dílek = 1 jednotka</div></div><div class="plot-status" id="status" role="status" aria-live="polite">Vlož útvar nebo vyber rýsovací nástroj.</div></div>
+    <div class="bottom-splitter" id="bottomSplitter" role="separator" aria-label="Výška vlastností" aria-orientation="horizontal" tabindex="0"></div>
+    <div class="bottom">
+      <section class="properties"><div class="section-heading"><h2 id="selectionTitle">Vlastnosti nové kresby</h2><button class="btn small danger" id="delete" hidden>Smazat vybrané</button></div>
+        <div class="property-grid"><label class="field">Barva<input id="color" type="color" value="#355fe0"></label><label class="field">Čára<select id="dash"><option value="solid">Plná</option><option value="dashed">Čárkovaná</option><option value="dashdot">Čerchovaná</option></select></label><label class="field">Tloušťka<input id="width" type="number" value="2" min="0.5" max="12" step="0.5"></label><label class="field">Popisek<input id="label" placeholder="Automatický název" maxlength="80" title="Dolní index zapíšeš podtržítkem, například t_a nebo S_a."></label></div>
+        <div class="property-row"><label class="check"><input id="labelVisible" type="checkbox" checked> Zobrazit popisky</label><label class="check"><input id="fill" type="checkbox" checked> Jemná výplň útvaru</label><span id="selectionInfo" class="hint">Nastavení se použije pro další kreslení.</span></div>
+        <div class="object-list" id="objectList" aria-label="Objekty na ploše"></div>
+      </section>
+      <aside class="help"><strong id="helpTitle">Jak začít</strong><p id="helpText">Vlevo vlož útvar nebo vyber nástroj. V režimu výběru přetáhneš útvar i samostatný bod. Popisek přepíšeš kliknutím a přesuneš tažením.</p><p class="keys">Kolečko: zoom · Mezerník + tažení: posun plochy · Esc: zrušit krok · Delete: smazat · Ctrl+Z: zpět</p><button class="btn small" id="cancel" hidden>Zrušit rozpracovanou konstrukci</button></aside>
+    </div>
+    <div class="footer-note">Nákres se automaticky ukládá do tohoto prohlížeče.</div>
+  </main>
+</div>
+<input id="fileInput" type="file" accept="application/json,.json" hidden>
+<dialog id="clearDialog"><h3>Vymazat celou plochu?</h3><p>Vymazání můžeš vrátit tlačítkem Zpět.</p><div class="actions"><button class="btn" id="clearCancel">Zrušit</button><button class="btn danger" id="clearConfirm">Vymazat</button></div></dialog>
+<script src="core.js"></script><script src="app.js"></script>
+</body>
+</html>
