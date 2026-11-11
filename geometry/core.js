@@ -32,6 +32,8 @@
       case 'parallelogram':return [{x:-w/2-s/2,y:-h/2},{x:w/2-s/2,y:-h/2},{x:w/2+s/2,y:h/2},{x:-w/2+s/2,y:h/2}];
       case 'rhombus':return [{x:-2.8,y:0},{x:0,y:-1.5},{x:2.8,y:0},{x:0,y:1.5}];
       case 'kite':return [{x:0,y:-2.6},{x:1.7,y:0},{x:0,y:1.3},{x:-1.7,y:0}];
+      case 'trapezoid-isosceles':return [{x:-1.2,y:-1.3},{x:1.2,y:-1.3},{x:2.6,y:1.3},{x:-2.6,y:1.3}];
+      case 'trapezoid-right':return [{x:-2.6,y:-1.3},{x:1.2,y:-1.3},{x:2.6,y:1.3},{x:-2.6,y:1.3}];
       case 'trapezoid':return [{x:-1.1,y:-1.3},{x:1.5,y:-1.3},{x:2.6,y:1.3},{x:-2.6,y:1.3}];
       default:return Array.from({length:n},(_,i)=>({x:2.7*Math.cos(-Math.PI/2+i*TAU/n),y:2.7*Math.sin(-Math.PI/2+i*TAU/n)}));
     }
