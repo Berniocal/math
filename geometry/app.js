@@ -137,7 +137,7 @@ function drawRuler(anchor,direction,kind='ruler'){
 }
 function drawCompass(center,tip){const c=toScreen(center),t=toScreen(tip),v=G.sub(t,c),n=G.len(v);if(n<2)return;const mid=G.mul(G.add(c,t),.5),h=Math.min(105,Math.max(45,n*.6)),perp={x:v.y/n*h,y:-v.x/n*h},hinge=G.add(mid,perp);const g=el('g',{'pointer-events':'none'});el('path',{d:`M${c.x} ${c.y}L${hinge.x} ${hinge.y}L${t.x} ${t.y}`,fill:'none',stroke:'#60738c','stroke-width':7,'stroke-linecap':'round','stroke-linejoin':'round',opacity:.75},g);el('path',{d:`M${c.x} ${c.y}L${hinge.x} ${hinge.y}L${t.x} ${t.y}`,fill:'none',stroke:'#cbd7e6','stroke-width':3},g);el('circle',{cx:hinge.x,cy:hinge.y,r:6,fill:'#e7edf6',stroke:'#61748d','stroke-width':2},g);el('path',{d:`M${c.x} ${c.y-6}v12`,stroke:'#233a59','stroke-width':2},g);el('path',{d:`M${t.x-2} ${t.y-2}l4 4`,stroke:state.defaults.color,'stroke-width':4},g);el('path',{d:`M${c.x} ${c.y}L${t.x} ${t.y}`,stroke:'#a2b3c9','stroke-width':1,'stroke-dasharray':'4 4'},g);}
 function drawConstruction(c){if(!c)return;const base=curve(c.base);if(!base?.a)return;const p=c.p,v=G.sub(base.b,base.a),n=G.len(v);if(n<G.EPS)return;const f=G.project(p,base.a,base.b);
- if(c.type==='perp'){drawRuler(f,v,'triangle');const dir={x:-v.y,y:v.x};previewPath({type:'line',a:p,b:G.add(p,dir)});}
+ if(c.type==='perp'){const dir={x:-v.y,y:v.x};drawRuler(f,dir,'triangle');previewPath({type:'line',a:p,b:G.add(p,dir)});}
  else{const normal={x:-v.y/n,y:v.x/n};drawRuler(G.sub(base.a,G.mul(normal,px(48))),v);const foot=G.project(p,base.a,base.b),slide=G.sub(p,foot);drawRuler(G.add(base.a,slide),v,'triangle');previewPath({type:'line',a:p,b:G.add(p,v)});}
 }
 function drawPreview(){
