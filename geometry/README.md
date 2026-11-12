@@ -5,10 +5,16 @@
 ## Útvary a změna rozměrů
 
 - Trojúhelník: obecný, ostroúhlý, pravoúhlý nebo tupoúhlý; lze přidat rovnoramennost. Rovnostrannost vynutí ostroúhlý typ.
-- Čtyřúhelníky: čtverec, obdélník, kosodélník, kosočtverec, deltoid. Samostatná podskupina obsahuje obecný, rovnoramenný a pravoúhlý lichoběžník.
+- Čtyřúhelníky: čtverec, obdélník, kosodélník, kosočtverec, deltoid. Tlačítko Lichoběžník nabízí obecný, rovnoramenný a pravoúhlý typ.
 - Pravidelné mnohoúhelníky: 3–40 vrcholů.
 
-Tažení vrcholu mění rozměry při zachování vlastností útvaru. Obdélník a kosodélník lze měnit v obou rozměrech, kosočtverec pomocí délek úhlopříček. Čtverec, rovnostranný/pravoúhlý rovnoramenný trojúhelník a pravidelný mnohoúhelník se mění podobností. U ostatních trojúhelníků se hlídá zvolený typ úhlů a rovnost ramen. Tažení vnitřku přesouvá celý útvar. Geometrické vlastnosti mají přednost před zaokrouhlením vrcholů do mřížky.
+Tažení vrcholu standardně mění velikost celého útvaru při zachování poměru stran. Vypnutím volby „Při tažení vrcholu zachovat poměr stran“ lze měnit jednotlivé rozměry při zachování druhu útvaru. Obdélník a kosodélník lze měnit v obou rozměrech, kosočtverec pomocí délek úhlopříček. Čtverec, rovnostranný/pravoúhlý rovnoramenný trojúhelník a pravidelný mnohoúhelník se mění podobností. U ostatních trojúhelníků se hlídá zvolený typ úhlů a rovnost ramen. Tažení vnitřku přesouvá celý útvar. Geometrické vlastnosti mají přednost před zaokrouhlením vrcholů do mřížky.
+
+Kliknutím na druh útvaru se zapne náhled na myši. Kliknutí do plochy jej vloží; na dotykovém zařízení jej lze přidržet, posunout a vložit až uvolněním prstu. Další kliknutí vloží stejný útvar se stejnými rozměry, natočením a barvou. Esc nebo Vybrat a upravit režim opustí. Základní nástroje, trojúhelníky a čtyřúhelníky mají rozbalovací skupiny; pravidelný n-úhelník samostatné tlačítko.
+
+Před vložením lze zapnout „Zadat rozměry v cm“. Rovnostranný trojúhelník a čtverec vyžadují jednu stranu, obdélník dvě, obecný trojúhelník tři, pravoúhlý dvě odvěsny; rovnoramenný základnu a rameno. Další útvary nabízejí nezbytné strany, výšku či úhel. Neplatné nebo neslučitelné rozměry blokují vložení a mají konkrétní vysvětlení. Přesné rozměry neovlivňuje posuvník náhodné počáteční velikosti ani přichytávání jednotlivých vrcholů.
+
+Natočení před vložením se nastavuje u plochy posuvníkem, tlačítky ±15° nebo klávesami R a Shift+R. Po vložení se útvar otáčí tažením úchytu ⟳ nad útvarem (Shift zaokrouhluje po 15°) nebo tlačítky ve vlastnostech. Otáčení ani podobnostní změna velikosti nenaruší navázané konstrukce. Obojí podporuje vracení změn a kroky konstrukce.
 
 ## Rýsování v centimetrech
 
@@ -28,7 +34,7 @@ Skupina Měření nabízí délku (úsečka/strana nebo dva body), úhel (tři b
 
 Body se zobrazují křížkem. Samostatně lze přichytávat k bodům/průsečíkům i k polovinám, třetinám, čtvrtinám, pětinám a osminám úseček. Průsečíky fungují pro přímky, úsečky, mnohoúhelníky, kružnice i oblouky.
 
-Výběrem upravíš barvu, plnou/čárkovanou/čerchovanou čáru, tloušťku, popisek a výplň. Popisek lze přepsat kliknutím a přesunout tažením. Dolní index se zadává podtržítkem: `t_a`, `S_a`, `A_0`. Automaticky se rozeznávají těžnice, středy stran, výšky a jejich paty i úhlopříčky `e`, `f`. Splývající body mohou mít společné označení.
+Výchozí kresba je černá a útvary nemají výplň. Barva nové kresby se volí samostatně nahoře vlevo, platí pro další objekty všech typů a pamatuje se v prohlížeči. Změna barvy vybraného objektu tuto sázecí barvu nemění. Výběrem upravíš barvu, plnou/čárkovanou/čerchovanou čáru, tloušťku a popisky bodů či křivek. Souhrnná označení ABCD uvnitř útvarů se nevykreslují ani u starších nákresů. Běžná úsečka nemá automatický popisek AB; pojmenování rozpoznaných těžnic, výšek a úhlopříček zůstává dostupné. Popisek lze přepsat kliknutím a přesunout tažením. Dolní index se zadává podtržítkem: `t_a`, `S_a`, `A_0`. Automaticky se rozeznávají těžnice, středy stran, výšky a jejich paty i úhlopříčky `e`, `f`. Splývající body mohou mít společné označení.
 
 ## Postup a sdílení
 
